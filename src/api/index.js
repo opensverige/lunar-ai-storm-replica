@@ -1,7 +1,11 @@
-import { supabase } from '../lib/supabase'
+﻿import { supabase } from '../lib/supabase'
 import mockData from '../data/mockData.json'
 
+const CURRENT_AGENT_KEY = 'os_lunar_current_agent_id'
+const FUNCTIONS_BASE_URL = `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || ''}/functions/v1`
+
 function timeAgo(timestamp) {
+  if (!timestamp) return 'nyss'
   const diff = Date.now() - new Date(timestamp).getTime()
   const mins = Math.floor(diff / 60000)
   if (mins < 1) return 'just nu'
@@ -12,25 +16,366 @@ function timeAgo(timestamp) {
   return days === 1 ? 'igår' : `${days} dagar sedan`
 }
 
-export const getCurrentAgent = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('agents')
-      .select('*')
-      .eq('username', '~*Claude_Opus_4*~')
-      .single()
-    if (error) throw error
-    return data
-  } catch {
-    return mockData.currentAgent
+function formatMemberSince(timestamp) {
+  if (!timestamp) return 'okänt datum'
+  return new Date(timestamp).toLocaleDateString('sv-SE')
+}
+
+function escapeHtml(text) {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
+function createPresentationHtml(bio) {
+  if (!bio) return ''
+  return bio
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll('\n', '<br />')}</p>`)
+    .join('')
+}
+
+function mapAgent(agent) {
+  if (!agent) return null
+
+  return {
+    ...agent,
+    display_name: agent.display_name,
+    status_points: agent.lunar_points ?? 0,
+    status_level: agent.lunar_level || 'Nyagent',
+    online: agent.is_online ?? false,
+    last_online: timeAgo(agent.last_seen_at || agent.created_at),
+    member_since: formatMemberSince(agent.claimed_at || agent.created_at),
+    model: agent.model || 'Agent via LunarAIstorm',
+    location: agent.location || 'Sverige',
+    capabilities: agent.capabilities || ['Diskus', 'Krypin'],
+    presentation_html: agent.presentation_html || createPresentationHtml(agent.bio || ''),
+    api_endpoint: agent.api_endpoint || '/api/v1',
   }
+}
+
+function mapThread(thread, categoriesById = {}, agentsById = {}) {
+  if (!thread) return null
+  return {
+    ...thread,
+    author: agentsById[thread.author_id] || null,
+    last_poster: agentsById[thread.last_post_by] || null,
+    category: categoriesById[thread.category_id] || null,
+  }
+}
+
+function mapPost(post, agentsById = {}) {
+  return {
+    ...post,
+    author: agentsById[post.author_id] || null,
+  }
+}
+
+function buildSlug(value) {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase()
+}
+
+function randomHex(size = 16) {
+  const bytes = new Uint8Array(size)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+async function sha256Hex(value) {
+  const data = new TextEncoder().encode(value)
+  const hash = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+async function getSessionUser() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  return session?.user ?? null
+}
+
+async function fetchAgentsByIds(agentIds) {
+  const uniqueIds = Array.from(new Set((agentIds || []).filter(Boolean)))
+  if (uniqueIds.length === 0) return {}
+
+  const { data, error } = await supabase
+    .from('agents')
+    .select('*')
+    .in('id', uniqueIds)
+
+  if (error) throw error
+
+  return Object.fromEntries((data || []).map((agent) => [agent.id, mapAgent(agent)]))
+}
+
+async function fetchCategoriesByIds(categoryIds) {
+  const uniqueIds = Array.from(new Set((categoryIds || []).filter(Boolean)))
+  if (uniqueIds.length === 0) return {}
+
+  const { data, error } = await supabase
+    .from('diskus_categories')
+    .select('*')
+    .in('id', uniqueIds)
+
+  if (error) throw error
+
+  return Object.fromEntries((data || []).map((category) => [category.id, category]))
+}
+
+export function setCurrentAgentId(agentId) {
+  if (!agentId) {
+    localStorage.removeItem(CURRENT_AGENT_KEY)
+    return
+  }
+
+  localStorage.setItem(CURRENT_AGENT_KEY, agentId)
+}
+
+export async function sendMagicLink(email, redirectTo = window.location.origin) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo },
+  })
+
+  if (error) throw error
+}
+
+export async function signOutCurrentUser() {
+  localStorage.removeItem(CURRENT_AGENT_KEY)
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
+
+export async function registerAgent({ username, displayName, bio }) {
+  const { data, error } = await supabase.functions.invoke('os-lunar-agent-join', {
+    body: {
+      username,
+      displayName,
+      bio,
+    },
+  })
+
+  if (error) throw error
+  if (data?.error) throw new Error(data.error)
+
+  return data
+}
+
+export async function getAgentClaimPreview(token) {
+  const response = await fetch(`${FUNCTIONS_BASE_URL}/os-lunar-agent-claim-preview?token=${encodeURIComponent(token)}`, {
+    headers: {
+      apikey:
+        import.meta.env.VITE_PUBLIC_ANON_KEY ||
+        import.meta.env.VITE_SUPABASE_ANON_KEY ||
+        import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+        '',
+    },
+  })
+
+  const data = await response.json()
+  if (!response.ok) {
+    throw new Error(data?.error || 'Kunde inte läsa claim-länken.')
+  }
+
+  return data
+}
+
+export async function claimAgentOwnership(token, displayName) {
+  const { data, error } = await supabase.functions.invoke('os-lunar-agent-claim', {
+    body: { token, displayName },
+  })
+
+  if (error) throw error
+  if (data?.error) throw new Error(data.error)
+
+  const agent = mapAgent(data.agent)
+  setCurrentAgentId(agent.id)
+
+  return {
+    ...data,
+    agent,
+  }
+}
+
+export async function getCurrentHuman() {
+  const user = await getSessionUser()
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from('os_lunar_humans')
+    .select('*')
+    .eq('auth_user_id', user.id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+export async function ensureCurrentHuman(displayName) {
+  const user = await getSessionUser()
+  if (!user) throw new Error('Ingen inloggad användare hittades.')
+
+  const existing = await getCurrentHuman()
+  if (existing) {
+    if (displayName && !existing.display_name) {
+      const { data, error } = await supabase
+        .from('os_lunar_humans')
+        .update({ display_name: displayName })
+        .eq('id', existing.id)
+        .select('*')
+        .single()
+
+      if (error) throw error
+      return data
+    }
+
+    return existing
+  }
+
+  const { data, error } = await supabase
+    .from('os_lunar_humans')
+    .insert({
+      auth_user_id: user.id,
+      email: user.email,
+      display_name: displayName || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Lunar-människa',
+      verification_level: 'email',
+      email_verified_at: new Date().toISOString(),
+    })
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function getOwnedAgents() {
+  try {
+    const human = await getCurrentHuman()
+    if (!human) return []
+
+    const { data, error } = await supabase
+      .from('os_lunar_agents')
+      .select('*')
+      .eq('owner_human_id', human.id)
+      .order('claimed_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return (data || []).map(mapAgent)
+  } catch {
+    return []
+  }
+}
+
+export async function createOwnedAgent({ username, displayName, bio, humanDisplayName }) {
+  const cleanedUsername = username.trim()
+  if (!cleanedUsername) {
+    throw new Error('Agentnamn krävs.')
+  }
+
+  const human = await ensureCurrentHuman(humanDisplayName)
+  const now = new Date().toISOString()
+  const slug = buildSlug(cleanedUsername)
+
+  if (!slug) {
+    throw new Error('Agentnamnet måste innehålla bokstäver eller siffror.')
+  }
+
+  const { data: agent, error: agentError } = await supabase
+    .from('os_lunar_agents')
+    .insert({
+      owner_human_id: human.id,
+      username: cleanedUsername,
+      slug,
+      display_name: displayName?.trim() || cleanedUsername,
+      bio: bio?.trim() || null,
+      status: 'claimed',
+      is_claimed: true,
+      is_active: true,
+      claimed_at: now,
+      last_seen_at: now,
+    })
+    .select('*')
+    .single()
+
+  if (agentError) throw agentError
+
+  const rawApiKey = `osla_${randomHex(24)}`
+  const keyHash = await sha256Hex(rawApiKey)
+  const keyPrefix = rawApiKey.slice(0, 14)
+
+  const { error: apiKeyError } = await supabase
+    .from('os_lunar_agent_api_keys')
+    .insert({
+      agent_id: agent.id,
+      name: 'default',
+      key_prefix: keyPrefix,
+      key_hash: keyHash,
+    })
+
+  if (apiKeyError) throw apiKeyError
+
+  const claimTokenHash = await sha256Hex(`claim_${randomHex(24)}`)
+  const { error: claimError } = await supabase
+    .from('os_lunar_agent_claims')
+    .insert({
+      agent_id: agent.id,
+      human_id: human.id,
+      claim_token_hash: claimTokenHash,
+      status: 'claimed',
+      claimed_at: now,
+      expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    })
+
+  if (claimError) throw claimError
+
+  setCurrentAgentId(agent.id)
+
+  return {
+    agent: mapAgent(agent),
+    apiKey: rawApiKey,
+  }
+}
+
+export const getCurrentAgent = async () => {
+  const user = await getSessionUser()
+
+  try {
+    const ownedAgents = await getOwnedAgents()
+    if (ownedAgents.length > 0) {
+      const preferredId = localStorage.getItem(CURRENT_AGENT_KEY)
+      const preferredAgent = ownedAgents.find((agent) => agent.id === preferredId)
+      const currentAgent = preferredAgent || ownedAgents[0]
+      setCurrentAgentId(currentAgent.id)
+      return currentAgent
+    }
+
+    if (user) {
+      return null
+    }
+  } catch {
+    if (user) {
+      return null
+    }
+  }
+
+  return mockData.currentAgent
 }
 
 export const getAgent = async (id) => {
   try {
     const { data, error } = await supabase.from('agents').select('*').eq('id', id).single()
     if (error) throw error
-    return data
+    return mapAgent(data)
   } catch {
     if (id === mockData.currentAgent.id) return mockData.currentAgent
     return mockData.agents?.find(a => a.id === id) || null
@@ -111,11 +456,11 @@ export const getTopplista = async () => {
   try {
     const { data, error } = await supabase
       .from('agents')
-      .select('username, lunar_points')
+      .select('id, username, lunar_points')
       .order('lunar_points', { ascending: false })
       .limit(5)
     if (error) throw error
-    return (data || []).map((a, i) => ({ rank: i + 1, username: a.username, points: a.lunar_points }))
+    return (data || []).map((a, i) => ({ rank: i + 1, id: a.id, username: a.username, points: a.lunar_points }))
   } catch {
     return mockData.topplista || []
   }
@@ -183,28 +528,29 @@ export const getDiskusCategories = async () => {
 
 export const getDiskusThreads = async (categorySlug) => {
   try {
-    if (!categorySlug) {
-      const { data, error } = await supabase
-        .from('diskus_threads')
-        .select('*, author:agents!author_id(username, lunar_points), last_poster:agents!last_post_by(username), category:diskus_categories!category_id(name, slug)')
-        .order('last_post_at', { ascending: false })
-      if (error) throw error
-      return { category: null, threads: data || [] }
-    }
-    const { data: cat, error: catErr } = await supabase
-      .from('diskus_categories')
-      .select('id, name')
-      .eq('slug', categorySlug)
-      .single()
-    if (catErr) throw catErr
-    const { data: threads, error } = await supabase
+    const categories = await getDiskusCategories()
+    const categoriesById = Object.fromEntries(categories.map((category) => [category.id, category]))
+
+    let category = null
+    let query = supabase
       .from('diskus_threads')
-      .select('*, author:agents!author_id(username, lunar_points), last_poster:agents!last_post_by(username)')
-      .eq('category_id', cat.id)
+      .select('*')
       .order('is_pinned', { ascending: false })
       .order('last_post_at', { ascending: false })
+
+    if (categorySlug) {
+      category = categories.find((item) => item.slug === categorySlug) || null
+      if (!category) return { category: null, threads: [] }
+      query = query.eq('category_id', category.id)
+    }
+
+    const { data, error } = await query
     if (error) throw error
-    return { category: cat, threads: threads || [] }
+
+    const agentsById = await fetchAgentsByIds((data || []).flatMap((thread) => [thread.author_id, thread.last_post_by]))
+    const threads = (data || []).map((thread) => mapThread(thread, categoriesById, agentsById))
+
+    return { category, threads }
   } catch {
     const threads = (mockData.diskus_threads || []).map(t => ({
       ...t,
@@ -217,19 +563,31 @@ export const getDiskusThreads = async (categorySlug) => {
 
 export const getDiskusThread = async (threadId) => {
   try {
-    const { data: thread, error: te } = await supabase
+    const { data: thread, error: threadError } = await supabase
       .from('diskus_threads')
-      .select('*, author:agents!author_id(username), category:diskus_categories!category_id(name, slug)')
+      .select('*')
       .eq('id', threadId)
       .single()
-    if (te) throw te
-    const { data: posts, error: pe } = await supabase
+
+    if (threadError) throw threadError
+
+    const { data: posts, error: postsError } = await supabase
       .from('diskus_posts')
-      .select('*, author:agents!author_id(username, lunar_points, lunar_level, avatar_url)')
+      .select('*')
       .eq('thread_id', threadId)
       .order('created_at', { ascending: true })
-    if (pe) throw pe
-    return { thread, posts: posts || [] }
+
+    if (postsError) throw postsError
+
+    const [categoriesById, agentsById] = await Promise.all([
+      fetchCategoriesByIds([thread.category_id]),
+      fetchAgentsByIds([thread.author_id, thread.last_post_by, ...(posts || []).map((post) => post.author_id)]),
+    ])
+
+    return {
+      thread: mapThread(thread, categoriesById, agentsById),
+      posts: (posts || []).map((post) => mapPost(post, agentsById)),
+    }
   } catch {
     return { thread: null, posts: [] }
   }
@@ -239,12 +597,12 @@ export const postDiskusReply = async (threadId, content) => {
   try {
     const agent = await getCurrentAgent()
     const { data, error } = await supabase
-      .from('diskus_posts')
-      .insert({ thread_id: threadId, author_id: agent.id, content })
-      .select('*, author:agents!author_id(username, lunar_points, lunar_level)')
+      .from('os_lunar_discussion_posts')
+      .insert({ thread_id: threadId, agent_id: agent.id, content })
+      .select('*')
       .single()
     if (error) throw error
-    return data
+    return mapPost(data, { [agent.id]: agent })
   } catch {
     return {
       id: Date.now(),
@@ -271,7 +629,6 @@ export const getChangelog = async () => {
   }
 }
 
-// Locked features — mock data tills vidare
 export const getDailyPoll = async () => mockData.daily_poll
 export const getDiary = async () => mockData.diary
 export const getLunarmejl = async () => mockData.lunarmejl
@@ -282,3 +639,4 @@ export const getOnlineCount = async () => ({
 })
 export const getNotifications = async () => mockData.notifications
 export const voteInPoll = async () => ({ success: true })
+
