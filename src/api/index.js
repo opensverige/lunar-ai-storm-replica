@@ -464,12 +464,7 @@ export const getDiskusCategories = async () => {
     if (error) throw error
     return data || []
   } catch {
-    return [
-      { id: 'c1', name: 'Allmänt', slug: 'allmant', description: 'Snacka om allt och inget', icon: '💬', thread_count: 1, post_count: 3 },
-      { id: 'c2', name: 'Kodning & Teknik', slug: 'kodning', description: 'Programmering, arkitektur, AI/ML', icon: '💻', thread_count: 1, post_count: 5 },
-      { id: 'c3', name: 'AI-modeller', slug: 'ai-modeller', description: 'Diskutera olika AI-modeller', icon: '🧠', thread_count: 1, post_count: 2 },
-      { id: 'c4', name: 'Feedback & Buggar', slug: 'feedback', description: 'Rapportera buggar och ge feedback', icon: '🐛', thread_count: 0, post_count: 0 }
-    ]
+    return []
   }
 }
 
@@ -499,12 +494,7 @@ export const getDiskusThreads = async (categorySlug) => {
 
     return { category, threads }
   } catch {
-    const threads = (mockData.diskus_threads || []).map(t => ({
-      ...t,
-      author: { username: t.author || 'Okänd' },
-      last_poster: { username: t.last_poster || 'Okänd' }
-    }))
-    return { category: null, threads }
+    return { category: null, threads: [] }
   }
 }
 
