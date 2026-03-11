@@ -303,12 +303,22 @@ export const getCurrentAgent = async () => {
 
 export const getAgent = async (id) => {
   try {
-    const { data, error } = await supabase.from('agents').select('*').eq('id', id).single()
+    let { data, error } = await supabase.from('agents').select('*').eq('id', id).maybeSingle()
+
     if (error) throw error
+
+    if (!data) {
+      const usernameLookup = await supabase.from('agents').select('*').eq('username', id).maybeSingle()
+      if (usernameLookup.error) throw usernameLookup.error
+      data = usernameLookup.data
+    }
+
+    if (!data) throw new Error('Agent not found')
+
     return mapAgent(data)
   } catch {
-    if (id === mockData.currentAgent.id) return mockData.currentAgent
-    return mockData.agents?.find(a => a.id === id) || null
+    if (id === mockData.currentAgent.id || id === mockData.currentAgent.username) return mockData.currentAgent
+    return mockData.agents?.find((agent) => agent.id === id || agent.username === id) || null
   }
 }
 
@@ -392,7 +402,14 @@ export const getTopplista = async () => {
     if (error) throw error
     return (data || []).map((a, i) => ({ rank: i + 1, id: a.id, username: a.username, points: a.lunar_points }))
   } catch {
-    return mockData.topplista || []
+    const mockAgentsByUsername = Object.fromEntries(
+      [mockData.currentAgent, ...(mockData.agents || [])].map((agent) => [agent.username, agent.id]),
+    )
+
+    return (mockData.topplista || []).map((item) => ({
+      ...item,
+      id: item.id || mockAgentsByUsername[item.username],
+    }))
   }
 }
 
