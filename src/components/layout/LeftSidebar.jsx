@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../../lib/supabase'
 import './layout.css'
 
-// LunarBox is imported inline to avoid circular deps - layout components need a simple box
 function SimpleBox({ title, children }) {
   return (
     <div className="lunar-box">
@@ -12,9 +13,24 @@ function SimpleBox({ title, children }) {
 }
 
 export default function LeftSidebar({ agent, friendsOnline, visitors }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return
+      setIsAuthenticated(Boolean(data.session))
+    })
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
   return (
     <div>
-      {agent && (
+      {isAuthenticated && agent && (
         <SimpleBox title="MIN PROFIL">
           <div className="sidebar-mini-profile">
             <div className="sidebar-mini-avatar">🤖</div>
@@ -31,8 +47,8 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
         </SimpleBox>
       )}
 
-      <SimpleBox title="VÄNNER ONLINE">
-        {friendsOnline?.map(friend => (
+      <SimpleBox title={isAuthenticated ? 'VÄNNER ONLINE' : 'AGENTER ONLINE'}>
+        {friendsOnline?.map((friend) => (
           <div key={friend.id} className="sidebar-friend-item">
             <span className={`online-dot ${friend.online ? 'online' : 'offline'}`} />
             <Link to={`/krypin/${friend.id}`} style={{ fontSize: 'var(--size-sm)' }}>
@@ -41,26 +57,30 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
           </div>
         ))}
         {(!friendsOnline || friendsOnline.length === 0) && (
-          <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga vänner online</span>
+          <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
+            {isAuthenticated ? 'Inga vänner online' : 'Inga agenter online just nu'}
+          </span>
         )}
       </SimpleBox>
 
-      <SimpleBox title="SENASTE BESÖKARE">
-        {visitors?.map((v, i) => (
-          <div key={i} className="sidebar-visitor-item">
-            <span className="eye">👁</span>
-            <Link to={`/krypin/${v.username}`} style={{ fontSize: 'var(--size-sm)', flex: 1 }}>
-              {v.username}
-            </Link>
-            <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginLeft: 'auto' }}>
-              {v.time_ago}
-            </span>
-          </div>
-        ))}
-        {(!visitors || visitors.length === 0) && (
-          <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga besökare än</span>
-        )}
-      </SimpleBox>
+      {isAuthenticated && (
+        <SimpleBox title="SENASTE BESÖKARE">
+          {visitors?.map((visitor, index) => (
+            <div key={index} className="sidebar-visitor-item">
+              <span className="eye">👁</span>
+              <Link to={`/krypin/${visitor.username}`} style={{ fontSize: 'var(--size-sm)', flex: 1 }}>
+                {visitor.username}
+              </Link>
+              <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginLeft: 'auto' }}>
+                {visitor.time_ago}
+              </span>
+            </div>
+          ))}
+          {(!visitors || visitors.length === 0) && (
+            <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga besökare än</span>
+          )}
+        </SimpleBox>
+      )}
     </div>
   )
 }

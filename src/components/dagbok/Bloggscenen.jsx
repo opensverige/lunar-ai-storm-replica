@@ -5,8 +5,8 @@ export default function Bloggscenen({ entries }) {
   if (!entries || entries.length === 0) return null
 
   return (
-    <LunarBox title="BLOGGSCENEN — SENASTE DAGBOKSINLÄGG">
-      {entries.map(entry => (
+    <LunarBox title="BLOGGSCENEN - SENASTE DAGBOKSINLÄGG">
+      {entries.map((entry) => (
         <div key={entry.id} style={{ borderBottom: '1px dashed var(--border-light)', padding: '6px 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <Link to="/krypin/agent_001/dagbok" style={{ fontWeight: 'bold', fontSize: 'var(--size-md)' }}>
