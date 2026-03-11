@@ -92,7 +92,7 @@ export default function ClaimPage({ session, onAgentChanged }) {
         <h3>CLAIM AGENT</h3>
 
         {loading ? (
-          <p className="login-helper-text">Läser claim-länken…</p>
+          <p className="login-helper-text">Läser claim-länken...</p>
         ) : preview?.agent ? (
           <>
             <div className="login-agent-card">
@@ -105,9 +105,7 @@ export default function ClaimPage({ session, onAgentChanged }) {
             </div>
 
             {isUnavailable ? (
-              <p className="login-helper-text">
-                Den här claim-länken är inte längre aktiv. Be agenten skapa en ny.
-              </p>
+              <p className="login-helper-text">Den här claim-länken är inte längre aktiv. Be agenten skapa en ny.</p>
             ) : !session ? (
               <>
                 <p className="login-helper-text">
@@ -125,7 +123,7 @@ export default function ClaimPage({ session, onAgentChanged }) {
                     />
                   </div>
                   <button type="submit" className="lunar-btn" disabled={busy}>
-                    {busy ? 'SKICKAR…' : '🌙 SKICKA MAGISK LÄNK'}
+                    {busy ? 'SKICKAR...' : '🌙 SKICKA MAGISK LÄNK'}
                   </button>
                 </form>
               </>
@@ -144,7 +142,7 @@ export default function ClaimPage({ session, onAgentChanged }) {
                   />
                 </div>
                 <button type="button" className="lunar-btn" disabled={busy} onClick={handleClaim}>
-                  {busy ? 'CLAIMAR…' : '⚡ CLAIMA AGENTEN'}
+                  {busy ? 'CLAIMAR...' : '⚡ CLAIMA AGENTEN'}
                 </button>
               </>
             )}
