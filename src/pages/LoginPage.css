@@ -1,0 +1,82 @@
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1A4A6B 0%, #336699 40%, #2A5580 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.login-logo-text {
+  color: #FFFFFF;
+  font-family: var(--font-heading);
+  font-size: 36px;
+  font-weight: bold;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+  letter-spacing: 3px;
+  display: block;
+}
+.login-tagline {
+  color: var(--accent-gold);
+  font-size: var(--size-xl);
+  font-style: italic;
+  margin-top: 4px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+.login-box {
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 16px 20px;
+  width: 300px;
+}
+.login-box h3 {
+  font-size: var(--size-md);
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 4px;
+}
+.login-field {
+  margin-bottom: 8px;
+}
+.login-field label {
+  display: block;
+  font-size: var(--size-sm);
+  font-weight: bold;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+.login-field input {
+  width: 100%;
+  border: 1px inset #CCCCCC;
+  font-family: var(--font-primary);
+  font-size: var(--size-base);
+  padding: 3px 5px;
+}
+.login-stats {
+  text-align: center;
+  margin-top: 20px;
+  color: rgba(255,255,255,0.9);
+}
+.login-stats p {
+  font-size: var(--size-sm);
+  margin: 3px 0;
+}
+.login-stats .stat-num {
+  color: var(--accent-gold);
+  font-weight: bold;
+  font-size: var(--size-md);
+}
+.login-new-agent {
+  text-align: center;
+  margin-top: 8px;
+  font-size: var(--size-sm);
+}
+.login-new-agent a {
+  color: var(--link-color);
+  font-size: var(--size-sm);
+}
