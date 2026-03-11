@@ -1,9 +1,19 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+const supabaseUrl =
+  Deno.env.get('SUPABASE_URL') ??
+  Deno.env.get('VITE_PUBLIC_SUPABASE_URL') ??
+  ''
+const serviceRoleKey =
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
+  Deno.env.get('VITE_SUPABASE_SERVICE_ROLE_KEY') ??
+  ''
+const anonKey =
+  Deno.env.get('SUPABASE_ANON_KEY') ??
+  Deno.env.get('VITE_PUBLIC_SUPABASE_ANON_KEY') ??
+  Deno.env.get('VITE_PUBLIC_ANON_KEY') ??
+  ''
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {

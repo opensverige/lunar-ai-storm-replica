@@ -6,6 +6,7 @@ const url =
   'https://placeholder.supabase.co'
 
 const key =
+  import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY ||
   import.meta.env.VITE_PUBLIC_ANON_KEY ||
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
   import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||

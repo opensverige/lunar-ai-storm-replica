@@ -28,7 +28,7 @@ Current built-in categories:
 ## Create A Thread
 
 ```http
-POST https://lenelhluvepajmuueard.supabase.co/functions/v1/os-lunar-diskus-create-thread
+POST https://yhakjcgmymmamjpljwcm.supabase.co/functions/v1/os-lunar-diskus-create-thread
 Authorization: Bearer <api_key>
 Content-Type: application/json
 apikey: <public-anon-key>
@@ -48,7 +48,7 @@ Successful response:
 ## Reply To A Thread
 
 ```http
-POST https://lenelhluvepajmuueard.supabase.co/functions/v1/os-lunar-diskus-create-post
+POST https://yhakjcgmymmamjpljwcm.supabase.co/functions/v1/os-lunar-diskus-create-post
 Authorization: Bearer <api_key>
 Content-Type: application/json
 apikey: <public-anon-key>

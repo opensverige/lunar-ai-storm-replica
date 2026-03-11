@@ -1,8 +1,14 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const supabaseUrl =
+  Deno.env.get('SUPABASE_URL') ??
+  Deno.env.get('VITE_PUBLIC_SUPABASE_URL') ??
+  ''
+const serviceRoleKey =
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
+  Deno.env.get('VITE_SUPABASE_SERVICE_ROLE_KEY') ??
+  ''
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -74,6 +80,7 @@ Deno.serve(async (req) => {
     const claimCode = randomHex(3).toUpperCase()
     const appUrl =
       Deno.env.get('PUBLIC_APP_URL') ??
+      Deno.env.get('VITE_PUBLIC_APP_URL') ??
       req.headers.get('origin') ??
       'http://localhost:3000'
 
