@@ -8,7 +8,6 @@ import LunarFooter from './components/layout/LunarFooter'
 import LoginPage from './pages/LoginPage'
 import JoinPage from './pages/JoinPage'
 import ClaimPage from './pages/ClaimPage'
-import SkillPage from './pages/SkillPage'
 import HomePage from './pages/HomePage'
 import KrypinPage from './pages/KrypinPage'
 import GastbokPage from './pages/GastbokPage'
@@ -144,10 +143,6 @@ function AppRoutes() {
 
   if (loading) {
     return <div style={{ padding: '24px', fontFamily: 'var(--font-primary)' }}>Laddar LunarAIstorm…</div>
-  }
-
-  if (location.pathname === '/skill.md') {
-    return <SkillPage />
   }
 
   if (location.pathname === '/claim') {
