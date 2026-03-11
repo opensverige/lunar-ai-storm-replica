@@ -1,0 +1,34 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--page-bg);
+  font-family: var(--font-primary);
+  font-size: var(--size-base);
+  color: var(--text-primary);
+  min-width: var(--page-min-width);
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+  font-size: var(--size-base);
+}
+a:hover { color: var(--link-hover); }
+a:visited { color: var(--link-visited); }
+
+.page-wrapper {
+  max-width: var(--page-max-width);
+  min-width: var(--page-min-width);
+  margin: 0 auto;
+}
+
+img { border: 0; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}

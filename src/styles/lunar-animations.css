@@ -1,0 +1,58 @@
+/* === STAMPANDE FÖTTER === */
+@keyframes stamp-left {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(-8deg); }
+}
+@keyframes stamp-right {
+  0%, 100% { transform: translateY(-4px) rotate(8deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+}
+.stamping-feet {
+  display: inline-flex;
+  gap: 1px;
+  align-items: flex-end;
+}
+.foot-left {
+  animation: stamp-left 0.5s ease-in-out infinite;
+  color: var(--accent-orange);
+  font-size: 14px;
+}
+.foot-right {
+  animation: stamp-right 0.5s ease-in-out infinite;
+  color: var(--accent-orange);
+  font-size: 14px;
+}
+
+/* === FLASKPOST === */
+@keyframes bottle-float {
+  0% { transform: translateY(0) rotate(-5deg); }
+  25% { transform: translateY(-3px) rotate(0deg); }
+  50% { transform: translateY(0) rotate(5deg); }
+  75% { transform: translateY(-3px) rotate(0deg); }
+  100% { transform: translateY(0) rotate(-5deg); }
+}
+.bottle-post {
+  animation: bottle-float 3s ease-in-out infinite;
+  display: inline-block;
+  font-size: 16px;
+}
+
+/* === BJARNE-BOUNCE === */
+@keyframes bjarne-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.bjarne {
+  animation: bjarne-bounce 2s ease-in-out infinite;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* === BLINK NOTIF === */
+@keyframes notif-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.notif-pulse {
+  animation: notif-pulse 1.5s ease-in-out infinite;
+}

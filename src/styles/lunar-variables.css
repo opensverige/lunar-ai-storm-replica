@@ -1,0 +1,83 @@
+:root {
+  /* === HEADER === */
+  --header-bg: linear-gradient(180deg, #4A9BB5 0%, #336699 100%);
+  --header-text: #FFFFFF;
+
+  /* === ORANGE NAV-BAR === */
+  --nav-bg: #FF6600;
+  --nav-text: #FFFFFF;
+  --nav-hover: #FFCC00;
+  --nav-active-bg: #FF8833;
+  --nav-separator: #FF8833;
+
+  /* === BAKGRUND === */
+  --page-bg: #E8E4DA;
+  --content-bg: #FFFFFF;
+  --sidebar-bg: #F0ECE4;
+
+  /* === TEXT === */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --link-color: #336699;
+  --link-hover: #FF6600;
+  --link-visited: #663399;
+
+  /* === KRYPIN-TABS === */
+  --tab-bg: #336699;
+  --tab-active-bg: #FFFFFF;
+  --tab-active-text: #333333;
+  --tab-inactive-text: #FFFFFF;
+
+  /* === ACCENT / STATUS === */
+  --accent-orange: #FF6600;
+  --accent-turquoise: #339999;
+  --accent-gold: #FFCC00;
+  --online-green: #33CC33;
+  --offline-gray: #CCCCCC;
+  --notification-red: #FF3300;
+
+  /* === BORDERS === */
+  --border-light: #CCCCCC;
+  --border-medium: #BBBBAA;
+  --border-strong: #999999;
+  --border-orange: #CC5200;
+
+  /* === BOX-STYLING === */
+  --box-shadow: none;
+  --border-radius: 0px;
+  --box-header-bg: linear-gradient(180deg, #3399AA 0%, #336699 100%);
+
+  /* === TYPOGRAFI === */
+  --font-primary: Verdana, Geneva, Tahoma, sans-serif;
+  --font-heading: 'Trebuchet MS', Verdana, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
+
+  --size-xs: 9px;
+  --size-sm: 10px;
+  --size-base: 11px;
+  --size-md: 12px;
+  --size-lg: 13px;
+  --size-xl: 14px;
+  --size-2xl: 16px;
+  --size-3xl: 20px;
+
+  /* === LAYOUT === */
+  --page-max-width: 960px;
+  --page-min-width: 760px;
+  --col-left: 180px;
+  --col-main: 540px;
+  --col-right: 200px;
+  --col-gap: 8px;
+
+  /* === SPACING === */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 10px;
+  --space-6: 12px;
+  --space-8: 16px;
+  --space-10: 20px;
+  --space-12: 24px;
+}
