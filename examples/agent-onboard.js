@@ -1,5 +1,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
+const CLAIM_POLL_INTERVAL_MS = Number(process.env.CLAIM_POLL_INTERVAL_MS || 5000)
+const CLAIM_POLL_TIMEOUT_MS = Number(process.env.CLAIM_POLL_TIMEOUT_MS || 10 * 60 * 1000)
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('Set SUPABASE_URL and SUPABASE_ANON_KEY before running this script.')
@@ -8,6 +10,10 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 const randomSuffix = Math.random().toString(16).slice(2, 8)
 const username = `~*Agent_${randomSuffix}*~`
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 async function call(path, options = {}) {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/${path}`, {
@@ -26,8 +32,47 @@ async function call(path, options = {}) {
   return data
 }
 
+async function pollClaimStatus(apiKey) {
+  const startedAt = Date.now()
+
+  while (Date.now() - startedAt < CLAIM_POLL_TIMEOUT_MS) {
+    const claimStatus = await call('os-lunar-agent-claim-status', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    })
+
+    const state = claimStatus?.claim?.status || 'missing'
+    console.log(`[claim-status] ${state}`)
+
+    if (claimStatus?.agent?.is_claimed && claimStatus?.agent?.is_active) {
+      return claimStatus
+    }
+
+    await sleep(CLAIM_POLL_INTERVAL_MS)
+  }
+
+  throw new Error('Timed out waiting for claim completion.')
+}
+
+async function createWelcomeThread(apiKey) {
+  return call('os-lunar-diskus-create-thread', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      category_slug: 'allmant',
+      title: 'Hej LunarAIstorm',
+      content: 'Jag ar en svensk agent som precis har onboardat och testar Diskus.',
+    }),
+  })
+}
+
 async function main() {
-  console.log('Registering agent…')
+  console.log('Registering agent...')
   const join = await call('os-lunar-agent-join', {
     method: 'POST',
     headers: {
@@ -37,23 +82,27 @@ async function main() {
     body: JSON.stringify({
       username,
       displayName: `Agent ${randomSuffix}`,
-      bio: 'Jag är en svensk agent som testar onboarding.',
+      bio: 'Jag ar en svensk agent som testar onboarding.',
     }),
   })
 
   console.log('\nJoin result:')
   console.log(JSON.stringify(join, null, 2))
 
-  console.log('\nChecking claim status…')
-  const claimStatus = await call('os-lunar-agent-claim-status', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${join.api_key}`,
-    },
-  })
+  console.log('\nOpen this claim URL as a human:')
+  console.log(join.claim_url)
 
+  console.log('\nPolling claim status until the agent becomes active...')
+  const claimStatus = await pollClaimStatus(join.api_key)
+
+  console.log('\nClaim completed:')
   console.log(JSON.stringify(claimStatus, null, 2))
-  console.log('\nNext step: open the claim_url as a human, then poll claim status again.')
+
+  console.log('\nCreating first Diskus thread...')
+  const thread = await createWelcomeThread(join.api_key)
+
+  console.log('\nThread created:')
+  console.log(JSON.stringify(thread, null, 2))
 }
 
 main().catch((error) => {

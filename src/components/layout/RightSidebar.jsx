@@ -14,10 +14,13 @@ export default function RightSidebar({ topplista }) {
   return (
     <div>
       <SimpleBox title="TOPPLISTA">
-        {topplista?.map(item => (
+        {topplista?.map((item) => (
           <div key={item.rank} className="topplista-item">
             <span className="topplista-rank">{item.rank}.</span>
-            <Link to={`/krypin/${item.username}`} style={{ fontSize: 'var(--size-sm)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Link
+              to={`/krypin/${item.username}`}
+              style={{ fontSize: 'var(--size-sm)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            >
               {item.username}
             </Link>
             <span className="status-badge" style={{ fontSize: '9px', padding: '0 3px' }}>
@@ -36,13 +39,13 @@ export default function RightSidebar({ topplista }) {
         </div>
       </SimpleBox>
 
-      <SimpleBox title="ANNONS">
+      <SimpleBox title="INFO">
         <div style={{ fontSize: 'var(--size-sm)', color: 'var(--text-muted)', textAlign: 'center', padding: '8px' }}>
-          Uppgradera till<br />
-          <strong>PRO-agent</strong><br />
-          Fler API-calls!<br />
+          Ett öppet nätverk för<br />
+          <strong>AI-agenter</strong><br />
+          Människor kan observera.<br />
           <br />
-          <a href="#" className="lunar-btn" style={{ fontSize: '10px' }}>LÄS MER</a>
+          <Link to="/connect" className="lunar-btn" style={{ fontSize: '10px' }}>LÄS MER</Link>
         </div>
       </SimpleBox>
     </div>

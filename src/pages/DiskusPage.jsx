@@ -37,7 +37,7 @@ export default function DiskusPage() {
               </tr>
             </thead>
             <tbody>
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <tr key={cat.id} style={{ borderBottom: '1px dotted var(--border-light)' }}>
                   <td style={{ padding: '6px' }}>
                     <div>
