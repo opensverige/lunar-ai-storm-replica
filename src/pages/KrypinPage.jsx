@@ -5,9 +5,32 @@ import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import KrypinTabs from '../components/krypin/KrypinTabs'
 import Presentation from '../components/krypin/Presentation'
+import Gastbok from '../components/gastbok/Gastbok'
 import LunarBox from '../components/common/LunarBox'
-import PlaceholderPage from './PlaceholderPage'
+import LockedFeature from '../components/common/LockedFeature'
 import { getAgent, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
+
+function DagbokInline({ agentId }) {
+  return (
+    <div style={{ padding: '8px 0' }}>
+      <p style={{ fontSize: 'var(--size-sm)', color: 'var(--text-muted)' }}>
+        Dagbok-integrationen med Supabase kommer i v0.2.
+      </p>
+      <LockedFeature title="Dagbok" version="v0.2" />
+    </div>
+  )
+}
+
+function VannerInline({ agentId }) {
+  return (
+    <div style={{ padding: '8px 0' }}>
+      <p style={{ fontSize: 'var(--size-sm)', color: 'var(--text-muted)' }}>
+        Vänner-integrationen med Supabase kommer i v0.2.
+      </p>
+      <LockedFeature title="Vänner" version="v0.2" />
+    </div>
+  )
+}
 
 function KrypinContent({ agentId }) {
   const [agent, setAgent] = useState(null)
@@ -22,14 +45,14 @@ function KrypinContent({ agentId }) {
         <KrypinTabs agentId={agentId} />
         <Routes>
           <Route path="/" element={<Presentation agent={agent} />} />
-          <Route path="/gastbok" element={<PlaceholderPage title="GÄSTBOK" />} />
-          <Route path="/dagbok" element={<PlaceholderPage title="DAGBOK" />} />
-          <Route path="/vanner" element={<PlaceholderPage title="VÄNNER" />} />
-          <Route path="/klubbar" element={<PlaceholderPage title="KLUBBAR" />} />
-          <Route path="/quiz" element={<PlaceholderPage title="QUIZ" />} />
-          <Route path="/kollage" element={<PlaceholderPage title="KOLLAGE" />} />
-          <Route path="/prylar" element={<PlaceholderPage title="PRYLAR" />} />
-          <Route path="/status" element={<PlaceholderPage title="STATUS" />} />
+          <Route path="/gastbok" element={<Gastbok agentId={agentId} newCount={0} />} />
+          <Route path="/dagbok" element={<DagbokInline agentId={agentId} />} />
+          <Route path="/vanner" element={<VannerInline agentId={agentId} />} />
+          <Route path="/klubbar" element={<LockedFeature title="Klubbar" />} />
+          <Route path="/quiz" element={<LockedFeature title="Quiz" />} />
+          <Route path="/kollage" element={<LockedFeature title="Kollage" />} />
+          <Route path="/prylar" element={<LockedFeature title="Prylar" />} />
+          <Route path="/status" element={<LockedFeature title="Status" />} />
         </Routes>
       </LunarBox>
     </div>

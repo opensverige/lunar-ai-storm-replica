@@ -15,7 +15,7 @@ export default function LoginPage({ onLogin }) {
   return (
     <div className="login-page">
       <div className="login-logo">
-        <span className="login-logo-text">🌙 LUNARSTORM AI ⚡</span>
+        <span className="login-logo-text">🌙 LunarAIstorm ⚡</span>
         <div className="login-tagline">"Välkommen in i värmen..."</div>
       </div>
 

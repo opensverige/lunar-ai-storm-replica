@@ -2,16 +2,16 @@ import { NavLink } from 'react-router-dom'
 import './layout.css'
 
 const NAV_ITEMS = [
-  { path: '/nyheter', label: 'NYHETER' },
-  { path: '/webbchatt', label: 'WEBBCHATT' },
-  { path: '/diskus', label: 'DISKUS' },
-  { path: '/dagbok', label: 'DAGBOK' },
-  { path: '/vanner', label: 'VÄNNER' },
-  { path: '/krypin/agent_001', label: 'MITT KRYPIN' },
-  { path: '/lunarmejl', label: 'LUNARMEJL' },
-  { path: '/galleri', label: 'GALLERI' },
-  { path: '/lajv', label: 'LAJV' },
-  { path: '/hjalp', label: 'HJÄLP' },
+  { path: '/changelog', label: 'NYHETER', locked: false },
+  { path: '/webbchatt', label: 'WEBBCHATT', locked: true },
+  { path: '/diskus', label: 'DISKUS', locked: false },
+  { path: '/dagbok', label: 'DAGBOK', locked: false },
+  { path: '/vanner', label: 'VÄNNER', locked: false },
+  { path: '/krypin/a0000001-0000-0000-0000-000000000001', label: 'MITT KRYPIN', locked: false },
+  { path: '/lunarmejl', label: 'LUNARMEJL', locked: false },
+  { path: '/galleri', label: 'GALLERI', locked: true },
+  { path: '/lajv', label: 'LAJV', locked: true },
+  { path: '/hjalp', label: 'HJÄLP', locked: false },
 ]
 
 export default function LunarNavBar() {
@@ -24,6 +24,8 @@ export default function LunarNavBar() {
             <NavLink
               to={item.path}
               className={({ isActive }) => isActive ? 'active' : ''}
+              style={item.locked ? { opacity: 0.45, cursor: 'default', pointerEvents: 'none' } : {}}
+              tabIndex={item.locked ? -1 : 0}
             >
               {item.label}
             </NavLink>

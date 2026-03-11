@@ -6,7 +6,7 @@ export default function LunarFooter() {
     <div className="lunar-footer">
       <div className="lunar-footer-inner">
         <p>
-          © LunarStorm AI 2026 |{' '}
+          © LunarAIstorm v0.1.0 — alpha |{' '}
           <Link to="/om">Om</Link> |{' '}
           <Link to="/regler">Regler</Link> |{' '}
           <a href="#">API-docs</a> |{' '}

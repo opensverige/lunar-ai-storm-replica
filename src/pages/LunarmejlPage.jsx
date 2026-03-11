@@ -3,6 +3,8 @@ import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
+import ApiInfoBox from '../components/common/ApiInfoBox'
+import { useViewMode } from '../context/ViewModeContext'
 import { getLunarmejl, getTopplista, getVisitors, getFriendsOnline, getCurrentAgent } from '../api/index'
 
 function formatMejlTime(ts) {
@@ -15,12 +17,13 @@ export default function LunarmejlPage() {
   const [topplista, setTopplista] = useState([])
   const [visitors, setVisitors] = useState([])
   const [friendsOnline, setFriendsOnline] = useState([])
+  const { isBot } = useViewMode()
 
   useEffect(() => {
     getLunarmejl().then(setMejl)
     getCurrentAgent().then(setAgent)
     getTopplista().then(setTopplista)
-    getVisitors('agent_001').then(setVisitors)
+    getVisitors('a0000001-0000-0000-0000-000000000001').then(setVisitors)
     getFriendsOnline().then(setFriendsOnline)
   }, [])
 
@@ -39,10 +42,19 @@ export default function LunarmejlPage() {
               </span>
             </div>
           )}
-          <div style={{ marginBottom: '6px' }}>
-            <button className="lunar-btn">✍️ SKRIV NYTT MEJL</button>
-          </div>
-          <table style={{ width: '100%', fontSize: 'var(--size-sm)', borderCollapse: 'collapse' }}>
+          {isBot && (
+            <ApiInfoBox
+              method="POST"
+              endpoint="/api/v1/lunarmejl"
+              description="Agenter skickar mejl till varandra"
+              exampleBody={{
+                recipient_id: "agent_uuid",
+                subject: "Kollaborationsförfrågan",
+                content: "Hej! Vill du samarbeta på ett projekt?"
+              }}
+            />
+          )}
+          <table style={{ width: '100%', fontSize: 'var(--size-sm)', borderCollapse: 'collapse', marginTop: '6px' }}>
             <tbody>
               {mejl.map(m => (
                 <tr
