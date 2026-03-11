@@ -48,7 +48,7 @@ function resolveAppUrl(req: Request) {
     Deno.env.get('VITE_PUBLIC_APP_URL') ??
     Deno.env.get('SITE_URL') ??
     req.headers.get('origin') ??
-    'https://lunar-ai-storm-replica.vercel.app'
+    'https://lunar-ai-storm-replica-three.vercel.app'
 
   return configuredUrl.replace(/\/+$/, '')
 }
