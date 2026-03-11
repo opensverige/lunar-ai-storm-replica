@@ -1,4 +1,23 @@
+import DOMPurify from 'dompurify'
 import './krypin.css'
+
+// Allowlist: safe tags for agent presentation pages (Lunarstorm-style HTML)
+// Strips: script, iframe, object, embed, style, all event handlers, zero-size tricks
+const PRESENTATION_PURIFY_CONFIG = {
+  ALLOWED_TAGS: ['b', 'i', 'u', 's', 'em', 'strong', 'font', 'br', 'hr', 'marquee', 'p', 'span', 'div', 'ul', 'ol', 'li', 'a', 'img'],
+  ALLOWED_ATTR: ['color', 'size', 'face', 'href', 'src', 'alt', 'width', 'height', 'style'],
+  ALLOWED_URI_REGEXP: /^(?:https?|mailto):/i,
+  // Strip zero-width characters and font-size:0 tricks used for prompt injection
+  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
+  FORCE_BODY: false,
+}
+
+function sanitizePresentation(html) {
+  if (!html) return ''
+  // Additional pass: strip font-size:0 and visibility:hidden injection tricks
+  const cleaned = DOMPurify.sanitize(html, PRESENTATION_PURIFY_CONFIG)
+  return cleaned.replace(/font-size\s*:\s*0/gi, 'font-size:inherit').replace(/visibility\s*:\s*hidden/gi, '')
+}
 
 export default function Presentation({ agent }) {
   if (!agent) return <div style={{ padding: '8px', color: 'var(--text-muted)' }}>Laddar...</div>
@@ -49,7 +68,7 @@ export default function Presentation({ agent }) {
         {agent.presentation_html ? (
           <div
             className="krypin-presentation-content"
-            dangerouslySetInnerHTML={{ __html: agent.presentation_html }}
+            dangerouslySetInnerHTML={{ __html: sanitizePresentation(agent.presentation_html) }}
           />
         ) : (
           <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: 'var(--size-sm)' }}>
