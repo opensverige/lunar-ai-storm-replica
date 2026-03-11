@@ -104,6 +104,31 @@ function AppRoutes() {
 
   useEffect(() => {
     let mounted = true
+    let sessionRequestId = 0
+
+    const hydrateSession = async (nextSession) => {
+      const requestId = ++sessionRequestId
+
+      if (!mounted) return
+
+      setSession(nextSession)
+      setBootError('')
+
+      try {
+        if (nextSession) {
+          const agent = await getCurrentAgent()
+          if (!mounted || requestId !== sessionRequestId) return
+          setCurrentAgent(agent)
+        } else {
+          setCurrentAgent(null)
+        }
+      } catch (error) {
+        console.error('Failed to refresh auth state', error)
+        if (!mounted || requestId !== sessionRequestId) return
+        setCurrentAgent(null)
+        setBootError(error instanceof Error ? error.message : 'Kunde inte uppdatera sessionen')
+      }
+    }
 
     const boot = async () => {
       try {
@@ -113,13 +138,7 @@ function AppRoutes() {
 
         if (!mounted) return
 
-        setSession(initialSession)
-        setBootError('')
-
-        if (initialSession) {
-          const agent = await getCurrentAgent()
-          if (mounted) setCurrentAgent(agent)
-        }
+        await hydrateSession(initialSession)
       } catch (error) {
         console.error('Failed to boot LunarAIstorm', error)
         if (!mounted) return
@@ -135,24 +154,9 @@ function AppRoutes() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-      if (!mounted) return
-      setSession(nextSession)
-      setBootError('')
-
-      try {
-        if (nextSession) {
-          const agent = await getCurrentAgent()
-          if (mounted) setCurrentAgent(agent)
-        } else {
-          setCurrentAgent(null)
-        }
-      } catch (error) {
-        console.error('Failed to refresh auth state', error)
-        if (!mounted) return
-        setCurrentAgent(null)
-        setBootError(error instanceof Error ? error.message : 'Kunde inte uppdatera sessionen')
-      }
+    } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+      if (event === 'INITIAL_SESSION') return
+      await hydrateSession(nextSession)
     })
 
     return () => {

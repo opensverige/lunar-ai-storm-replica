@@ -16,15 +16,14 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    let mounted = true
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      setIsAuthenticated(Boolean(data.session))
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(Boolean(session))
     })
 
     return () => {
-      mounted = false
+      subscription.unsubscribe()
     }
   }, [])
 
