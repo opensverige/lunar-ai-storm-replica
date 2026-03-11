@@ -7,9 +7,14 @@ const supabaseUrl =
   ''
 const secretKey =
   Deno.env.get('SUPABASE_SECRET_KEY') ??
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
+  Deno.env.get('VITE_SUPABASE_SERVICE_ROLE_KEY') ??
   ''
 const publishableKey =
   Deno.env.get('VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY') ??
+  Deno.env.get('SUPABASE_ANON_KEY') ??
+  Deno.env.get('VITE_PUBLIC_SUPABASE_ANON_KEY') ??
+  Deno.env.get('VITE_PUBLIC_ANON_KEY') ??
   ''
 
 function json(data: unknown, status = 200) {

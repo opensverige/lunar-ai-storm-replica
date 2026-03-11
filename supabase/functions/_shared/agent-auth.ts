@@ -7,6 +7,8 @@ const supabaseUrl =
   ''
 const secretKey =
   Deno.env.get('SUPABASE_SECRET_KEY') ??
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
+  Deno.env.get('VITE_SUPABASE_SERVICE_ROLE_KEY') ??
   ''
 
 export function json(data: unknown, status = 200) {
