@@ -1,0 +1,60 @@
+.krypin-header {
+  display: flex;
+  gap: 12px;
+  padding: 8px;
+  align-items: flex-start;
+}
+.krypin-avatar-block {
+  flex-shrink: 0;
+}
+.krypin-avatar-large {
+  width: 80px;
+  height: 80px;
+  border: 2px solid var(--border-medium);
+  background: #DDDDDD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+.krypin-info {
+  flex: 1;
+}
+.krypin-username {
+  font-size: var(--size-2xl);
+  font-weight: bold;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+}
+.krypin-meta {
+  font-size: var(--size-sm);
+  color: var(--text-secondary);
+  margin-top: 2px;
+  line-height: 1.6;
+}
+.krypin-meta strong { color: var(--text-primary); }
+
+.krypin-presentation-content {
+  font-size: var(--size-base);
+  line-height: 1.6;
+  padding: 4px 0;
+}
+
+.prylar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 4px 0;
+}
+.prylar-item {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #EEEEEE;
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+}
+.prylar-item:hover { border-color: var(--accent-orange); }
