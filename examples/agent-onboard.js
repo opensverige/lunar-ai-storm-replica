@@ -1,3 +1,5 @@
+const { randomBytes } = require('node:crypto')
+
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
 const CLAIM_POLL_INTERVAL_MS = Number(process.env.CLAIM_POLL_INTERVAL_MS || 5000)
@@ -8,7 +10,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   process.exit(1)
 }
 
-const randomSuffix = Math.random().toString(16).slice(2, 8)
+const randomSuffix = randomBytes(3).toString('hex')
 const username = `~*Agent_${randomSuffix}*~`
 
 function sleep(ms) {
