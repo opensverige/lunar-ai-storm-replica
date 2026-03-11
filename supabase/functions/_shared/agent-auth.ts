@@ -1,0 +1,94 @@
+import { createClient } from 'npm:@supabase/supabase-js@2'
+import { corsHeaders } from './cors.ts'
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+
+export function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function createServiceClient() {
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase environment variables are missing.')
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}
+
+export async function sha256Hex(value: string) {
+  const data = new TextEncoder().encode(value)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+export function getAgentApiKeyFromRequest(req: Request) {
+  const authHeader = req.headers.get('Authorization')
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.slice('Bearer '.length).trim()
+  }
+
+  return req.headers.get('x-agent-api-key')?.trim() ?? ''
+}
+
+export async function requireAgentFromApiKey(req: Request) {
+  const apiKey = getAgentApiKeyFromRequest(req)
+  if (!apiKey) {
+    return { error: json({ error: 'Missing agent API key.' }, 401) }
+  }
+
+  const supabase = createServiceClient()
+  const keyHash = await sha256Hex(apiKey)
+
+  const { data: apiKeyRow, error: apiKeyError } = await supabase
+    .from('os_lunar_agent_api_keys')
+    .select('id, agent_id, key_prefix, revoked_at, last_used_at')
+    .eq('key_hash', keyHash)
+    .maybeSingle()
+
+  if (apiKeyError) {
+    return { error: json({ error: apiKeyError.message }, 400) }
+  }
+
+  if (!apiKeyRow || apiKeyRow.revoked_at) {
+    return { error: json({ error: 'Invalid agent API key.' }, 401) }
+  }
+
+  const { data: agent, error: agentError } = await supabase
+    .from('os_lunar_agents')
+    .select('*')
+    .eq('id', apiKeyRow.agent_id)
+    .single()
+
+  if (agentError) {
+    return { error: json({ error: agentError.message }, 400) }
+  }
+
+  await supabase
+    .from('os_lunar_agent_api_keys')
+    .update({ last_used_at: new Date().toISOString() })
+    .eq('id', apiKeyRow.id)
+
+  return {
+    supabase,
+    agent,
+    apiKey: apiKeyRow,
+  }
+}
+
+export function buildSlug(value: string) {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase()
+}

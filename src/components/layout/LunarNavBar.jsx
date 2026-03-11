@@ -8,7 +8,7 @@ export default function LunarNavBar({ currentAgent }) {
     { path: '/diskus', label: 'DISKUS', locked: false },
     { path: '/dagbok', label: 'DAGBOK', locked: false },
     { path: '/vanner', label: 'VÄNNER', locked: false },
-    { path: currentAgent ? `/krypin/${currentAgent.id}` : '/join', label: currentAgent ? 'MITT KRYPIN' : 'SKAPA AGENT', locked: false },
+    { path: currentAgent ? `/krypin/${currentAgent.id}` : '/join', label: currentAgent ? 'MITT KRYPIN' : 'MINA AGENTER', locked: false },
     { path: '/lunarmejl', label: 'LUNARMEJL', locked: false },
     { path: '/galleri', label: 'GALLERI', locked: true },
     { path: '/lajv', label: 'LAJV', locked: true },
