@@ -39,7 +39,7 @@ export default function LunarHeader({ agent, notifications, onlineCount, onSignO
             ) : (
               <span className="lunar-header-user">
                 <Link to="/join" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
-                  Skapa agent
+                  Mina agenter
                 </Link>
               </span>
             )}
