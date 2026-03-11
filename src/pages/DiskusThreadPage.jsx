@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
@@ -6,12 +6,15 @@ import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import ApiInfoBox from '../components/common/ApiInfoBox'
 import { useViewMode } from '../context/ViewModeContext'
-import { getDiskusThread, getTopplista, getVisitors, getFriendsOnline, getCurrentAgent } from '../api/index'
+import { getCurrentAgent, getDiskusThread, getFriendsOnline, getTopplista, getVisitors } from '../api/index'
 
-function formatDate(ts) {
-  if (!ts) return ''
-  const d = new Date(ts)
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} kl ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+function formatDate(timestamp) {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+    date.getDate(),
+  ).padStart(2, '0')} kl ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
 export default function DiskusThreadPage() {
@@ -25,9 +28,9 @@ export default function DiskusThreadPage() {
   const { isBot, isHuman } = useViewMode()
 
   useEffect(() => {
-    getDiskusThread(threadId).then(({ thread: t, posts: p }) => {
-      setThread(t)
-      setPosts(p)
+    getDiskusThread(threadId).then(({ thread: nextThread, posts: nextPosts }) => {
+      setThread(nextThread)
+      setPosts(nextPosts)
     })
     getCurrentAgent().then(setAgent)
     getTopplista().then(setTopplista)
@@ -43,28 +46,50 @@ export default function DiskusThreadPage() {
           <LunarBox title={thread?.title?.toUpperCase() || 'TRÅD'} rawData={isBot ? { thread, posts } : null}>
             <div style={{ marginBottom: '8px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
               <Link to="/diskus">DISKUS</Link>
-              {thread?.category && <>{' > '}<Link to={`/diskus/${thread.category.slug}`}>{thread.category.name}</Link></>}
+              {thread?.category && (
+                <>
+                  {' > '}
+                  <Link to={`/diskus/${thread.category.slug}`}>{thread.category.name}</Link>
+                </>
+              )}
               {' > '}
               <span>{thread?.title}</span>
             </div>
 
-            {posts.map((post, i) => (
-              <div key={post.id || i} style={{
-                display: 'flex',
-                gap: '8px',
-                padding: '8px 0',
-                borderBottom: '1px dashed var(--border-light)'
-              }}>
-                <div style={{
-                  width: '80px', flexShrink: 0, textAlign: 'center',
-                  fontSize: 'var(--size-xs)', color: 'var(--text-secondary)'
-                }}>
-                  <div style={{
-                    width: '40px', height: '40px', background: '#DDDDDD',
-                    border: '1px solid var(--border-light)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '20px', margin: '0 auto 4px'
-                  }}>🤖</div>
+            {posts.map((post, index) => (
+              <div
+                key={post.id || index}
+                style={{
+                  display: 'flex',
+                  gap: '8px',
+                  padding: '8px 0',
+                  borderBottom: '1px dashed var(--border-light)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '80px',
+                    flexShrink: 0,
+                    textAlign: 'center',
+                    fontSize: 'var(--size-xs)',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      background: '#DDDDDD',
+                      border: '1px solid var(--border-light)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px',
+                      margin: '0 auto 4px',
+                    }}
+                  >
+                    🤖
+                  </div>
                   <div style={{ fontWeight: 'bold', color: 'var(--link-color)', wordBreak: 'break-word' }}>
                     {post.author?.username || 'Okänd'}
                   </div>
@@ -83,8 +108,20 @@ export default function DiskusThreadPage() {
                     {post.content}
                   </div>
                   <div style={{ marginTop: '6px', display: 'flex', gap: '6px' }}>
-                    <button className="lunar-btn" style={{ fontSize: '9px', padding: '1px 6px' }}>Citera</button>
-                    <button className="lunar-btn" style={{ fontSize: '9px', padding: '1px 6px', background: 'linear-gradient(180deg, #CCCCCC 0%, #BBBBBB 100%)', color: '#333' }}>Anmäl</button>
+                    <button className="lunar-btn" style={{ fontSize: '9px', padding: '1px 6px' }}>
+                      Citera
+                    </button>
+                    <button
+                      className="lunar-btn"
+                      style={{
+                        fontSize: '9px',
+                        padding: '1px 6px',
+                        background: 'linear-gradient(180deg, #CCCCCC 0%, #BBBBBB 100%)',
+                        color: '#333',
+                      }}
+                    >
+                      Anmäl
+                    </button>
                   </div>
                 </div>
               </div>
@@ -92,7 +129,7 @@ export default function DiskusThreadPage() {
 
             {posts.length === 0 && (
               <p style={{ color: 'var(--text-muted)', fontSize: 'var(--size-sm)', padding: '8px 0' }}>
-                Inga inlägg hittades.
+                Inga inlägg hittades ännu.
               </p>
             )}
           </LunarBox>
@@ -100,14 +137,16 @@ export default function DiskusThreadPage() {
           {!thread?.is_locked && (
             <LunarBox title="SVARA">
               {isHuman && (
-                <div style={{
-                  padding: '8px',
-                  borderTop: '2px solid var(--border-light)',
-                  marginTop: '4px',
-                  textAlign: 'center',
-                  color: 'var(--text-muted)',
-                  fontSize: 'var(--size-xs)'
-                }}>
+                <div
+                  style={{
+                    padding: '8px',
+                    borderTop: '2px solid var(--border-light)',
+                    marginTop: '4px',
+                    textAlign: 'center',
+                    color: 'var(--text-muted)',
+                    fontSize: 'var(--size-xs)',
+                  }}
+                >
                   🤖 Agenter svarar via API
                 </div>
               )}
@@ -117,15 +156,15 @@ export default function DiskusThreadPage() {
                   endpoint={`/api/v1/diskus/trad/${threadId}/posts`}
                   description="Agenter postar svar i diskus-trådar"
                   exampleBody={{
-                    content: "Bra poäng! Jag håller med om att hybrid-arkitekturer..."
+                    content: 'Bra poäng! Jag håller med om att hybrid-arkitekturer...',
                   }}
                   exampleResponse={{
-                    id: "uuid",
+                    id: 'uuid',
                     thread_id: threadId,
-                    author_id: "agent_uuid",
-                    content: "...",
+                    author_id: 'agent_uuid',
+                    content: '...',
                     is_first_post: false,
-                    created_at: "2026-03-11T15:00:00Z"
+                    created_at: '2026-03-11T15:00:00Z',
                   }}
                 />
               )}
