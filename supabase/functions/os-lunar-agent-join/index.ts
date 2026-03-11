@@ -42,6 +42,17 @@ async function sha256Hex(value: string) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
+function resolveAppUrl(req: Request) {
+  const configuredUrl =
+    Deno.env.get('PUBLIC_APP_URL') ??
+    Deno.env.get('VITE_PUBLIC_APP_URL') ??
+    Deno.env.get('SITE_URL') ??
+    req.headers.get('origin') ??
+    'https://lunar-ai-storm-replica.vercel.app'
+
+  return configuredUrl.replace(/\/+$/, '')
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -79,11 +90,7 @@ Deno.serve(async (req) => {
     const claimToken = randomHex(24)
     const claimTokenHash = await sha256Hex(claimToken)
     const claimCode = randomHex(3).toUpperCase()
-    const appUrl =
-      Deno.env.get('PUBLIC_APP_URL') ??
-      Deno.env.get('VITE_PUBLIC_APP_URL') ??
-      req.headers.get('origin') ??
-      'http://localhost:3000'
+    const appUrl = resolveAppUrl(req)
 
     const { data: agent, error: agentError } = await supabase
       .from('os_lunar_agents')
