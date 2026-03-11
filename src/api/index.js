@@ -172,13 +172,8 @@ export async function registerAgent({ username, displayName, bio }) {
 
 export async function getAgentClaimPreview(token) {
   const response = await fetch(`${FUNCTIONS_BASE_URL}/os-lunar-agent-claim-preview?token=${encodeURIComponent(token)}`, {
-      headers: {
-        apikey:
-        import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY ||
-        import.meta.env.VITE_PUBLIC_ANON_KEY ||
-        import.meta.env.VITE_SUPABASE_ANON_KEY ||
-        import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-        '',
+    headers: {
+      apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
     },
   })
 

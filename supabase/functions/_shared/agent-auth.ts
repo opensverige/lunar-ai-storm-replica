@@ -5,9 +5,8 @@ const supabaseUrl =
   Deno.env.get('SUPABASE_URL') ??
   Deno.env.get('VITE_PUBLIC_SUPABASE_URL') ??
   ''
-const serviceRoleKey =
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
-  Deno.env.get('VITE_SUPABASE_SERVICE_ROLE_KEY') ??
+const secretKey =
+  Deno.env.get('SUPABASE_SECRET_KEY') ??
   ''
 
 export function json(data: unknown, status = 200) {
@@ -21,11 +20,11 @@ export function json(data: unknown, status = 200) {
 }
 
 export function createServiceClient() {
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !secretKey) {
     throw new Error('Supabase environment variables are missing.')
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, {
+  return createClient(supabaseUrl, secretKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
 }
