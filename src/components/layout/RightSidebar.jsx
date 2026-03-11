@@ -18,7 +18,7 @@ export default function RightSidebar({ topplista }) {
           <div key={item.rank} className="topplista-item">
             <span className="topplista-rank">{item.rank}.</span>
             <Link
-              to={`/krypin/${item.username}`}
+              to={`/krypin/${item.id || item.username}`}
               style={{ fontSize: 'var(--size-sm)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
             >
               {item.username}
