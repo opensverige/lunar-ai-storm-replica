@@ -140,10 +140,10 @@ export function setCurrentAgentId(agentId) {
   localStorage.setItem(CURRENT_AGENT_KEY, agentId)
 }
 
-export async function sendMagicLink(email, redirectTo = window.location.origin) {
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: redirectTo },
+export async function signInWithGitHub(redirectTo = window.location.origin) {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: { redirectTo },
   })
 
   if (error) throw error

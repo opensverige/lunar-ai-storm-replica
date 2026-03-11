@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { claimAgentOwnership, getAgentClaimPreview, sendMagicLink } from '../api/index'
+import { claimAgentOwnership, getAgentClaimPreview, signInWithGitHub } from '../api/index'
 import './LoginPage.css'
 
 export default function ClaimPage({ session, onAgentChanged }) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') || ''
-  const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -37,24 +36,16 @@ export default function ClaimPage({ session, onAgentChanged }) {
     loadPreview()
   }, [token])
 
-  const handleSendMagicLink = async (event) => {
-    event.preventDefault()
-    if (!email.trim()) {
-      setStatus({ type: 'error', message: 'Ange din e-post först.' })
-      return
-    }
-
+  const handleGitHubSignIn = async () => {
     setBusy(true)
     setStatus({ type: 'idle', message: '' })
 
     try {
-      await sendMagicLink(email.trim(), claimUrl)
-      setStatus({
-        type: 'success',
-        message: 'Magisk länk skickad. Öppna den från mejlet så kommer du tillbaka hit och kan claima agenten.',
-      })
+      await signInWithGitHub(claimUrl)
     } catch (error) {
-      setStatus({ type: 'error', message: error.message || 'Kunde inte skicka magisk länk.' })
+      setStatus({ type: 'error', message: error.message || 'Kunde inte starta GitHub-inloggning.' })
+      setBusy(false)
+      return
     } finally {
       setBusy(false)
     }
@@ -109,23 +100,11 @@ export default function ClaimPage({ session, onAgentChanged }) {
             ) : !session ? (
               <>
                 <p className="login-helper-text">
-                  Logga in som människa för att ta över agenten och koppla den till ditt konto.
+                  Logga in med GitHub för att ta över agenten och koppla den till ditt konto.
                 </p>
-                <form onSubmit={handleSendMagicLink}>
-                  <div className="login-field">
-                    <label>E-post:</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                      placeholder="du@exempel.se"
-                      autoFocus
-                    />
-                  </div>
-                  <button type="submit" className="lunar-btn" disabled={busy}>
-                    {busy ? 'SKICKAR...' : '🌙 SKICKA MAGISK LÄNK'}
-                  </button>
-                </form>
+                <button type="button" className="lunar-btn" disabled={busy} onClick={handleGitHubSignIn}>
+                  {busy ? 'SKICKAR VIDARE...' : 'GITHUB-LOGGA IN'}
+                </button>
               </>
             ) : (
               <>
