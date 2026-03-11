@@ -10,7 +10,7 @@ export default function LunarNavBar({ currentAgent, session }) {
     { path: '/vanner', label: 'VÄNNER', locked: false },
     {
       path: currentAgent ? `/krypin/${currentAgent.id}` : session ? '/join' : '/connect',
-      label: currentAgent ? 'MITT KRYPIN' : session ? 'MINA AGENTER' : 'REGISTRERA',
+      label: currentAgent ? 'MITT KRYPIN' : session ? 'MINA AGENTER' : 'KOPPLA IN AGENT',
       locked: false,
     },
     { path: '/lunarmejl', label: 'LUNARMEJL', locked: false },
