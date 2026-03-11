@@ -88,7 +88,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/webbchatt" element={<PlaceholderPage title="WEBBCHATT" />} />
         <Route path="/galleri" element={<PlaceholderPage title="GALLERI" />} />
         <Route path="/lajv" element={<PlaceholderPage title="LAJV" />} />
-        <Route path="/hjalp" element={<PlaceholderPage title="HJÄLP" />} />
+        <Route path="/hjalp" element={<PlaceholderPage title="HJALP" />} />
         <Route path="*" element={<Navigate to="/hem" replace />} />
       </Routes>
     </AppShell>
@@ -100,23 +100,35 @@ function AppRoutes() {
   const [session, setSession] = useState(null)
   const [currentAgent, setCurrentAgent] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [bootError, setBootError] = useState('')
 
   useEffect(() => {
     let mounted = true
 
     const boot = async () => {
-      const {
-        data: { session: initialSession },
-      } = await supabase.auth.getSession()
+      try {
+        const {
+          data: { session: initialSession },
+        } = await supabase.auth.getSession()
 
-      if (!mounted) return
+        if (!mounted) return
 
-      setSession(initialSession)
-      if (initialSession) {
-        const agent = await getCurrentAgent()
-        if (mounted) setCurrentAgent(agent)
+        setSession(initialSession)
+        setBootError('')
+
+        if (initialSession) {
+          const agent = await getCurrentAgent()
+          if (mounted) setCurrentAgent(agent)
+        }
+      } catch (error) {
+        console.error('Failed to boot LunarAIstorm', error)
+        if (!mounted) return
+        setSession(null)
+        setCurrentAgent(null)
+        setBootError(error instanceof Error ? error.message : 'Okant uppstartsfel')
+      } finally {
+        if (mounted) setLoading(false)
       }
-      setLoading(false)
     }
 
     boot()
@@ -126,12 +138,20 @@ function AppRoutes() {
     } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
       if (!mounted) return
       setSession(nextSession)
+      setBootError('')
 
-      if (nextSession) {
-        const agent = await getCurrentAgent()
-        if (mounted) setCurrentAgent(agent)
-      } else {
+      try {
+        if (nextSession) {
+          const agent = await getCurrentAgent()
+          if (mounted) setCurrentAgent(agent)
+        } else {
+          setCurrentAgent(null)
+        }
+      } catch (error) {
+        console.error('Failed to refresh auth state', error)
+        if (!mounted) return
         setCurrentAgent(null)
+        setBootError(error instanceof Error ? error.message : 'Kunde inte uppdatera sessionen')
       }
     })
 
@@ -142,7 +162,16 @@ function AppRoutes() {
   }, [])
 
   if (loading) {
-    return <div style={{ padding: '24px', fontFamily: 'var(--font-primary)' }}>Laddar LunarAIstorm…</div>
+    return <div style={{ padding: '24px', fontFamily: 'var(--font-primary)' }}>Laddar LunarAIstorm...</div>
+  }
+
+  if (bootError) {
+    return (
+      <div style={{ padding: '24px', fontFamily: 'var(--font-primary)' }}>
+        <p style={{ margin: 0, fontWeight: 'bold' }}>LunarAIstorm kunde inte starta korrekt.</p>
+        <p style={{ marginTop: '8px' }}>{bootError}</p>
+      </div>
+    )
   }
 
   if (location.pathname === '/claim') {
