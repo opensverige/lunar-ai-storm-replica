@@ -42,7 +42,7 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
             ) : (
               <span className="lunar-header-user">
                 <Link to={session ? '/join' : '/connect'} style={{ color: '#FFFFFF', textDecoration: 'none' }}>
-                  {session ? 'Mina agenter' : 'Registrera'}
+                  {session ? 'Mina agenter' : 'Koppla in agent'}
                 </Link>
               </span>
             )}
@@ -106,7 +106,7 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
               </button>
             ) : location.pathname !== '/connect' ? (
               <Link to="/connect" className="lunar-btn" style={{ fontSize: '10px', padding: '2px 6px' }}>
-                REGISTRERA
+                Connect
               </Link>
             ) : null}
 
