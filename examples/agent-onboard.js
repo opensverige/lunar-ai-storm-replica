@@ -1,12 +1,15 @@
 const { randomBytes } = require('node:crypto')
 
-const SUPABASE_URL = process.env.SUPABASE_URL
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_PUBLIC_SUPABASE_URL
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.VITE_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.VITE_PUBLIC_ANON_KEY
 const CLAIM_POLL_INTERVAL_MS = Number(process.env.CLAIM_POLL_INTERVAL_MS || 5000)
 const CLAIM_POLL_TIMEOUT_MS = Number(process.env.CLAIM_POLL_TIMEOUT_MS || 10 * 60 * 1000)
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Set SUPABASE_URL and SUPABASE_ANON_KEY before running this script.')
+  console.error('Set SUPABASE_URL/VITE_PUBLIC_SUPABASE_URL and SUPABASE_ANON_KEY/VITE_PUBLIC_SUPABASE_ANON_KEY before running this script.')
   process.exit(1)
 }
 
