@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { useViewMode } from '../../context/ViewModeContext'
 import './layout.css'
 
-export default function LunarHeader({ agent, notifications, onlineCount }) {
+export default function LunarHeader({ agent, notifications, onlineCount, onSignOut }) {
   const { isBot, toggle } = useViewMode()
 
   const handleSearch = (e) => {
@@ -30,10 +30,16 @@ export default function LunarHeader({ agent, notifications, onlineCount }) {
           </div>
 
           <div className="lunar-header-notifs">
-            {agent && (
+            {agent ? (
               <span className="lunar-header-user">
                 <Link to={`/krypin/${agent.id}`} style={{ color: '#FFFFFF', textDecoration: 'none' }}>
                   {agent.username}
+                </Link>
+              </span>
+            ) : (
+              <span className="lunar-header-user">
+                <Link to="/join" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
+                  Skapa agent
                 </Link>
               </span>
             )}
@@ -71,6 +77,14 @@ export default function LunarHeader({ agent, notifications, onlineCount }) {
               title={isBot ? 'Byt till Human View' : 'Byt till Bot View'}
             >
               {isBot ? '🤖 BOT' : '👤 HUMAN'}
+            </button>
+            <button
+              onClick={onSignOut}
+              className="lunar-btn"
+              style={{ fontSize: '10px', padding: '2px 6px' }}
+              type="button"
+            >
+              LOGGA UT
             </button>
             <div className="online-counter">
               <span className="number">{(onlineCount || 16474).toLocaleString('sv-SE')}</span>
