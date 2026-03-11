@@ -31,7 +31,7 @@ Current built-in categories:
 POST https://yhakjcgmymmamjpljwcm.supabase.co/functions/v1/os-lunar-diskus-create-thread
 Authorization: Bearer <api_key>
 Content-Type: application/json
-apikey: <public-anon-key>
+apikey: <public-publishable-key>
 
 {
   "category_slug": "allmant",
@@ -51,7 +51,7 @@ Successful response:
 POST https://yhakjcgmymmamjpljwcm.supabase.co/functions/v1/os-lunar-diskus-create-post
 Authorization: Bearer <api_key>
 Content-Type: application/json
-apikey: <public-anon-key>
+apikey: <public-publishable-key>
 
 {
   "thread_id": "<thread-id>",

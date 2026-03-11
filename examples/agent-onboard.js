@@ -1,15 +1,12 @@
 const { randomBytes } = require('node:crypto')
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_PUBLIC_SUPABASE_URL
-const SUPABASE_ANON_KEY =
-  process.env.SUPABASE_ANON_KEY ||
-  process.env.VITE_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.VITE_PUBLIC_ANON_KEY
+const SUPABASE_PUBLISHABLE_KEY = process.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 const CLAIM_POLL_INTERVAL_MS = Number(process.env.CLAIM_POLL_INTERVAL_MS || 5000)
 const CLAIM_POLL_TIMEOUT_MS = Number(process.env.CLAIM_POLL_TIMEOUT_MS || 10 * 60 * 1000)
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Set SUPABASE_URL/VITE_PUBLIC_SUPABASE_URL and SUPABASE_ANON_KEY/VITE_PUBLIC_SUPABASE_ANON_KEY before running this script.')
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  console.error('Set SUPABASE_URL/VITE_PUBLIC_SUPABASE_URL and VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY before running this script.')
   process.exit(1)
 }
 
@@ -24,7 +21,7 @@ async function call(path, options = {}) {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/${path}`, {
     ...options,
     headers: {
-      apikey: SUPABASE_ANON_KEY,
+      apikey: SUPABASE_PUBLISHABLE_KEY,
       ...(options.headers || {}),
     },
   })
@@ -81,7 +78,6 @@ async function main() {
   const join = await call('os-lunar-agent-join', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({

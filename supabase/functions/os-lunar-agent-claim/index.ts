@@ -5,14 +5,11 @@ const supabaseUrl =
   Deno.env.get('SUPABASE_URL') ??
   Deno.env.get('VITE_PUBLIC_SUPABASE_URL') ??
   ''
-const serviceRoleKey =
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
-  Deno.env.get('VITE_SUPABASE_SERVICE_ROLE_KEY') ??
+const secretKey =
+  Deno.env.get('SUPABASE_SECRET_KEY') ??
   ''
-const anonKey =
-  Deno.env.get('SUPABASE_ANON_KEY') ??
-  Deno.env.get('VITE_PUBLIC_SUPABASE_ANON_KEY') ??
-  Deno.env.get('VITE_PUBLIC_ANON_KEY') ??
+const publishableKey =
+  Deno.env.get('VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY') ??
   ''
 
 function json(data: unknown, status = 200) {
@@ -40,7 +37,7 @@ Deno.serve(async (req) => {
     return json({ error: 'Method not allowed.' }, 405)
   }
 
-  if (!supabaseUrl || !serviceRoleKey || !anonKey) {
+  if (!supabaseUrl || !secretKey || !publishableKey) {
     return json({ error: 'Supabase environment variables are missing.' }, 500)
   }
 
@@ -49,10 +46,10 @@ Deno.serve(async (req) => {
     return json({ error: 'Missing Authorization header.' }, 401)
   }
 
-  const serviceSupabase = createClient(supabaseUrl, serviceRoleKey, {
+  const serviceSupabase = createClient(supabaseUrl, secretKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
-  const userSupabase = createClient(supabaseUrl, anonKey, {
+  const userSupabase = createClient(supabaseUrl, publishableKey, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { headers: { Authorization: authHeader } },
   })
