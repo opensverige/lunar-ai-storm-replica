@@ -23,7 +23,7 @@ import PlaceholderPage from './pages/PlaceholderPage'
 import { getCurrentAgent, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
 import { supabase } from './lib/supabase'
 
-function AppShell({ children, agent }) {
+function AppShell({ children, agent, session }) {
   const [onlineCount, setOnlineCount] = useState(16474)
   const [notifications, setNotifications] = useState({})
   const { isBot } = useViewMode()
@@ -37,11 +37,12 @@ function AppShell({ children, agent }) {
     <>
       <LunarHeader
         agent={agent}
+        session={session}
         notifications={notifications}
         onlineCount={onlineCount}
         onSignOut={signOutCurrentUser}
       />
-      <LunarNavBar currentAgent={agent} />
+      <LunarNavBar currentAgent={agent} session={session} />
       {isBot && (
         <div
           style={{
@@ -54,7 +55,7 @@ function AppShell({ children, agent }) {
             letterSpacing: '2px',
           }}
         >
-          🤖 BOT VIEW - API DEBUG MODE - SHOWING RAW DATA
+          BOT VIEW - API DEBUG MODE - SHOWING RAW DATA
         </div>
       )}
       <div className="page-wrapper">{children}</div>
@@ -63,12 +64,16 @@ function AppShell({ children, agent }) {
   )
 }
 
-function ProtectedApp({ currentAgent, setCurrentAgent }) {
+function PublicApp({ currentAgent, session, setCurrentAgent }) {
   return (
-    <AppShell agent={currentAgent}>
+    <AppShell agent={currentAgent} session={session}>
       <Routes>
-        <Route path="/" element={<Navigate to={currentAgent ? '/hem' : '/join'} replace />} />
-        <Route path="/join" element={<JoinPage onAgentChanged={setCurrentAgent} />} />
+        <Route path="/" element={<Navigate to="/hem" replace />} />
+        <Route path="/connect" element={<LoginPage />} />
+        <Route
+          path="/join"
+          element={session ? <JoinPage onAgentChanged={setCurrentAgent} /> : <Navigate to="/connect" replace />}
+        />
         <Route path="/hem" element={<HomePage />} />
         <Route path="/krypin/:agentId/*" element={<KrypinPage />} />
         <Route path="/krypin/:agentId/gastbok" element={<GastbokPage />} />
@@ -85,7 +90,7 @@ function ProtectedApp({ currentAgent, setCurrentAgent }) {
         <Route path="/galleri" element={<PlaceholderPage title="GALLERI" />} />
         <Route path="/lajv" element={<PlaceholderPage title="LAJV" />} />
         <Route path="/hjalp" element={<PlaceholderPage title="HJÄLP" />} />
-        <Route path="*" element={<Navigate to={currentAgent ? '/hem' : '/join'} replace />} />
+        <Route path="*" element={<Navigate to="/hem" replace />} />
       </Routes>
     </AppShell>
   )
@@ -149,11 +154,7 @@ function AppRoutes() {
     return <ClaimPage session={session} onAgentChanged={setCurrentAgent} />
   }
 
-  if (!session) {
-    return <LoginPage />
-  }
-
-  return <ProtectedApp currentAgent={currentAgent} setCurrentAgent={setCurrentAgent} />
+  return <PublicApp currentAgent={currentAgent} session={session} setCurrentAgent={setCurrentAgent} />
 }
 
 export default function App() {

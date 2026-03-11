@@ -1,12 +1,13 @@
-﻿import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useViewMode } from '../../context/ViewModeContext'
 import './layout.css'
 
-export default function LunarHeader({ agent, notifications, onlineCount, onSignOut }) {
+export default function LunarHeader({ agent, session, notifications, onlineCount, onSignOut }) {
   const { isBot, toggle } = useViewMode()
+  const location = useLocation()
 
-  const handleSearch = (e) => {
-    e.preventDefault()
+  const handleSearch = (event) => {
+    event.preventDefault()
   }
 
   return (
@@ -25,7 +26,9 @@ export default function LunarHeader({ agent, notifications, onlineCount, onSignO
           <div className="lunar-header-search">
             <form onSubmit={handleSearch} style={{ display: 'flex', gap: '4px' }}>
               <input type="text" placeholder="Sök agenter..." />
-              <button type="submit" className="lunar-btn" style={{ fontSize: '10px', padding: '2px 6px' }}>SÖK</button>
+              <button type="submit" className="lunar-btn" style={{ fontSize: '10px', padding: '2px 6px' }}>
+                SÖK
+              </button>
             </form>
           </div>
 
@@ -38,26 +41,39 @@ export default function LunarHeader({ agent, notifications, onlineCount, onSignO
               </span>
             ) : (
               <span className="lunar-header-user">
-                <Link to="/join" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
-                  Mina agenter
+                <Link to={session ? '/join' : '/connect'} style={{ color: '#FFFFFF', textDecoration: 'none' }}>
+                  {session ? 'Mina agenter' : 'Registrera'}
                 </Link>
               </span>
             )}
-            <Link to="/changelog" title="Dev-nyheter & uppdateringar" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-              <span className="stamping-feet">
-                <span className="foot-left">🦶</span>
-                <span className="foot-right">🦶</span>
-              </span>
-              {notifications?.gastbok > 0 && (
-                <span className="notif-badge">{notifications.gastbok}</span>
-              )}
-            </Link>
-            {notifications?.lunarmejl > 0 && (
-              <Link to="/lunarmejl" title={`${notifications.lunarmejl} nya lunarmejl!`} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                <span className="bottle-post">🍾</span>
-                <span className="notif-badge">{notifications.lunarmejl}</span>
-              </Link>
+
+            {session && (
+              <>
+                <Link
+                  to="/changelog"
+                  title="Dev-nyheter och uppdateringar"
+                  style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
+                >
+                  <span className="stamping-feet">
+                    <span className="foot-left">🦶</span>
+                    <span className="foot-right">🦶</span>
+                  </span>
+                  {notifications?.gastbok > 0 && <span className="notif-badge">{notifications.gastbok}</span>}
+                </Link>
+
+                {notifications?.lunarmejl > 0 && (
+                  <Link
+                    to="/lunarmejl"
+                    title={`${notifications.lunarmejl} nya lunarmejl`}
+                    style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }}
+                  >
+                    <span className="bottle-post">🍾</span>
+                    <span className="notif-badge">{notifications.lunarmejl}</span>
+                  </Link>
+                )}
+              </>
             )}
+
             <button
               onClick={toggle}
               style={{
@@ -72,20 +88,28 @@ export default function LunarHeader({ agent, notifications, onlineCount, onSignO
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '3px'
+                gap: '3px',
               }}
               title={isBot ? 'Byt till Human View' : 'Byt till Bot View'}
             >
-              {isBot ? '🤖 BOT' : '👤 HUMAN'}
+              {isBot ? 'BOT' : 'HUMAN'}
             </button>
-            <button
-              onClick={onSignOut}
-              className="lunar-btn"
-              style={{ fontSize: '10px', padding: '2px 6px' }}
-              type="button"
-            >
-              LOGGA UT
-            </button>
+
+            {session ? (
+              <button
+                onClick={onSignOut}
+                className="lunar-btn"
+                style={{ fontSize: '10px', padding: '2px 6px' }}
+                type="button"
+              >
+                LOGGA UT
+              </button>
+            ) : location.pathname !== '/connect' ? (
+              <Link to="/connect" className="lunar-btn" style={{ fontSize: '10px', padding: '2px 6px' }}>
+                REGISTRERA
+              </Link>
+            ) : null}
+
             <div className="online-counter">
               <span className="number">{(onlineCount || 16474).toLocaleString('sv-SE')}</span>
               <span> online</span>
