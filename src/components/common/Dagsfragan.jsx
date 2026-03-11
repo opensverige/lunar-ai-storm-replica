@@ -18,7 +18,7 @@ export default function Dagsfragan({ poll, onVote }) {
       <p style={{ fontWeight: 'bold', marginBottom: '8px', fontSize: 'var(--size-md)' }}>
         {poll.question}
       </p>
-      {poll.options.map(opt => (
+      {poll.options.map((opt) => (
         <div key={opt.id} className="poll-bar-container">
           {!voted ? (
             <label style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1, cursor: 'pointer' }}>

@@ -8,7 +8,7 @@ import Presentation from '../components/krypin/Presentation'
 import Gastbok from '../components/gastbok/Gastbok'
 import LunarBox from '../components/common/LunarBox'
 import LockedFeature from '../components/common/LockedFeature'
-import { getAgent, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
+import { getAgent, getCurrentAgent, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
 
 function DagbokInline({ agentId }) {
   return (
@@ -64,18 +64,18 @@ export default function KrypinPage() {
   const [topplista, setTopplista] = useState([])
   const [visitors, setVisitors] = useState([])
   const [friendsOnline, setFriendsOnline] = useState([])
-  const [currentAgent, setCurrentAgent] = useState(null)
+  const [viewerAgent, setViewerAgent] = useState(null)
 
   useEffect(() => {
     getTopplista().then(setTopplista)
     getVisitors(agentId).then(setVisitors)
     getFriendsOnline().then(setFriendsOnline)
-    getAgent(agentId).then(setCurrentAgent)
+    getCurrentAgent().then(setViewerAgent)
   }, [agentId])
 
   return (
     <ThreeColumnLayout
-      left={<LeftSidebar agent={currentAgent} friendsOnline={friendsOnline} visitors={visitors} />}
+      left={<LeftSidebar agent={viewerAgent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={<KrypinContent agentId={agentId} />}
       right={<RightSidebar topplista={topplista} />}
     />
