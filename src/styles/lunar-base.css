@@ -5,7 +5,7 @@
 }
 
 body {
-  background-color: var(--page-bg);
+  background-color: var(--ls-page-bg);
   font-family: var(--font-primary);
   font-size: var(--size-base);
   color: var(--text-primary);
@@ -21,9 +21,9 @@ a:hover { color: var(--link-hover); }
 a:visited { color: var(--link-visited); }
 
 .page-wrapper {
-  max-width: var(--page-max-width);
-  min-width: var(--page-min-width);
-  margin: 0 auto;
+  background: var(--page-bg);
+  border-top: 2px solid var(--ls-frame-border);
+  min-height: 400px;
 }
 
 img { border: 0; }

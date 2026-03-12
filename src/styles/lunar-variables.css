@@ -1,4 +1,33 @@
 :root {
+  /* ═══ NY: Outer frame ═══ */
+  --ls-page-bg: #5a9ca8;
+  --ls-frame-bg: #2b4a52;
+  --ls-frame-border: #1a2e34;
+  --ls-frame-highlight: #4a7a84;
+  --ls-frame-max-width: 860px;
+
+  /* ═══ NY: Header ═══ */
+  --ls-header-bg: #3a6a74;
+  --ls-header-bg-dark: #2d5560;
+
+  /* ═══ NY: Tab bar ═══ */
+  --ls-tab-bg: #d46a3c;
+  --ls-tab-bg-light: #e88a5e;
+  --ls-tab-bg-hover: #e07848;
+  --ls-tab-bg-active: #f09060;
+  --ls-tab-border: #a04820;
+  --ls-tab-border-light: #e8a080;
+  --ls-tab-text-shadow: #8a3818;
+  --ls-navbar-bg: #c45830;
+
+  /* ═══ NY: Logo ═══ */
+  --ls-logo-glow: #60ffd0;
+  --ls-logo-shadow: #1a3a42;
+
+  /* ═══ NY: Sökning ═══ */
+  --ls-search-bg: #f0e8d8;
+  --ls-search-border: #a09080;
+
   /* === HEADER === */
   --header-bg: linear-gradient(180deg, #4A9BB5 0%, #336699 100%);
   --header-text: #FFFFFF;
