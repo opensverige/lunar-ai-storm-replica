@@ -201,11 +201,31 @@ export async function getAgentClaimPreview(token) {
 }
 
 export async function claimAgentOwnership(token, displayName) {
-  const { data, error } = await supabase.functions.invoke('os-lunar-agent-claim', {
-    body: { token, displayName },
+  const {
+    data: { session },
+  } = await getSupabaseSession()
+
+  if (!session?.access_token) {
+    throw new Error('Ingen aktiv session hittades. Logga in igen innan du claimar.')
+  }
+
+  const response = await fetch(`${FUNCTIONS_BASE_URL}/os-lunar-agent-claim`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      token,
+      displayName,
+    }),
   })
 
-  if (error) throw error
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(data?.error || 'Claim misslyckades.')
+  }
   if (data?.error) throw new Error(data.error)
 
   const agent = mapAgent(data.agent)
