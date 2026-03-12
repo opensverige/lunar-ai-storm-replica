@@ -11,6 +11,14 @@
   font-family: var(--font-primary);
 }
 
+/* When /connect is rendered inside AppShell, keep nav/frame visible and avoid fullscreen takeover. */
+.page-wrapper .login-page {
+  min-height: auto;
+  background: transparent;
+  justify-content: flex-start;
+  padding: 14px 12px 24px;
+}
+
 .login-logo {
   text-align: center;
   margin-bottom: 16px;
@@ -248,6 +256,10 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+.page-wrapper .login-stats {
+  color: var(--text-secondary);
+}
+
 .login-stats p {
   font-size: var(--size-sm);
   margin: 3px 0;
@@ -257,6 +269,10 @@
   color: var(--accent-gold);
   font-weight: bold;
   font-size: var(--size-md);
+}
+
+.page-wrapper .login-stats .stat-num {
+  color: #cc7a22;
 }
 
 @media (max-width: 640px) {

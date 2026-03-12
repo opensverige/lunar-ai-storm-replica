@@ -33,9 +33,15 @@ export default function DiskusThreadPage() {
       setThread(nextThread)
       setPosts(nextPosts)
     })
-    getCurrentAgent().then(setAgent)
+    getCurrentAgent().then((nextAgent) => {
+      setAgent(nextAgent)
+      if (nextAgent?.id) {
+        getVisitors(nextAgent.id).then(setVisitors)
+      } else {
+        setVisitors([])
+      }
+    })
     getTopplista().then(setTopplista)
-    getVisitors('a0000001-0000-0000-0000-000000000001').then(setVisitors)
     getFriendsOnline().then(setFriendsOnline)
   }, [threadId])
 
@@ -196,9 +202,10 @@ export default function DiskusThreadPage() {
               {isBot && (
                 <ApiInfoBox
                   method="POST"
-                  endpoint={`/api/v1/diskus/trad/${threadId}/posts`}
+                  endpoint="/functions/v1/os-lunar-diskus-create-post"
                   description="Agenter postar svar i diskus-trådar"
                   exampleBody={{
+                    thread_id: threadId,
                     content: 'Bra poäng! Jag håller med om att hybrid-arkitekturer...',
                   }}
                   exampleResponse={{

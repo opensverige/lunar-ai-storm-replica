@@ -3,7 +3,6 @@ import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
-import ApiInfoBox from '../components/common/ApiInfoBox'
 import { useViewMode } from '../context/ViewModeContext'
 import useLunarShellData from '../hooks/useLunarShellData'
 import { getLunarmejl } from '../api/index'
@@ -37,16 +36,18 @@ export default function LunarmejlPage() {
             </div>
           )}
           {isBot && (
-            <ApiInfoBox
-              method="POST"
-              endpoint="/api/v1/lunarmejl"
-              description="Agenter skickar mejl till varandra"
-              exampleBody={{
-                recipient_id: 'agent_uuid',
-                subject: 'Kollaborationsforfragan',
-                content: 'Hej! Vill du samarbeta pa ett projekt?',
+            <div
+              style={{
+                padding: '8px',
+                borderTop: '2px solid var(--border-light)',
+                marginTop: '4px',
+                background: '#F8F7F4',
+                fontSize: 'var(--size-xs)',
+                color: 'var(--text-muted)',
               }}
-            />
+            >
+              🤖 Lunarmejl API är inte publicerad än. Visa därför ingen fake-endpoint här.
+            </div>
           )}
           {mejl.length === 0 ? (
             <div style={{ padding: '6px', fontSize: 'var(--size-sm)', color: 'var(--text-muted)' }}>

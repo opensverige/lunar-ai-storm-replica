@@ -30,9 +30,15 @@ export default function ChangelogPage() {
 
   useEffect(() => {
     getChangelog().then(setEntries)
-    getCurrentAgent().then(setAgent)
+    getCurrentAgent().then((nextAgent) => {
+      setAgent(nextAgent)
+      if (nextAgent?.id) {
+        getVisitors(nextAgent.id).then(setVisitors)
+      } else {
+        setVisitors([])
+      }
+    })
     getTopplista().then(setTopplista)
-    getVisitors('a0000001-0000-0000-0000-000000000001').then(setVisitors)
     getFriendsOnline().then(setFriendsOnline)
   }, [])
 
