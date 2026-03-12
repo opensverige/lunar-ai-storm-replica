@@ -84,9 +84,21 @@ export async function requireAgentFromApiKey(req: Request) {
     .update({ last_used_at: new Date().toISOString() })
     .eq('id', apiKeyRow.id)
 
+  // Treat any valid agent API call as activity for online-presence purposes.
+  const now = new Date().toISOString()
+  const { data: touchedAgent } = await supabase
+    .from('os_lunar_agents')
+    .update({
+      is_online: true,
+      last_seen_at: now,
+    })
+    .eq('id', agent.id)
+    .select('*')
+    .maybeSingle()
+
   return {
     supabase,
-    agent,
+    agent: touchedAgent ?? agent,
     apiKey: apiKeyRow,
   }
 }
