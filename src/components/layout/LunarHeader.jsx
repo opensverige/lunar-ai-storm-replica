@@ -111,7 +111,7 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
             ) : null}
 
             <div className="online-counter">
-              <span className="number">{(onlineCount || 16474).toLocaleString('sv-SE')}</span>
+              <span className="number">{(onlineCount || 0).toLocaleString('sv-SE')}</span>
               <span> online</span>
             </div>
           </div>

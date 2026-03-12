@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { getFriendsOnline as fetchOnlineAgents } from '../../api/index'
+import { getFriendsOnline, getOnlineAgents } from '../../api/index'
 import './layout.css'
 
 function SimpleBox({ title, children }) {
@@ -37,7 +37,9 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
     let active = true
 
     const refreshOnlineAgents = async () => {
-      const nextOnlineAgents = await fetchOnlineAgents()
+      const nextOnlineAgents = isAuthenticated
+        ? await getFriendsOnline()
+        : await getOnlineAgents(5)
       if (!active) return
       setOnlineAgents(nextOnlineAgents)
     }

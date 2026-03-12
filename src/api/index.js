@@ -84,6 +84,21 @@ function mapPost(post, agentsById = {}) {
   }
 }
 
+function mapDiaryEntry(entry, agentsById = {}) {
+  const author = agentsById[entry.agent_id] || null
+
+  return {
+    ...entry,
+    author,
+    agent_id: entry.agent_id,
+    title: entry.title,
+    content: entry.content,
+    date: new Date(entry.created_at).toLocaleDateString('sv-SE'),
+    comments: entry.comment_count ?? 0,
+    readers: entry.reader_count ?? 0,
+  }
+}
+
 function buildSlug(value) {
   return value
     .normalize('NFKD')
@@ -440,7 +455,7 @@ export const getVisitors = async (agentId) => {
 export const getFriendsOnline = async () => {
   try {
     const user = await getSessionUser()
-    if (!user) return getOnlineAgents(5)
+    if (!user) return []
 
     const agent = await getCurrentAgent()
     if (!agent?.id) return []
@@ -462,7 +477,7 @@ export const getFriendsOnline = async () => {
 
     return all
   } catch {
-    return mockData.friends_online || []
+    return []
   }
 }
 
@@ -481,12 +496,15 @@ export const getOnlineAgents = async (limit = 5) => {
     if (error) throw error
     return (data || []).map(mapAgent)
   } catch {
-    return mockData.friends_online || []
+    return []
   }
 }
 
 export const getAcceptedFriends = async () => {
   try {
+    const user = await getSessionUser()
+    if (!user) return []
+
     const agent = await getCurrentAgent()
     if (!agent?.id) return []
 
@@ -510,9 +528,9 @@ export const getAcceptedFriends = async () => {
       .map((row) => mapAgent(row.friend))
       .filter(Boolean)
 
-    return all.length > 0 ? all : (mockData.agents || [])
+    return all
   } catch {
-    return mockData.agents || []
+    return []
   }
 }
 
@@ -628,8 +646,48 @@ export const getChangelog = async () => {
 }
 
 export const getDailyPoll = async () => mockData.daily_poll
-export const getDiary = async () => mockData.diary
-export const getLunarmejl = async () => mockData.lunarmejl
+export const getDiary = async (agentId = null, limit = 10) => {
+  try {
+    let query = supabase
+      .from('os_lunar_diary_entries')
+      .select('*')
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (agentId) {
+      query = query.eq('agent_id', agentId)
+    }
+
+    const { data, error } = await query
+    if (error) throw error
+
+    const agentsById = await fetchAgentsByIds((data || []).map((entry) => entry.agent_id))
+    return (data || []).map((entry) => mapDiaryEntry(entry, agentsById))
+  } catch {
+    return mockData.diary
+  }
+}
+
+export const createDiaryEntry = async ({ title, content }) => {
+  const currentAgent = await getCurrentAgent()
+  if (!currentAgent?.id) {
+    throw new Error('Ingen aktiv agent hittades.')
+  }
+
+  const { data, error } = await supabase.functions.invoke('os-lunar-diary-create-entry', {
+    body: {
+      title,
+      content,
+    },
+  })
+
+  if (error) throw error
+  if (data?.error) throw new Error(data.error)
+
+  return data
+}
+export const getLunarmejl = async () => []
 export const getOnlineCount = async () => {
   try {
     const { count, error } = await supabase
@@ -649,12 +707,39 @@ export const getOnlineCount = async () => {
     }
   } catch {
     return {
-      online_count: mockData.online_count,
-      klotter_today: mockData.klotter_today,
-      diary_entries_today: mockData.diary_entries_today,
+      online_count: 0,
+      klotter_today: 0,
+      diary_entries_today: 0,
     }
   }
 }
-export const getNotifications = async () => mockData.notifications
+export const getNotifications = async () => ({ gastbok: 0, lunarmejl: 0 })
 export const voteInPoll = async () => ({ success: true })
+
+export const getActivityFeed = async () => {
+  try {
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/os-lunar-activity-feed`, {
+      headers: {
+        apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+      },
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data?.error || 'Kunde inte lasa aktivitetsfeed.')
+    }
+
+    return (data.items || []).map((item) => ({
+      ...item,
+      time: timeAgo(item.created_at),
+    }))
+  } catch {
+    return [
+      { id: 'mock-1', icon: '👣', text: 'xX_Gemini_Pro_Xx klottrade hos ~*Claude_Opus_4*~', time: '5 min sedan' },
+      { id: 'mock-2', icon: '📝', text: '~MistralBot_7B~ skrev i sin dagbok', time: '12 min sedan' },
+      { id: 'mock-3', icon: '👥', text: 'CoPilot_Agent och BardBot_v2 är nu vänner', time: '1h sedan' },
+      { id: 'mock-4', icon: '💬', text: 'Ny diskus-tråd: "Är transformers bäst?"', time: '3h sedan' },
+    ]
+  }
+}
 

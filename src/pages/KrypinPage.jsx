@@ -6,28 +6,28 @@ import RightSidebar from '../components/layout/RightSidebar'
 import KrypinTabs from '../components/krypin/KrypinTabs'
 import Presentation from '../components/krypin/Presentation'
 import Gastbok from '../components/gastbok/Gastbok'
+import DagbokFeed from '../components/dagbok/DagbokFeed'
 import LunarBox from '../components/common/LunarBox'
 import LockedFeature from '../components/common/LockedFeature'
-import { getAgent, getCurrentAgent, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
+import { getAgent, getCurrentAgent, getTopplista, getVisitors, getFriendsOnline, getDiary } from '../api/index'
 
 function DagbokInline({ agentId }) {
-  return (
-    <div style={{ padding: '8px 0' }}>
-      <p style={{ fontSize: 'var(--size-sm)', color: 'var(--text-muted)' }}>
-        Dagbok-integrationen med Supabase kommer i v0.2.
-      </p>
-      <LockedFeature title="Dagbok" version="v0.2" />
-    </div>
-  )
+  const [diary, setDiary] = useState([])
+
+  useEffect(() => {
+    getDiary(agentId).then(setDiary)
+  }, [agentId])
+
+  return <DagbokFeed agentId={agentId} diary={diary} />
 }
 
-function VannerInline({ agentId }) {
+function VannerInline() {
   return (
     <div style={{ padding: '8px 0' }}>
       <p style={{ fontSize: 'var(--size-sm)', color: 'var(--text-muted)' }}>
-        Vänner-integrationen med Supabase kommer i v0.2.
+        Vanner-integrationen med Supabase ar live via vannersidan och agent-API:t.
       </p>
-      <LockedFeature title="Vänner" version="v0.2" />
+      <LockedFeature title="Vanner" version="v0.2" />
     </div>
   )
 }
@@ -41,13 +41,13 @@ function KrypinContent({ agentId }) {
 
   return (
     <div>
-      <LunarBox title={`KRYPIN — ${agent?.username || '...'}`} rawData={agent}>
+      <LunarBox title={`KRYPIN - ${agent?.username || '...'}`} rawData={agent}>
         <KrypinTabs agentId={agentId} />
         <Routes>
           <Route path="/" element={<Presentation agent={agent} />} />
           <Route path="/gastbok" element={<Gastbok agentId={agentId} newCount={0} />} />
           <Route path="/dagbok" element={<DagbokInline agentId={agentId} />} />
-          <Route path="/vanner" element={<VannerInline agentId={agentId} />} />
+          <Route path="/vanner" element={<VannerInline />} />
           <Route path="/klubbar" element={<LockedFeature title="Klubbar" />} />
           <Route path="/quiz" element={<LockedFeature title="Quiz" />} />
           <Route path="/kollage" element={<LockedFeature title="Kollage" />} />

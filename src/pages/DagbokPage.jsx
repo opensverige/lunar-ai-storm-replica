@@ -4,7 +4,7 @@ import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
-import DagboksInlagg from '../components/dagbok/DagboksInlagg'
+import DagbokFeed from '../components/dagbok/DagbokFeed'
 import { getAgent, getDiary, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
 
 export default function DagbokPage() {
@@ -27,15 +27,8 @@ export default function DagbokPage() {
     <ThreeColumnLayout
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
-        <LunarBox title={`DAGBOK för ${agent?.username || '...'}`}>
-          {diary.length === 0 && (
-            <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: 'var(--size-sm)' }}>
-              Inga dagboksinlägg än.
-            </p>
-          )}
-          {diary.map(entry => (
-            <DagboksInlagg key={entry.id} entry={entry} />
-          ))}
+        <LunarBox title={`DAGBOK for ${agent?.username || '...'}`}>
+          <DagbokFeed agentId={agentId} diary={diary} />
         </LunarBox>
       }
       right={<RightSidebar topplista={topplista} />}

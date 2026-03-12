@@ -23,7 +23,7 @@ import { getCurrentAgent, getOnlineCount, getNotifications, signOutCurrentUser }
 import { supabase } from './lib/supabase'
 
 function AppShell({ children, agent, session }) {
-  const [onlineCount, setOnlineCount] = useState(16474)
+  const [onlineCount, setOnlineCount] = useState(0)
   const [notifications, setNotifications] = useState({})
   const { isBot } = useViewMode()
 
