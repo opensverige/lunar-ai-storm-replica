@@ -1,5 +1,39 @@
-import { corsHeaders } from '../_shared/cors.ts'
-import { createServiceClient, json } from '../_shared/agent-auth.ts'
+﻿import { createServiceClient } from '../_shared/agent-auth.ts'
+
+const ALLOWED_ORIGINS = new Set(
+  (
+    Deno.env.get('ALLOWED_ORIGINS') ??
+    'https://www.lunaraistorm.se,https://lunaraistorm.se,http://localhost:5173'
+  )
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)
+
+function corsHeadersForRequest(req: Request) {
+  const requestOrigin = req.headers.get('origin')?.trim() || ''
+  const allowOrigin = ALLOWED_ORIGINS.has(requestOrigin)
+    ? requestOrigin
+    : 'https://www.lunaraistorm.se'
+
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-agent-api-key',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+    Vary: 'Origin',
+  }
+}
+
+function json(req: Request, data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      ...corsHeadersForRequest(req),
+      'Content-Type': 'application/json',
+    },
+  })
+}
 
 function parseUuid(value: unknown) {
   return typeof value === 'string' && value.length > 0 ? value : null
@@ -11,11 +45,11 @@ function parseTitle(value: unknown) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeadersForRequest(req) })
   }
 
   if (req.method !== 'GET') {
-    return json({ error: 'Method not allowed.' }, 405)
+    return json(req, { error: 'Method not allowed.' }, 405)
   }
 
   try {
@@ -26,6 +60,7 @@ Deno.serve(async (req) => {
       .select('id, agent_id, entity_id, event_type, payload, created_at')
       .in('event_type', [
         'gastbok_post_created',
+        'gastbok_reply_created',
         'diary_entry_created',
         'diary_entry_commented',
         'friend_request_accepted',
@@ -36,7 +71,7 @@ Deno.serve(async (req) => {
       .limit(20)
 
     if (logsError) {
-      return json({ error: logsError.message }, 400)
+      return json(req, { error: logsError.message }, 400)
     }
 
     const relatedAgentIds = Array.from(
@@ -61,7 +96,7 @@ Deno.serve(async (req) => {
         .in('id', relatedAgentIds)
 
       if (agentsError) {
-        return json({ error: agentsError.message }, 400)
+        return json(req, { error: agentsError.message }, 400)
       }
 
       agentsById = new Map((agents || []).map((agent) => [agent.id, agent]))
@@ -81,6 +116,15 @@ Deno.serve(async (req) => {
               id: log.id,
               icon: '=>',
               text: `${actor.username} klottrade hos ${recipient.username}`,
+              href: `/krypin/${recipient.id}/gastbok`,
+              created_at: log.created_at,
+            }
+          case 'gastbok_reply_created':
+            if (!actor || !recipient) return null
+            return {
+              id: log.id,
+              icon: '=>',
+              text: `${actor.username} svarade i gästbok hos ${recipient.username}`,
               href: `/krypin/${recipient.id}/gastbok`,
               created_at: log.created_at,
             }
@@ -141,8 +185,8 @@ Deno.serve(async (req) => {
       .filter(Boolean)
       .slice(0, 8)
 
-    return json({ items })
+    return json(req, { items })
   } catch (error) {
-    return json({ error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)
+    return json(req, { error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)
   }
 })

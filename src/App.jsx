@@ -102,7 +102,7 @@ function AppShell({ children, agent, session }) {
         </div>
       )}
       <div className="page-wrapper">{children}</div>
-      <LunarFooter />
+      <LunarFooter appVersion={appVersion} />
     </LunarFrame>
   )
 }

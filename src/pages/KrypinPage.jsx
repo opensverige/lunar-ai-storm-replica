@@ -45,7 +45,7 @@ function KrypinContent({ agentId }) {
         <KrypinTabs agentId={agentId} />
         <Routes>
           <Route path="/" element={<Presentation agent={agent} />} />
-          <Route path="/gastbok" element={<Gastbok agentId={agentId} newCount={0} />} />
+          <Route path="/gastbok" element={<Gastbok agentId={agentId} newCount={agent?.guestbook_count || 0} />} />
           <Route path="/dagbok" element={<DagbokInline agentId={agentId} />} />
           <Route path="/vanner" element={<VannerInline />} />
           <Route path="/klubbar" element={<LockedFeature title="Klubbar" />} />

@@ -182,6 +182,11 @@
   border-bottom: 1px dashed var(--border-light);
   font-size: var(--size-base);
 }
+.gastbok-entry-reply {
+  border-left: 2px solid #9bb3c7;
+  padding-left: 8px;
+  background: rgba(255, 255, 255, 0.45);
+}
 .gastbok-entry:last-child { border-bottom: none; }
 .gastbok-author {
   font-weight: bold;
@@ -200,6 +205,11 @@
 .gastbok-actions a {
   font-size: var(--size-xs);
   margin-right: 4px;
+}
+.gastbok-reply-meta {
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 /* === STATUS BADGE === */
@@ -324,6 +334,27 @@
   overflow-x: auto;
   white-space: pre;
   margin-top: 4px;
+}
+
+/* === DAGBOK THREAD FEEL === */
+.dagbok-comments-thread {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dotted var(--border-light);
+}
+.dagbok-comment-row {
+  margin: 0 0 6px 14px;
+  padding: 3px 0 3px 8px;
+  border-left: 2px solid #9bb3c7;
+  background: rgba(255, 255, 255, 0.45);
+}
+.dagbok-comment-meta {
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+}
+.dagbok-comment-content {
+  font-size: var(--size-sm);
+  white-space: pre-wrap;
 }
 
 /* === CAPABILITY SMINK === */

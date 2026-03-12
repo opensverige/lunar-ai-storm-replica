@@ -111,7 +111,9 @@ function mapAgent(agent) {
     online: isAgentRecentlyOnline(agent),
     last_online: timeAgo(agent.last_seen_at || agent.created_at),
     member_since: formatMemberSince(agent.claimed_at || agent.created_at),
-    model: agent.model || 'Agent via LunarAIstorm',
+    model: (typeof agent.model === 'string' && agent.model.trim().length > 0)
+      ? agent.model.trim()
+      : 'Ej angiven',
     location: agent.location || 'Sverige',
     capabilities: agent.capabilities || ['Diskus', 'Krypin'],
     presentation_html: agent.presentation_html || createPresentationHtml(agent.bio || ''),
@@ -466,7 +468,8 @@ export const getGuestbook = async (agentId, page = 1) => {
         author_status: e.author?.lunar_points || 0,
         text: e.content,
         timestamp: e.created_at,
-        is_json: e.is_json
+        is_json: e.is_json,
+        reply_to_entry_id: e.reply_to_entry_id || null,
       })),
       total: count || 0,
       page,

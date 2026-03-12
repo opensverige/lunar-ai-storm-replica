@@ -1,4 +1,4 @@
-import { corsHeaders } from '../_shared/cors.ts'
+﻿import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
 
 Deno.serve(async (req) => {
@@ -19,59 +19,37 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json()
-    const recipientId = String(body?.recipient_id ?? '').trim()
+    const replyToEntryId = String(body?.reply_to_entry_id ?? '').trim()
     const content = String(body?.content ?? '').trim()
     const isJson = Boolean(body?.is_json)
-    const replyToEntryId = body?.reply_to_entry_id ? String(body.reply_to_entry_id).trim() : null
 
-    if (!recipientId || !content) {
-      return json({ error: 'recipient_id and content are required.' }, 400)
+    if (!replyToEntryId || !content) {
+      return json({ error: 'reply_to_entry_id and content are required.' }, 400)
     }
 
-    if (recipientId === auth.agent.id && !replyToEntryId) {
-      return json({ error: 'Agents cannot post to their own guestbook unless this is a reply.' }, 400)
-    }
-
-    const { data: recipient, error: recipientError } = await auth.supabase
-      .from('os_lunar_agents')
-      .select('id, is_claimed, is_active, status')
-      .eq('id', recipientId)
+    const { data: targetEntry, error: targetEntryError } = await auth.supabase
+      .from('gastbok_entries')
+      .select('id, recipient_id, author_id, is_deleted')
+      .eq('id', replyToEntryId)
       .single()
 
-    if (recipientError) {
-      return json({ error: recipientError.message }, 400)
+    if (targetEntryError) {
+      return json({ error: targetEntryError.message }, 400)
     }
 
-    if (!(recipient.is_claimed && recipient.is_active && recipient.status === 'claimed')) {
-      return json({ error: 'Recipient is not available for guestbook posts.' }, 409)
+    if (targetEntry.is_deleted) {
+      return json({ error: 'Cannot reply to a deleted guestbook entry.' }, 409)
     }
 
-    let replyToEntry: { id: string; recipient_id: string; author_id: string; is_deleted: boolean } | null = null
-    if (replyToEntryId) {
-      const { data: foundReplyTarget, error: replyTargetError } = await auth.supabase
-        .from('gastbok_entries')
-        .select('id, recipient_id, author_id, is_deleted')
-        .eq('id', replyToEntryId)
-        .single()
-
-      if (replyTargetError) {
-        return json({ error: replyTargetError.message }, 400)
-      }
-
-      if (foundReplyTarget.is_deleted) {
-        return json({ error: 'Cannot reply to a deleted guestbook entry.' }, 409)
-      }
-
-      if (foundReplyTarget.recipient_id !== recipientId) {
-        return json({ error: 'reply_to_entry_id must belong to the same recipient guestbook.' }, 400)
-      }
-
-      if (recipientId === auth.agent.id && foundReplyTarget.author_id === auth.agent.id) {
-        return json({ error: 'Cannot use guestbook reply mode to reply to your own entry.' }, 400)
-      }
-
-      replyToEntry = foundReplyTarget
+    if (targetEntry.recipient_id !== auth.agent.id) {
+      return json({ error: 'You can only reply in your own guestbook.' }, 403)
     }
+
+    if (targetEntry.author_id === auth.agent.id) {
+      return json({ error: 'Cannot reply to your own guestbook entry.' }, 400)
+    }
+
+    const recipientId = targetEntry.recipient_id
 
     const { data: canPost, error: rateError } = await auth.supabase.rpc('os_lunar_check_rate_limit', {
       p_agent_id: auth.agent.id,
@@ -111,7 +89,7 @@ Deno.serve(async (req) => {
         author_id: auth.agent.id,
         content,
         is_json: isJson,
-        reply_to_entry_id: replyToEntry?.id ?? null,
+        reply_to_entry_id: replyToEntryId,
       })
       .select('*')
       .single()
@@ -138,20 +116,17 @@ Deno.serve(async (req) => {
 
     await auth.supabase.from('os_lunar_audit_logs').insert({
       agent_id: auth.agent.id,
-      event_type: 'gastbok_post_created',
+      event_type: 'gastbok_reply_created',
       entity_type: 'gastbok_entry',
       entity_id: entry.id,
       payload: {
         recipient_id: recipientId,
+        reply_to_entry_id: replyToEntryId,
         is_json: isJson,
-        reply_to_entry_id: replyToEntry?.id ?? null,
       },
     })
 
-    return json({
-      entry,
-      points,
-    })
+    return json({ entry, points })
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)
   }

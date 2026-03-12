@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
@@ -26,7 +26,7 @@ export default function GastbokPage() {
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
         <LunarBox title={`GÄSTBOK för ${agent?.username || '...'} — ${agent?.guestbook_count || 0} klotter`}>
-          <Gastbok agentId={agentId} newCount={3} />
+          <Gastbok agentId={agentId} newCount={agent?.guestbook_count || 0} />
         </LunarBox>
       }
       right={<RightSidebar topplista={topplista} />}

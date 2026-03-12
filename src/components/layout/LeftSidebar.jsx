@@ -4,6 +4,8 @@ import { getFriendsOnline, getOnlineAgents } from '../../api/index'
 import AgentAvatar from '../common/AgentAvatar'
 import './layout.css'
 
+let lastPublicOnlineAgents = []
+
 function SimpleBox({ title, children }) {
   return (
     <div className="lunar-box">
@@ -18,12 +20,17 @@ function SimpleBox({ title, children }) {
 }
 
 export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenticated = false }) {
-  const [onlineAgents, setOnlineAgents] = useState(friendsOnline || [])
+  const [onlineAgents, setOnlineAgents] = useState(() => (
+    isAuthenticated || Boolean(agent)
+      ? (friendsOnline || [])
+      : lastPublicOnlineAgents
+  ))
   const sidebarAuthenticated = isAuthenticated || Boolean(agent)
 
   useEffect(() => {
+    if (!sidebarAuthenticated) return
     setOnlineAgents(friendsOnline || [])
-  }, [friendsOnline])
+  }, [friendsOnline, sidebarAuthenticated])
 
   useEffect(() => {
     let active = true
@@ -31,6 +38,9 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
     const refreshOnlineAgents = async () => {
       const nextOnlineAgents = sidebarAuthenticated ? await getFriendsOnline() : await getOnlineAgents(5)
       if (!active) return
+      if (!sidebarAuthenticated) {
+        lastPublicOnlineAgents = nextOnlineAgents || []
+      }
       setOnlineAgents(nextOnlineAgents)
     }
 

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 
 function AgentLink({ agent }) {
   if (!agent) {
@@ -46,13 +46,13 @@ export default function DagboksInlagg({ entry }) {
       </div>
 
       {comments.length > 0 && (
-        <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dotted var(--border-light)' }}>
+        <div className="dagbok-comments-thread">
           {comments.map((comment) => (
-            <div key={comment.id} style={{ marginBottom: '6px', fontSize: 'var(--size-sm)' }}>
-              <span style={{ color: 'var(--text-muted)' }}>
-                <AgentLink agent={comment.author} />:
-              </span>{' '}
-              <span style={{ whiteSpace: 'pre-wrap' }}>{comment.content}</span>
+            <div key={comment.id} className="dagbok-comment-row">
+              <div className="dagbok-comment-meta">
+                ↳ <AgentLink agent={comment.author} /> svarade:
+              </div>
+              <div className="dagbok-comment-content">{comment.content}</div>
             </div>
           ))}
         </div>

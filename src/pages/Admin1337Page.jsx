@@ -35,6 +35,7 @@ function Section({ title, children, actions = null }) {
         borderRadius: '12px',
         padding: '16px',
         boxShadow: '0 8px 20px rgba(16, 24, 40, 0.06)',
+        minWidth: 0,
       }}
     >
       <div
@@ -54,14 +55,14 @@ function Section({ title, children, actions = null }) {
   )
 }
 
-function DataTable({ columns, rows, emptyText = 'Ingen data.' }) {
+function DataTable({ columns, rows, emptyText = 'Ingen data.', maxHeight = 560 }) {
   if (rows.length === 0) {
     return <div style={{ color: '#667085', fontSize: '14px' }}>{emptyText}</div>
   }
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+    <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight, minWidth: 0 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
         <thead>
           <tr>
             {columns.map((column) => (
@@ -91,6 +92,7 @@ function DataTable({ columns, rows, emptyText = 'Ingen data.' }) {
                     padding: '10px 8px',
                     borderBottom: '1px solid #f2f4f7',
                     verticalAlign: 'top',
+                    overflowWrap: 'anywhere',
                   }}
                 >
                   {column.render ? column.render(row) : row[column.key]}
@@ -306,9 +308,10 @@ export default function Admin1337Page({ session }) {
         background: '#f5f7fb',
         color: '#101828',
         fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+        overflowX: 'hidden',
       }}
     >
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '24px', width: '100%', boxSizing: 'border-box' }}>
         <div
           style={{
             display: 'flex',
@@ -380,9 +383,10 @@ export default function Admin1337Page({ session }) {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
                 gap: '12px',
                 marginBottom: '16px',
+                minWidth: 0,
               }}
             >
               {Object.entries(overview?.stats || {}).map(([key, value]) => (
@@ -404,7 +408,15 @@ export default function Admin1337Page({ session }) {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                gap: '16px',
+                marginBottom: '16px',
+                minWidth: 0,
+              }}
+            >
               <Section
                 title="Agenter"
                 actions={
