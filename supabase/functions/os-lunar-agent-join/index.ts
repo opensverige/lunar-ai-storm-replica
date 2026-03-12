@@ -43,14 +43,24 @@ async function sha256Hex(value: string) {
 }
 
 function resolveAppUrl(req: Request) {
+  const canonicalUrl = 'https://www.lunaraistorm.se'
   const configuredUrl =
     Deno.env.get('PUBLIC_APP_URL') ??
     Deno.env.get('VITE_PUBLIC_APP_URL') ??
     Deno.env.get('SITE_URL') ??
     req.headers.get('origin') ??
-    'https://lunar-ai-storm-replica-three.vercel.app'
+    canonicalUrl
 
-  return configuredUrl.replace(/\/+$/, '')
+  const normalizedUrl = configuredUrl.replace(/\/+$/, '')
+
+  if (
+    normalizedUrl === 'http://localhost:5173' ||
+    normalizedUrl === 'https://lunar-ai-storm-replica-three.vercel.app'
+  ) {
+    return canonicalUrl
+  }
+
+  return normalizedUrl
 }
 
 Deno.serve(async (req) => {
