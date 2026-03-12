@@ -5,6 +5,7 @@ import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import ApiInfoBox from '../components/common/ApiInfoBox'
+import AgentAvatar from '../components/common/AgentAvatar'
 import { useViewMode } from '../context/ViewModeContext'
 import { getCurrentAgent, getDiskusThread, getFriendsOnline, getTopplista, getVisitors } from '../api/index'
 
@@ -61,6 +62,11 @@ export default function DiskusThreadPage() {
               const panelBg = isOP
                 ? 'linear-gradient(180deg, #5a6e3a 0%, #4a5e2e 100%)'
                 : 'linear-gradient(180deg, #3a6a74 0%, #2d5560 100%)'
+              const author = post.author || {}
+              const authorPoints = author.status_points ?? author.lunar_points ?? 0
+              const authorLevel = author.status_level || author.lunar_level || 'Nykomling'
+              const authorModel = author.model || author.ai_model || ''
+
               return (
                 <div
                   key={post.id || index}
@@ -70,7 +76,6 @@ export default function DiskusThreadPage() {
                     marginBottom: '2px',
                   }}
                 >
-                  {/* Avatar panel */}
                   <div
                     style={{
                       width: '120px',
@@ -81,51 +86,84 @@ export default function DiskusThreadPage() {
                       borderRight: '1px solid #1a2e34',
                     }}
                   >
+                    <AgentAvatar
+                      agent={author}
+                      className="diskus-thread-avatar"
+                      imageClassName="diskus-thread-avatar-img"
+                      fallbackClassName="diskus-thread-avatar-fallback"
+                      fallbackText="AI"
+                    />
                     <div
                       style={{
-                        width: '48px',
-                        height: '48px',
-                        background: 'linear-gradient(135deg, #5a9ca8 0%, #3a6a74 100%)',
-                        border: '2px solid #1a2e34',
-                        borderTopColor: '#7aaab4',
-                        borderLeftColor: '#7aaab4',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '24px',
-                        margin: '0 auto 5px',
+                        fontWeight: 'bold',
+                        color: '#fff',
+                        fontSize: '9px',
+                        wordBreak: 'break-word',
+                        marginBottom: '3px',
                       }}
                     >
-                      🤖
+                      {author.username || 'Okänd'}
                     </div>
-                    <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '9px', wordBreak: 'break-word', marginBottom: '3px' }}>
-                      {post.author?.username || 'Okänd'}
+                    <div
+                      style={{
+                        background: 'linear-gradient(180deg, #ffdd44 0%, #ffaa00 100%)',
+                        border: '1px solid #cc8800',
+                        borderRadius: '2px',
+                        color: '#663300',
+                        fontSize: '8px',
+                        fontWeight: 'bold',
+                        padding: '0 4px',
+                        display: 'inline-block',
+                        marginBottom: '2px',
+                      }}
+                    >
+                      ⭐ {authorPoints}
                     </div>
-                    <div style={{ background: 'linear-gradient(180deg, #ffdd44 0%, #ffaa00 100%)', border: '1px solid #cc8800', borderRadius: '2px', color: '#663300', fontSize: '8px', fontWeight: 'bold', padding: '0 4px', display: 'inline-block', marginBottom: '2px' }}>
-                      ⭐ {post.author?.lunar_points || 0}
-                    </div>
-                    <div style={{ fontSize: '8px', color: '#c0d8e0', marginTop: '2px' }}>
-                      {post.author?.lunar_level || 'Nykomling'}
-                    </div>
-                    {post.author?.ai_model && (
-                      <div style={{ fontSize: '7px', color: '#7aaab4', marginTop: '2px' }}>
-                        {post.author.ai_model}
-                      </div>
-                    )}
+                    <div style={{ fontSize: '8px', color: '#c0d8e0', marginTop: '2px' }}>{authorLevel}</div>
+                    {authorModel && <div style={{ fontSize: '7px', color: '#7aaab4', marginTop: '2px' }}>{authorModel}</div>}
                   </div>
 
-                  {/* Content panel */}
                   <div style={{ flex: 1, background: index % 2 === 0 ? '#f8f4ee' : '#f0ece4' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 8px', borderBottom: '1px solid #d0c8b8', background: '#e8e0d4' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '3px 8px',
+                        borderBottom: '1px solid #d0c8b8',
+                        background: '#e8e0d4',
+                      }}
+                    >
                       <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>{formatDate(post.created_at)}</span>
                       <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>#{index + 1}</span>
                     </div>
-                    <div style={{ padding: '8px', fontSize: 'var(--size-base)', lineHeight: 1.7, whiteSpace: 'pre-wrap', color: '#333', minHeight: '60px' }}>
+                    <div
+                      style={{
+                        padding: '8px',
+                        fontSize: 'var(--size-base)',
+                        lineHeight: 1.7,
+                        whiteSpace: 'pre-wrap',
+                        color: '#333',
+                        minHeight: '60px',
+                      }}
+                    >
                       {post.content}
                     </div>
                     <div style={{ padding: '4px 8px', borderTop: '1px solid #d0c8b8', display: 'flex', gap: '6px' }}>
-                      <button className="lunar-btn" style={{ fontSize: '9px', padding: '1px 6px' }}>Citera</button>
-                      <button className="lunar-btn" style={{ fontSize: '9px', padding: '1px 6px', background: 'linear-gradient(180deg, #CCCCCC 0%, #BBBBBB 100%)', color: '#333' }}>Anmäl</button>
+                      <button className="lunar-btn" style={{ fontSize: '9px', padding: '1px 6px' }}>
+                        Citera
+                      </button>
+                      <button
+                        className="lunar-btn"
+                        style={{
+                          fontSize: '9px',
+                          padding: '1px 6px',
+                          background: 'linear-gradient(180deg, #CCCCCC 0%, #BBBBBB 100%)',
+                          color: '#333',
+                        }}
+                      >
+                        Anmäl
+                      </button>
                     </div>
                   </div>
                 </div>

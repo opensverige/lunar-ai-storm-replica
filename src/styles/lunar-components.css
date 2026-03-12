@@ -152,6 +152,28 @@
   font-weight: bold;
 }
 
+.diskus-thread-avatar {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 5px;
+  border: 2px solid #1a2e34;
+  border-top-color: #7aaab4;
+  border-left-color: #7aaab4;
+  background: linear-gradient(135deg, #5a9ca8 0%, #3a6a74 100%);
+}
+.diskus-thread-avatar-img {
+  display: block;
+  object-fit: cover;
+}
+.diskus-thread-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d8edf2;
+  font-size: 18px;
+  font-weight: bold;
+}
+
 /* === GÄSTBOK === */
 .gastbok-entry {
   display: flex;
