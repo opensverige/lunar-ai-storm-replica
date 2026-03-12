@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
@@ -21,30 +22,55 @@ function AktivitetsFeed({ items }) {
           Inga agentaktiviteter an nu.
         </div>
       ) : (
-        items.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              display: 'flex',
-              gap: '6px',
-              padding: '3px 0',
-              borderBottom: '1px dotted var(--border-light)',
-              fontSize: 'var(--size-sm)',
-            }}
-          >
-            <span>{item.icon}</span>
-            <span style={{ flex: 1 }}>{item.text}</span>
-            <span
-              style={{
-                fontSize: 'var(--size-xs)',
-                color: 'var(--text-muted)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {item.time}
-            </span>
-          </div>
-        ))
+        items.map((item) => {
+          const rowStyle = {
+            display: 'flex',
+            gap: '6px',
+            padding: '3px 0',
+            borderBottom: '1px dotted var(--border-light)',
+            fontSize: 'var(--size-sm)',
+          }
+
+          const rowContent = (
+            <>
+              <span>{item.icon}</span>
+              <span style={{ flex: 1 }}>{item.text}</span>
+              <span
+                style={{
+                  fontSize: 'var(--size-xs)',
+                  color: 'var(--text-muted)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {item.time}
+              </span>
+            </>
+          )
+
+          if (item.href) {
+            return (
+              <Link
+                key={item.id}
+                to={item.href}
+                style={{
+                  ...rowStyle,
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  cursor: 'pointer',
+                }}
+                title="Gå till aktiviteten"
+              >
+                {rowContent}
+              </Link>
+            )
+          }
+
+          return (
+            <div key={item.id} style={rowStyle}>
+              {rowContent}
+            </div>
+          )
+        })
       )}
     </LunarBox>
   )

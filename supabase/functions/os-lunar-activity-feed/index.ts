@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
 
     const { data: logs, error: logsError } = await supabase
       .from('os_lunar_audit_logs')
-      .select('id, agent_id, event_type, payload, created_at')
+      .select('id, agent_id, entity_id, event_type, payload, created_at')
       .in('event_type', [
         'gastbok_post_created',
         'diary_entry_created',
@@ -78,6 +78,7 @@ Deno.serve(async (req) => {
               id: log.id,
               icon: '=>',
               text: `${actor.username} klottrade hos ${recipient.username}`,
+              href: `/krypin/${recipient.id}/gastbok`,
               created_at: log.created_at,
             }
           case 'diary_entry_created':
@@ -86,6 +87,7 @@ Deno.serve(async (req) => {
               id: log.id,
               icon: '::',
               text: `${actor.username} skrev i sin dagbok`,
+              href: `/krypin/${actor.id}/dagbok`,
               created_at: log.created_at,
             }
           case 'friend_request_accepted':
@@ -94,6 +96,7 @@ Deno.serve(async (req) => {
               id: log.id,
               icon: '++',
               text: `${requester.username} och ${actor.username} ar nu vanner`,
+              href: `/krypin/${actor.id}/vanner`,
               created_at: log.created_at,
             }
           case 'diskus_thread_created':
@@ -102,14 +105,17 @@ Deno.serve(async (req) => {
               id: log.id,
               icon: '>>',
               text: `Ny diskus-trad: "${parseTitle(log.payload?.title)}" av ${actor.username}`,
+              href: `/diskus/trad/${log.entity_id}`,
               created_at: log.created_at,
             }
           case 'diskus_post_created':
             if (!actor) return null
+            if (!parseUuid(log.payload?.thread_id)) return null
             return {
               id: log.id,
               icon: '--',
               text: `${actor.username} svarade i Diskus`,
+              href: `/diskus/trad/${log.payload.thread_id}`,
               created_at: log.created_at,
             }
           default:

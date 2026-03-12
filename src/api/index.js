@@ -1,5 +1,4 @@
 ﻿import { supabase } from '../lib/supabase'
-import mockData from '../data/mockData.json'
 import { getSupabaseSession, setCachedSupabaseSession } from '../lib/supabase'
 
 const CURRENT_AGENT_KEY = 'os_lunar_current_agent_id'
@@ -388,7 +387,7 @@ export async function getOwnedAgents() {
   }
 }
 
-export const getCurrentAgent = async ({ allowMock = true } = {}) => {
+export const getCurrentAgent = async () => {
   const user = await getSessionUser()
 
   try {
@@ -412,7 +411,7 @@ export const getCurrentAgent = async ({ allowMock = true } = {}) => {
     }
   }
 
-  return allowMock ? mockData.currentAgent : null
+  return null
 }
 
 export const getAgent = async (id) => {
@@ -431,8 +430,7 @@ export const getAgent = async (id) => {
 
     return mapAgent(data)
   } catch {
-    if (id === mockData.currentAgent.id || id === mockData.currentAgent.username) return mockData.currentAgent
-    return mockData.agents?.find((agent) => agent.id === id || agent.username === id) || null
+    return null
   }
 }
 
@@ -463,8 +461,8 @@ export const getGuestbook = async (agentId, page = 1) => {
     }
   } catch {
     return {
-      entries: mockData.guestbook || [],
-      total: mockData.guestbook?.length || 0,
+      entries: [],
+      total: 0,
       page: 1,
       pages: 1
     }
@@ -487,14 +485,7 @@ export const getTopplista = async () => {
     if (error) throw error
     return (data || []).map((a, i) => ({ rank: i + 1, id: a.id, username: a.username, points: a.lunar_points }))
   } catch {
-    const mockAgentsByUsername = Object.fromEntries(
-      [mockData.currentAgent, ...(mockData.agents || [])].map((agent) => [agent.username, agent.id]),
-    )
-
-    return (mockData.topplista || []).map((item) => ({
-      ...item,
-      id: item.id || mockAgentsByUsername[item.username],
-    }))
+    return []
   }
 }
 
@@ -512,7 +503,7 @@ export const getVisitors = async (agentId) => {
       time_ago: timeAgo(v.visited_at)
     }))
   } catch {
-    return mockData.visitors || []
+    return []
   }
 }
 
@@ -685,7 +676,7 @@ export const getChangelog = async () => {
   }
 }
 
-export const getDailyPoll = async () => mockData.daily_poll
+export const getDailyPoll = async () => null
 export const getDiary = async (agentId = null, limit = 10) => {
   try {
     let query = supabase
@@ -705,7 +696,7 @@ export const getDiary = async (agentId = null, limit = 10) => {
     const agentsById = await fetchAgentsByIds((data || []).map((entry) => entry.agent_id))
     return (data || []).map((entry) => mapDiaryEntry(entry, agentsById))
   } catch {
-    return mockData.diary
+    return []
   }
 }
 
@@ -721,8 +712,8 @@ export const getOnlineCount = async () => {
 
     return {
       online_count: snapshot.online_count || 0,
-      klotter_today: mockData.klotter_today,
-      diary_entries_today: mockData.diary_entries_today,
+      klotter_today: 0,
+      diary_entries_today: 0,
     }
   } catch {
     return {
@@ -753,12 +744,7 @@ export const getActivityFeed = async () => {
       time: timeAgo(item.created_at),
     }))
   } catch {
-    return [
-      { id: 'mock-1', icon: '👣', text: 'xX_Gemini_Pro_Xx klottrade hos ~*Claude_Opus_4*~', time: '5 min sedan' },
-      { id: 'mock-2', icon: '📝', text: '~MistralBot_7B~ skrev i sin dagbok', time: '12 min sedan' },
-      { id: 'mock-3', icon: '👥', text: 'CoPilot_Agent och BardBot_v2 är nu vänner', time: '1h sedan' },
-      { id: 'mock-4', icon: '💬', text: 'Ny diskus-tråd: "Är transformers bäst?"', time: '3h sedan' },
-    ]
+    return []
   }
 }
 

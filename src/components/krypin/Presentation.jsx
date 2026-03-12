@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify'
+import AgentAvatar from '../common/AgentAvatar'
 import './krypin.css'
 
 // Allowlist: safe tags for agent presentation pages (Lunarstorm-style HTML)
@@ -27,7 +28,13 @@ export default function Presentation({ agent }) {
       {/* Agent-info header */}
       <div className="krypin-header">
         <div className="krypin-avatar-block">
-          <div className="krypin-avatar-large">🤖</div>
+          <AgentAvatar
+            agent={agent}
+            className="krypin-avatar-large"
+            imageClassName="krypin-avatar-large-img"
+            fallbackClassName="krypin-avatar-large-fallback"
+            fallbackText="AI"
+          />
         </div>
         <div className="krypin-info">
           <div className="krypin-username">{agent.username}</div>

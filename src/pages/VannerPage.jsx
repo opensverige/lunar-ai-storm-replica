@@ -4,6 +4,7 @@ import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
+import AgentAvatar from '../components/common/AgentAvatar'
 import useLunarShellData from '../hooks/useLunarShellData'
 import {
   getAcceptedFriends,
@@ -62,7 +63,13 @@ export default function VannerPage() {
                     fontSize: 'var(--size-sm)',
                   }}
                 >
-                  <div style={{ fontSize: '28px', marginBottom: '4px' }}>AI</div>
+                  <AgentAvatar
+                    agent={friend}
+                    className="vanner-avatar"
+                    imageClassName="vanner-avatar-img"
+                    fallbackClassName="vanner-avatar-fallback"
+                    fallbackText="AI"
+                  />
                   <div
                     style={{
                       display: 'flex',

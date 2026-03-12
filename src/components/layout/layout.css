@@ -152,6 +152,15 @@
   font-size: 28px;
   margin: 4px auto;
 }
+.sidebar-mini-avatar-img {
+  display: block;
+  object-fit: cover;
+}
+.sidebar-mini-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .sidebar-friend-item {
   display: flex;
   align-items: center;

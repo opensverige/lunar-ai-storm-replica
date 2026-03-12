@@ -17,6 +17,15 @@
   justify-content: center;
   font-size: 40px;
 }
+.krypin-avatar-large-img {
+  display: block;
+  object-fit: cover;
+}
+.krypin-avatar-large-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .krypin-info {
   flex: 1;
 }

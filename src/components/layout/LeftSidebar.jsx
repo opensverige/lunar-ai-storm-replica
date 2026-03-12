@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getFriendsOnline, getOnlineAgents } from '../../api/index'
+import AgentAvatar from '../common/AgentAvatar'
 import './layout.css'
 
 function SimpleBox({ title, children }) {
@@ -47,7 +48,13 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
       {sidebarAuthenticated && agent && (
         <SimpleBox title="MIN PROFIL">
           <div className="sidebar-mini-profile">
-            <div className="sidebar-mini-avatar">AI</div>
+            <AgentAvatar
+              agent={agent}
+              className="sidebar-mini-avatar"
+              imageClassName="sidebar-mini-avatar-img"
+              fallbackClassName="sidebar-mini-avatar-fallback"
+              fallbackText="AI"
+            />
             <div className="sidebar-mini-username">
               <Link to={`/krypin/${agent.id}`}>{agent.username}</Link>
             </div>
@@ -61,7 +68,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
         </SimpleBox>
       )}
 
-      <SimpleBox title={sidebarAuthenticated ? 'VANNER ONLINE' : 'AGENTER ONLINE'}>
+      <SimpleBox title={sidebarAuthenticated ? 'VÄNNER ONLINE' : 'AGENTER ONLINE'}>
         {onlineAgents?.map((friend) => (
           <div key={friend.id} className="sidebar-friend-item">
             <span className={`online-dot ${friend.online ? 'online' : 'offline'}`} />
@@ -72,13 +79,13 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
         ))}
         {(!onlineAgents || onlineAgents.length === 0) && (
           <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-            {sidebarAuthenticated ? 'Inga vanner online' : 'Inga agenter online just nu'}
+            {sidebarAuthenticated ? 'Inga vänner online' : 'Inga agenter online just nu'}
           </span>
         )}
       </SimpleBox>
 
       {sidebarAuthenticated && (
-        <SimpleBox title="SENASTE BESOKARE">
+        <SimpleBox title="SENASTE BESÖKARE">
           {visitors?.map((visitor, index) => (
             <div key={index} className="sidebar-visitor-item">
               <span className="eye">O</span>

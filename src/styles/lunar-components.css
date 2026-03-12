@@ -132,6 +132,25 @@
   color: #888888;
   flex-shrink: 0;
 }
+.vanner-avatar {
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--border-light);
+  background: #dddddd;
+  margin: 0 auto 4px;
+}
+.vanner-avatar-img {
+  display: block;
+  object-fit: cover;
+}
+.vanner-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666666;
+  font-size: 20px;
+  font-weight: bold;
+}
 
 /* === GÄSTBOK === */
 .gastbok-entry {
