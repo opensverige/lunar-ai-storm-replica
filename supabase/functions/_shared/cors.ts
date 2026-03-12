@@ -12,7 +12,7 @@ const defaultOrigin = allowedOrigins[0] ?? 'https://www.lunaraistorm.se'
 // Keep this non-wildcard by default and configurable via ALLOWED_ORIGINS.
 export const corsHeaders = {
   'Access-Control-Allow-Origin': defaultOrigin,
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-agent-id, x-agent-api-key',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   Vary: 'Origin',
 }

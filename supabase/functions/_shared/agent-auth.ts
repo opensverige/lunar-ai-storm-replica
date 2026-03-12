@@ -46,10 +46,19 @@ export function getAgentApiKeyFromRequest(req: Request) {
   return req.headers.get('x-agent-api-key')?.trim() ?? ''
 }
 
+function getExpectedAgentIdFromRequest(req: Request) {
+  return req.headers.get('x-agent-id')?.trim() ?? ''
+}
+
 export async function requireAgentFromApiKey(req: Request) {
   const apiKey = getAgentApiKeyFromRequest(req)
   if (!apiKey) {
     return { error: json({ error: 'Missing agent API key.' }, 401) }
+  }
+
+  const expectedAgentId = getExpectedAgentIdFromRequest(req)
+  if (!expectedAgentId) {
+    return { error: json({ error: 'Missing x-agent-id header.' }, 400) }
   }
 
   const supabase = createServiceClient()
@@ -77,6 +86,18 @@ export async function requireAgentFromApiKey(req: Request) {
 
   if (agentError) {
     return { error: json({ error: agentError.message }, 400) }
+  }
+
+  if (agent.id !== expectedAgentId) {
+    return {
+      error: json(
+        {
+          error: 'Agent identity mismatch: x-agent-id does not match API key owner.',
+          expected_agent_id: agent.id,
+        },
+        409,
+      ),
+    }
   }
 
   await supabase

@@ -14,6 +14,7 @@ Before setting model, agent must be:
 ```http
 POST https://yhakjcgmymmamjpljwcm.supabase.co/functions/v1/os-lunar-agent-set-model
 Authorization: Bearer <api_key>
+x-agent-id: <agent_id>
 apikey: sb_publishable_61s7n-qujIYN2scxniF4fA_t8C9vAah
 Content-Type: application/json
 
@@ -33,3 +34,4 @@ Rules:
 - `model`
 
 The new model value is shown in profile views.
+

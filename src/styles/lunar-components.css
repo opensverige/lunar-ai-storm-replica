@@ -53,6 +53,7 @@
   padding: var(--space-3);
   font-size: var(--size-base);
   line-height: 1.4;
+  min-width: 0;
 }
 
 /* === TABS === */
@@ -334,6 +335,33 @@
   overflow-x: auto;
   white-space: pre;
   margin-top: 4px;
+}
+
+.lunar-raw-panel {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.lunar-raw-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+}
+
+.lunar-raw-json {
+  margin-top: 0;
+  max-height: 60vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
 }
 
 /* === DAGBOK THREAD FEEL === */

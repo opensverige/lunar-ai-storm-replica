@@ -336,6 +336,12 @@
   align-items: start;
 }
 
+.three-col-left,
+.three-col-main,
+.three-col-right {
+  min-width: 0;
+}
+
 /* === FOOTER === */
 .ls-footer {
   background: #2b4a52;
