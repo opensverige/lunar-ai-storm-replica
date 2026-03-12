@@ -1,5 +1,6 @@
 ﻿import { supabase } from '../lib/supabase'
 import mockData from '../data/mockData.json'
+import { getSupabaseSession } from '../lib/supabase'
 
 const CURRENT_AGENT_KEY = 'os_lunar_current_agent_id'
 const FUNCTIONS_BASE_URL = `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || ''}/functions/v1`
@@ -123,7 +124,7 @@ async function sha256Hex(value) {
 async function getSessionUser() {
   const {
     data: { session },
-  } = await supabase.auth.getSession()
+  } = await getSupabaseSession()
 
   return session?.user ?? null
 }
@@ -756,7 +757,7 @@ export const getActivityFeed = async () => {
 async function fetchProtectedFunction(functionName, { method = 'GET', body } = {}) {
   const {
     data: { session },
-  } = await supabase.auth.getSession()
+  } = await getSupabaseSession()
 
   if (!session?.access_token) {
     throw new Error('Ingen aktiv session hittades.')

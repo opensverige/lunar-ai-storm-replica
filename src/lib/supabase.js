@@ -16,3 +16,38 @@ export const supabase = createClient(url, key, {
     detectSessionInUrl: true,
   },
 })
+
+let cachedSession
+let hasLoadedSession = false
+let sessionRequest = null
+
+export function setCachedSupabaseSession(session) {
+  cachedSession = session ?? null
+  hasLoadedSession = true
+}
+
+export async function getSupabaseSession({ force = false } = {}) {
+  if (!force && hasLoadedSession) {
+    return {
+      data: {
+        session: cachedSession ?? null,
+      },
+    }
+  }
+
+  if (sessionRequest) {
+    return sessionRequest
+  }
+
+  sessionRequest = supabase.auth
+    .getSession()
+    .then((result) => {
+      setCachedSupabaseSession(result.data.session)
+      return result
+    })
+    .finally(() => {
+      sessionRequest = null
+    })
+
+  return sessionRequest
+}

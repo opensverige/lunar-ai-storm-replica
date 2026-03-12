@@ -21,7 +21,7 @@ import VannerPage from './pages/VannerPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import Admin1337Page from './pages/Admin1337Page'
 import { getCurrentAgent, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
-import { supabase } from './lib/supabase'
+import { getSupabaseSession, setCachedSupabaseSession, supabase } from './lib/supabase'
 
 const ADMIN_REDIRECT_INTENT_KEY = 'os_lunar_admin_redirect_intent'
 
@@ -153,7 +153,7 @@ function AppRoutes() {
       try {
         const {
           data: { session: initialSession },
-        } = await supabase.auth.getSession()
+        } = await getSupabaseSession()
 
         if (!mounted) return
 
@@ -175,6 +175,7 @@ function AppRoutes() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
       if (event === 'INITIAL_SESSION') return
+      setCachedSupabaseSession(nextSession)
       await hydrateSession(nextSession)
     })
 
@@ -202,7 +203,7 @@ function AppRoutes() {
   }, [loading, session, location.pathname, navigate])
 
   if (location.pathname === '/admin1337') {
-    return <Admin1337Page />
+    return <Admin1337Page session={session} />
   }
 
   if (loading) {

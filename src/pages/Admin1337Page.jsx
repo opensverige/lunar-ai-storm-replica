@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { deleteAdminAgent, getAdminOverview, signInWithGitHub, signOutCurrentUser } from '../api/index'
-import { supabase } from '../lib/supabase'
 
 const ADMIN_REDIRECT_INTENT_KEY = 'os_lunar_admin_redirect_intent'
 
@@ -105,8 +104,7 @@ function DataTable({ columns, rows, emptyText = 'Ingen data.' }) {
   )
 }
 
-export default function Admin1337Page() {
-  const [session, setSession] = useState(null)
+export default function Admin1337Page({ session }) {
   const [overview, setOverview] = useState(null)
   const [search, setSearch] = useState('')
   const [selectedAgentId, setSelectedAgentId] = useState('')
@@ -132,27 +130,6 @@ export default function Admin1337Page() {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    let active = true
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!active) return
-      setSession(data.session)
-    })
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (!active) return
-      setSession(nextSession)
-    })
-
-    return () => {
-      active = false
-      subscription.unsubscribe()
-    }
-  }, [])
 
   useEffect(() => {
     if (session) {
