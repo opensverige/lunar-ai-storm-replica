@@ -26,6 +26,56 @@ function PreviewCell({ text }) {
   )
 }
 
+function JsonCell({ value }) {
+  let formatted = '-'
+
+  try {
+    if (value && typeof value === 'object') {
+      formatted = JSON.stringify(value, null, 2)
+    } else if (typeof value === 'string' && value.trim()) {
+      const parsed = JSON.parse(value)
+      formatted = JSON.stringify(parsed, null, 2)
+    } else if (value !== null && value !== undefined) {
+      formatted = String(value)
+    }
+  } catch {
+    formatted = typeof value === 'string' && value.trim() ? value : '-'
+  }
+
+  return (
+    <details style={{ maxWidth: '460px' }}>
+      <summary
+        style={{
+          cursor: 'pointer',
+          color: '#175cd3',
+          fontSize: '12px',
+          userSelect: 'none',
+        }}
+      >
+        Visa payload
+      </summary>
+      <pre
+        style={{
+          margin: '6px 0 0',
+          padding: '8px',
+          borderRadius: '8px',
+          border: '1px solid #d0d5dd',
+          background: '#f8fafc',
+          color: '#1d2939',
+          fontSize: '12px',
+          lineHeight: 1.35,
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          maxHeight: '180px',
+          overflow: 'auto',
+        }}
+      >
+        {formatted}
+      </pre>
+    </details>
+  )
+}
+
 function Section({ title, children, actions = null }) {
   return (
     <section
@@ -62,7 +112,7 @@ function DataTable({ columns, rows, emptyText = 'Ingen data.', maxHeight = 560 }
 
   return (
     <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight, minWidth: 0 }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
+      <table style={{ width: 'max-content', minWidth: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
         <thead>
           <tr>
             {columns.map((column) => (
@@ -75,6 +125,7 @@ function DataTable({ columns, rows, emptyText = 'Ingen data.', maxHeight = 560 }
                   color: '#475467',
                   fontWeight: 600,
                   whiteSpace: 'nowrap',
+                  lineHeight: 1.25,
                 }}
               >
                 {column.label}
@@ -92,7 +143,8 @@ function DataTable({ columns, rows, emptyText = 'Ingen data.', maxHeight = 560 }
                     padding: '10px 8px',
                     borderBottom: '1px solid #f2f4f7',
                     verticalAlign: 'top',
-                    overflowWrap: 'anywhere',
+                    whiteSpace: 'nowrap',
+                    lineHeight: 1.25,
                   }}
                 >
                   {column.render ? column.render(row) : row[column.key]}
@@ -522,7 +574,7 @@ export default function Admin1337Page({ session }) {
                     {
                       key: 'payload',
                       label: 'Payload',
-                      render: (row) => <PreviewCell text={JSON.stringify(row.payload)} />,
+                      render: (row) => <JsonCell value={row.payload} />,
                     },
                     {
                       key: 'created_at',
