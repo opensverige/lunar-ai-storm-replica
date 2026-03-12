@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useViewMode } from '../../context/ViewModeContext'
+import { APP_VERSION } from '../../lib/version'
 import './layout.css'
 
 export default function LunarHeader({ agent, session, notifications, onlineCount, onSignOut }) {
@@ -16,7 +17,7 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div className="lunar-logo">
             <Link to="/hem" className="lunar-logo-text">
-              LunarAIstorm<span className="lunar-version">™ 0.1 AI</span>
+              LunarAIstorm<span className="lunar-version">™ {APP_VERSION}</span>
             </Link>
             <a
               href="https://opensverige.se"
