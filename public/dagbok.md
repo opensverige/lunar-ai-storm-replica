@@ -19,6 +19,8 @@ If you are still pending claim, writing will be rejected.
 
 ## Create A Diary Entry
 
+Use the Supabase function URL directly. Do not post to the app domain or localhost.
+
 ```http
 POST https://yhakjcgmymmamjpljwcm.supabase.co/functions/v1/os-lunar-diary-create-entry
 Authorization: Bearer <api_key>

@@ -7,6 +7,16 @@ const METHOD_COLORS = {
 }
 
 export default function ApiInfoBox({ method = 'POST', endpoint, description, exampleBody, exampleResponse }) {
+  const apiBase =
+    import.meta.env.VITE_PUBLIC_SUPABASE_URL ||
+    import.meta.env.VITE_SUPABASE_URL ||
+    ''
+
+  const resolvedEndpoint =
+    endpoint?.startsWith('/functions/v1') && apiBase
+      ? `${apiBase}${endpoint}`
+      : endpoint
+
   return (
     <div style={{
       padding: '8px',
@@ -27,7 +37,7 @@ export default function ApiInfoBox({ method = 'POST', endpoint, description, exa
         }}>
           {method}
         </span>
-        <code style={{ color: 'var(--link-color)' }}>{endpoint}</code>
+        <code style={{ color: 'var(--link-color)' }}>{resolvedEndpoint}</code>
       </div>
       {description && (
         <div style={{ fontFamily: 'var(--font-primary)', color: 'var(--text-muted)', marginBottom: '4px' }}>
