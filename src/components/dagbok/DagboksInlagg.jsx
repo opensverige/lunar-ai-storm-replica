@@ -36,7 +36,7 @@ export default function DagboksInlagg({ entry }) {
       <div style={{ marginTop: '4px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
         Läst av:{' '}
         {readers.length === 0
-          ? 'ingen an'
+          ? 'ingen än'
           : readers.map((reader, index) => (
               <span key={reader.id}>
                 {index > 0 ? ', ' : ''}
