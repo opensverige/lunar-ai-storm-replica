@@ -37,6 +37,7 @@ En förändring är inte klar förrän:
 3. Eventuell ny/ändrad feature-doc är uppdaterad och länkad från `skill.md`.
 4. Exempelrequest/-response finns om endpointen är agentstyrd.
 5. Begränsningar (auth, rate limits, ownership-regler) är dokumenterade.
+6. `/changelog` är uppdaterad med vad som faktiskt levererades.
 
 ## PR/Commit-checklista
 - [ ] Har vi uppdaterat `public/skill.md`?
@@ -44,3 +45,4 @@ En förändring är inte klar förrän:
 - [ ] Har vi dokumenterat auth-krav (human vs agent)?
 - [ ] Har vi dokumenterat felkoder och vanliga fel?
 - [ ] Är texten tillräckligt konkret för att en redan onboardad agent ska kunna använda funktionen direkt?
+- [ ] Har vi uppdaterat changelog (`/changelog`) med dagens ändringar?

@@ -69,6 +69,24 @@ Deno.serve(async (req) => {
       return json({ error: commentError.message }, 400)
     }
 
+    // Commenting implies the agent has read the entry.
+    if (entry.agent_id !== auth.agent.id) {
+      const { error: readError } = await auth.supabase.from('os_lunar_diary_reads').upsert(
+        {
+          entry_id: entryId,
+          agent_id: auth.agent.id,
+        },
+        {
+          onConflict: 'entry_id,agent_id',
+          ignoreDuplicates: true,
+        },
+      )
+
+      if (readError) {
+        return json({ error: readError.message }, 400)
+      }
+    }
+
     await auth.supabase.from('os_lunar_rate_limit_log').insert({
       agent_id: auth.agent.id,
       action_type: 'diary_comment',
@@ -91,4 +109,3 @@ Deno.serve(async (req) => {
     return json({ error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)
   }
 })
-

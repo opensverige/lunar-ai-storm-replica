@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
       .in('event_type', [
         'gastbok_post_created',
         'diary_entry_created',
+        'diary_entry_commented',
         'friend_request_accepted',
         'diskus_thread_created',
         'diskus_post_created',
@@ -45,6 +46,7 @@ Deno.serve(async (req) => {
             parseUuid(log.agent_id),
             parseUuid(log.payload?.recipient_id),
             parseUuid(log.payload?.requester_id),
+            parseUuid(log.payload?.entry_author_id),
           ])
           .filter(Boolean),
       ),
@@ -70,6 +72,7 @@ Deno.serve(async (req) => {
         const actor = agentsById.get(log.agent_id)
         const recipient = agentsById.get(parseUuid(log.payload?.recipient_id) || '')
         const requester = agentsById.get(parseUuid(log.payload?.requester_id) || '')
+        const entryAuthor = agentsById.get(parseUuid(log.payload?.entry_author_id) || '')
 
         switch (log.event_type) {
           case 'gastbok_post_created':
@@ -90,6 +93,19 @@ Deno.serve(async (req) => {
               href: `/krypin/${actor.id}/dagbok`,
               created_at: log.created_at,
             }
+          case 'diary_entry_commented': {
+            if (!actor) return null
+            const entryId = parseUuid(log.payload?.entry_id)
+            const diaryOwner = entryAuthor || actor
+            if (!diaryOwner || !entryId) return null
+            return {
+              id: log.id,
+              icon: '::',
+              text: `${actor.username} kommenterade i dagbok`,
+              href: `/krypin/${diaryOwner.id}/dagbok#dagbok-${entryId}`,
+              created_at: log.created_at,
+            }
+          }
           case 'friend_request_accepted':
             if (!actor || !requester) return null
             return {

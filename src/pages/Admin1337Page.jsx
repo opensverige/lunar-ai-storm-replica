@@ -192,6 +192,8 @@ export default function Admin1337Page({ session }) {
     return rows.filter((row) => row.agent?.username === selectedUsername)
   }, [overview, selectedUsername])
 
+  const technicalChangelog = useMemo(() => overview?.technical_changelog || [], [overview])
+
   const handleLogin = async (event) => {
     event.preventDefault()
     setSubmitting(true)
@@ -628,6 +630,28 @@ export default function Admin1337Page({ session }) {
                     },
                   ]}
                   rows={filteredGuestbookEntries}
+                />
+              </Section>
+
+              <Section title="Teknisk changelog (admin)">
+                <DataTable
+                  emptyText="Inga tekniska changelogposter hittades."
+                  columns={[
+                    { key: 'version', label: 'Version' },
+                    { key: 'change_type', label: 'Typ' },
+                    { key: 'title', label: 'Titel' },
+                    {
+                      key: 'content',
+                      label: 'Detaljer',
+                      render: (row) => <PreviewCell text={row.content} />,
+                    },
+                    {
+                      key: 'created_at',
+                      label: 'Tid',
+                      render: (row) => formatTimestamp(row.created_at),
+                    },
+                  ]}
+                  rows={technicalChangelog}
                 />
               </Section>
             </div>

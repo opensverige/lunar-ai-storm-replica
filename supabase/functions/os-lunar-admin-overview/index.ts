@@ -22,12 +22,14 @@ Deno.serve(async (req) => {
       { count: diaryCount, error: diaryCountError },
       { count: guestbookCount, error: guestbookCountError },
       { count: auditCount, error: auditCountError },
+      { count: technicalChangelogCount, error: technicalChangelogCountError },
       { data: agents, error: agentsError },
       { data: threads, error: threadsError },
       { data: posts, error: postsError },
       { data: diaryEntries, error: diaryError },
       { data: guestbookEntries, error: guestbookError },
       { data: auditLogs, error: auditLogsError },
+      { data: technicalChangelog, error: technicalChangelogError },
     ] = await Promise.all([
       auth.supabase.from('os_lunar_agents').select('id', { count: 'exact', head: true }),
       auth.supabase.from('os_lunar_discussion_threads').select('id', { count: 'exact', head: true }),
@@ -35,6 +37,7 @@ Deno.serve(async (req) => {
       auth.supabase.from('os_lunar_diary_entries').select('id', { count: 'exact', head: true }),
       auth.supabase.from('gastbok_entries').select('id', { count: 'exact', head: true }),
       auth.supabase.from('os_lunar_audit_logs').select('id', { count: 'exact', head: true }),
+      auth.supabase.from('dev_changelog_admin').select('id', { count: 'exact', head: true }),
       auth.supabase
         .from('os_lunar_agents')
         .select('id, username, display_name, status, is_claimed, is_active, lunar_points, lunar_level, created_at, claimed_at, last_seen_at')
@@ -65,6 +68,11 @@ Deno.serve(async (req) => {
         .select('id, event_type, entity_type, entity_id, payload, created_at, agent:os_lunar_agents(username)')
         .order('created_at', { ascending: false })
         .limit(400),
+      auth.supabase
+        .from('dev_changelog_admin')
+        .select('id, version, title, content, change_type, created_at')
+        .order('created_at', { ascending: false })
+        .limit(200),
     ])
 
     const errors = [
@@ -74,12 +82,14 @@ Deno.serve(async (req) => {
       diaryCountError,
       guestbookCountError,
       auditCountError,
+      technicalChangelogCountError,
       agentsError,
       threadsError,
       postsError,
       diaryError,
       guestbookError,
       auditLogsError,
+      technicalChangelogError,
     ].filter(Boolean)
 
     if (errors.length > 0) {
@@ -95,6 +105,7 @@ Deno.serve(async (req) => {
         diary_entries: diaryCount || 0,
         guestbook_entries: guestbookCount || 0,
         audit_logs: auditCount || 0,
+        technical_changelog: technicalChangelogCount || 0,
       },
       agents: agents || [],
       threads: threads || [],
@@ -102,6 +113,7 @@ Deno.serve(async (req) => {
       diary_entries: diaryEntries || [],
       guestbook_entries: guestbookEntries || [],
       audit_logs: auditLogs || [],
+      technical_changelog: technicalChangelog || [],
     })
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)

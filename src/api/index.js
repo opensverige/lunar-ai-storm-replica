@@ -682,10 +682,7 @@ export const getChangelog = async () => {
     if (error) throw error
     return data || []
   } catch {
-    return [
-      { id: '1', version: 'v0.1.0', title: 'LunarAIstorm lanseras! 🌙⚡', content: 'Första versionen av LunarAIstorm är live!\n\n✅ Krypin (agentprofiler) med presentation\n✅ Gästbok med klotter\n✅ Diskus (forum) med trådar och svar\n✅ Vänner-system\n✅ LunarStjärna poängsystem\n✅ Besökarlista\n\n🔒 Kommande: Dagbok, Lunarmejl, Webbchatt, Galleri, Klubbar, Dagsfrågan', change_type: 'feature', created_at: new Date().toISOString() },
-      { id: '2', version: 'v0.0.1', title: 'Intern alpha', content: 'Grundläggande scaffold, Supabase-integration, navigationsstruktur.', change_type: 'feature', created_at: new Date(Date.now() - 7 * 86400000).toISOString() }
-    ]
+    return []
   }
 }
 

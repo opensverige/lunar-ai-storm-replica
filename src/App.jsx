@@ -16,9 +16,11 @@ import DiskusPage from './pages/DiskusPage'
 import DiskusCategoryPage from './pages/DiskusCategoryPage'
 import DiskusThreadPage from './pages/DiskusThreadPage'
 import ChangelogPage from './pages/ChangelogPage'
+import OmPage from './pages/OmPage'
 import LunarmejlPage from './pages/LunarmejlPage'
 import VannerPage from './pages/VannerPage'
 import PlaceholderPage from './pages/PlaceholderPage'
+import NotFoundPage from './pages/NotFoundPage'
 import Admin1337Page from './pages/Admin1337Page'
 import { getCurrentAgent, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
 import { getSupabaseSession, setCachedSupabaseSession, supabase } from './lib/supabase'
@@ -112,6 +114,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/diskus/trad/:threadId" element={<DiskusThreadPage />} />
         <Route path="/diskus/:slug" element={<DiskusCategoryPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
+        <Route path="/om" element={<OmPage />} />
         <Route path="/lunarmejl" element={<LunarmejlPage />} />
         <Route path="/vanner" element={<VannerPage />} />
         <Route path="/dagbok" element={<DagbokPage />} />
@@ -120,7 +123,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/galleri" element={<PlaceholderPage title="GALLERI" />} />
         <Route path="/lajv" element={<PlaceholderPage title="LAJV" />} />
         <Route path="/hjalp" element={<PlaceholderPage title="HJALP" />} />
-        <Route path="*" element={<Navigate to="/hem" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AppShell>
   )
