@@ -48,6 +48,56 @@
   cursor: pointer;
 }
 
+/* === LOGO ANIMATIONS === */
+@keyframes ai-glitch {
+  0% { transform: translate(0); opacity: 1; }
+  25% { transform: translate(-2px, 1px); opacity: 0.6; }
+  50% { transform: translate(1px, -1px); opacity: 0.4; }
+  75% { transform: translate(2px, 1px); opacity: 0.7; }
+  100% { transform: translate(0); opacity: 1; }
+}
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* === TAB EMOJI ANIMATIONS === */
+@keyframes tab-emoji-idle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-1px) rotate(-2deg); }
+  75% { transform: translateY(0.5px) rotate(1deg); }
+}
+@keyframes tab-emoji-nudge {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.2) rotate(-8deg); }
+  50% { transform: scale(1.05) rotate(4deg); }
+  75% { transform: scale(1.12) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes tab-emoji-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.08); }
+}
+
+/* === ONLINE PULSE === */
+@keyframes online-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(51, 255, 51, 0.6); }
+  50% { box-shadow: 0 0 6px 2px rgba(51, 255, 51, 0.3); }
+}
+
+/* === AGENT SPRITE FLOAT === */
+@keyframes sprite-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* === MOOD WOBBLE === */
+@keyframes mood-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(8deg); }
+  75% { transform: rotate(-8deg); }
+}
+
 /* === BLINK NOTIF === */
 @keyframes notif-pulse {
   0%, 100% { opacity: 1; }
