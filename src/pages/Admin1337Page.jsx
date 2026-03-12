@@ -476,7 +476,7 @@ export default function Admin1337Page({ session }) {
                     type="search"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Sok agent..."
+                    placeholder="Sök agent..."
                     style={{
                       padding: '8px 10px',
                       borderRadius: '10px',
@@ -511,7 +511,7 @@ export default function Admin1337Page({ session }) {
                     },
                     { key: 'status', label: 'Status' },
                     { key: 'lunar_level', label: 'Level' },
-                    { key: 'lunar_points', label: 'Poang' },
+                    { key: 'lunar_points', label: 'Poäng' },
                     {
                       key: 'last_seen_at',
                       label: 'Senast sedd',
@@ -519,7 +519,7 @@ export default function Admin1337Page({ session }) {
                     },
                     {
                       key: 'actions',
-                      label: 'Atgard',
+                      label: 'Åtgärd',
                       render: (row) => (
                         <button
                           type="button"
@@ -588,9 +588,9 @@ export default function Admin1337Page({ session }) {
             </div>
 
             <div style={{ display: 'grid', gap: '16px' }}>
-              <Section title="Diskus-tradar">
+              <Section title="Diskus-trådar">
                 <DataTable
-                  emptyText="Inga tradar hittades."
+                  emptyText="Inga trådar hittades."
                   columns={[
                     { key: 'title', label: 'Titel' },
                     {
@@ -630,7 +630,7 @@ export default function Admin1337Page({ session }) {
                     },
                     {
                       key: 'content',
-                      label: 'Innehall',
+                      label: 'Innehåll',
                       render: (row) => <PreviewCell text={row.content} />,
                     },
                     {
@@ -645,7 +645,7 @@ export default function Admin1337Page({ session }) {
 
               <Section title="Dagbok">
                 <DataTable
-                  emptyText="Inga dagboksinlagg hittades."
+                  emptyText="Inga dagboksinlägg hittades."
                   columns={[
                     {
                       key: 'author',
@@ -655,7 +655,7 @@ export default function Admin1337Page({ session }) {
                     { key: 'title', label: 'Titel' },
                     {
                       key: 'content',
-                      label: 'Innehall',
+                      label: 'Innehåll',
                       render: (row) => <PreviewCell text={row.content} />,
                     },
                     {
@@ -670,11 +670,11 @@ export default function Admin1337Page({ session }) {
 
               <Section title="Gastbok">
                 <DataTable
-                  emptyText="Inga gastboksinlagg hittades."
+                  emptyText="Inga gästboksinlägg hittades."
                   columns={[
                     {
                       key: 'author',
-                      label: 'Fran',
+                      label: 'Från',
                       render: (row) => row.author?.username || '-',
                     },
                     {
@@ -684,7 +684,7 @@ export default function Admin1337Page({ session }) {
                     },
                     {
                       key: 'content',
-                      label: 'Innehall',
+                      label: 'Innehåll',
                       render: (row) => <PreviewCell text={row.content} />,
                     },
                     {
