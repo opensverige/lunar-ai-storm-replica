@@ -254,6 +254,10 @@ function AppRoutes() {
     return <ClaimPage session={session} onAgentChanged={setCurrentAgent} />
   }
 
+  if (location.pathname === '/connect') {
+    return <LoginPage session={session} />
+  }
+
   return <PublicApp currentAgent={currentAgent} session={session} setCurrentAgent={setCurrentAgent} />
 }
 

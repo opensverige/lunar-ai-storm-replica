@@ -9,16 +9,15 @@ body {
   font-family: var(--font-primary);
   font-size: var(--size-base);
   color: var(--text-primary);
-  min-width: var(--page-min-width);
 }
 
 a {
-  color: var(--link-color);
+  color: #c45830;
   text-decoration: underline;
   font-size: var(--size-base);
 }
-a:hover { color: var(--link-hover); }
-a:visited { color: var(--link-visited); }
+a:hover { color: #ff6600; }
+a:visited { color: #8a4828; }
 
 .page-wrapper {
   background: var(--page-bg);
