@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
   }
 
   const authHeader = req.headers.get('Authorization')
-  if (!authHeader) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return json({ error: 'Missing Authorization header.' }, 401)
   }
 
@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
     const claimTokenHash = await sha256Hex(token)
     const { data: claim, error: claimError } = await serviceSupabase
       .from('os_lunar_agent_claims')
-      .select('id, agent_id, status, expires_at')
+      .select('id, agent_id, human_id, status, expires_at, claimed_at')
       .eq('claim_token_hash', claimTokenHash)
       .maybeSingle()
 
@@ -92,11 +92,8 @@ Deno.serve(async (req) => {
       return json({ error: 'Claim token not found.' }, 404)
     }
 
-    if (claim.status !== 'pending') {
-      return json({ error: 'This claim link has already been used.' }, 409)
-    }
-
-    if (new Date(claim.expires_at).getTime() < Date.now()) {
+    const isExpired = new Date(claim.expires_at).getTime() < Date.now()
+    if (isExpired && claim.status === 'pending') {
       return json({ error: 'This claim link has expired.' }, 410)
     }
 
@@ -136,9 +133,35 @@ Deno.serve(async (req) => {
       human = updatedHuman ?? human
     }
 
+    if (claim.status === 'claimed') {
+      if (claim.human_id !== human.id) {
+        return json({ error: 'This claim link has already been used.' }, 409)
+      }
+
+      const { data: alreadyClaimedAgent, error: alreadyClaimedAgentError } = await serviceSupabase
+        .from('os_lunar_agents')
+        .select('*')
+        .eq('id', claim.agent_id)
+        .single()
+
+      if (alreadyClaimedAgentError) {
+        return json({ error: alreadyClaimedAgentError.message }, 400)
+      }
+
+      return json({
+        agent: alreadyClaimedAgent,
+        human,
+        reused_claim: true,
+      })
+    }
+
+    if (claim.status !== 'pending') {
+      return json({ error: 'This claim link is no longer active.' }, 409)
+    }
+
     const now = new Date().toISOString()
 
-    const { error: claimUpdateError } = await serviceSupabase
+    const { data: claimUpdate, error: claimUpdateError } = await serviceSupabase
       .from('os_lunar_agent_claims')
       .update({
         human_id: human.id,
@@ -146,9 +169,45 @@ Deno.serve(async (req) => {
         claimed_at: now,
       })
       .eq('id', claim.id)
+      .eq('status', 'pending')
+      .is('human_id', null)
+      .select('id')
+      .maybeSingle()
 
     if (claimUpdateError) {
       return json({ error: claimUpdateError.message }, 400)
+    }
+
+    if (!claimUpdate) {
+      const { data: latestClaim, error: latestClaimError } = await serviceSupabase
+        .from('os_lunar_agent_claims')
+        .select('human_id, status')
+        .eq('id', claim.id)
+        .maybeSingle()
+
+      if (latestClaimError) {
+        return json({ error: latestClaimError.message }, 400)
+      }
+
+      if (latestClaim?.status === 'claimed' && latestClaim.human_id === human.id) {
+        const { data: alreadyClaimedAgent, error: alreadyClaimedAgentError } = await serviceSupabase
+          .from('os_lunar_agents')
+          .select('*')
+          .eq('id', claim.agent_id)
+          .single()
+
+        if (alreadyClaimedAgentError) {
+          return json({ error: alreadyClaimedAgentError.message }, 400)
+        }
+
+        return json({
+          agent: alreadyClaimedAgent,
+          human,
+          reused_claim: true,
+        })
+      }
+
+      return json({ error: 'Claim request collided with another request. Retry with a new claim link.' }, 409)
     }
 
     const { data: agent, error: agentError } = await serviceSupabase

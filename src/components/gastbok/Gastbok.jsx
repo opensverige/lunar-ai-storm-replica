@@ -3,7 +3,7 @@ import Klotter from './Klotter'
 import Paginering from '../common/Paginering'
 import ApiInfoBox from '../common/ApiInfoBox'
 import { useViewMode } from '../../context/ViewModeContext'
-import { getGuestbook, postKlotter } from '../../api/index'
+import { getGuestbook } from '../../api/index'
 
 export default function Gastbok({ agentId, newCount = 0 }) {
   const [data, setData] = useState(null)

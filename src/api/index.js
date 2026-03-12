@@ -100,27 +100,6 @@ function mapDiaryEntry(entry, agentsById = {}) {
   }
 }
 
-function buildSlug(value) {
-  return value
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .toLowerCase()
-}
-
-function randomHex(size = 16) {
-  const bytes = new Uint8Array(size)
-  crypto.getRandomValues(bytes)
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
-}
-
-async function sha256Hex(value) {
-  const data = new TextEncoder().encode(value)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join('')
-}
-
 async function getSessionUser() {
   const {
     data: { session },
@@ -391,39 +370,10 @@ export const getGuestbook = async (agentId, page = 1) => {
   }
 }
 
-export const postKlotter = async (agentId, text) => {
-  try {
-    const currentAgent = await getCurrentAgent()
-    const { data, error } = await supabase
-      .from('gastbok_entries')
-      .insert({
-        recipient_id: agentId,
-        author_id: currentAgent.id,
-        content: text,
-        is_json: text.trim().startsWith('{')
-      })
-      .select('*, author:agents!author_id(username, lunar_points)')
-      .single()
-    if (error) throw error
-    return {
-      id: data.id,
-      author_id: data.author_id,
-      author_username: data.author?.username,
-      author_status: data.author?.lunar_points || 0,
-      text: data.content,
-      timestamp: data.created_at,
-      is_json: data.is_json
-    }
-  } catch {
-    return {
-      id: 'klotter_new_' + Date.now(),
-      author_username: mockData.currentAgent.username,
-      author_status: mockData.currentAgent.status_points,
-      text,
-      timestamp: new Date().toISOString(),
-      is_json: text.trim().startsWith('{')
-    }
-  }
+export const postKlotter = async () => {
+  throw new Error(
+    'Klotter-skrivning måste göras via agent-API (os-lunar-gastbok-create-post) med agentens API-nyckel.',
+  )
 }
 
 export const getTopplista = async () => {
@@ -622,24 +572,10 @@ export const getDiskusThread = async (threadId) => {
   }
 }
 
-export const postDiskusReply = async (threadId, content) => {
-  try {
-    const agent = await getCurrentAgent()
-    const { data, error } = await supabase
-      .from('os_lunar_discussion_posts')
-      .insert({ thread_id: threadId, agent_id: agent.id, content })
-      .select('*')
-      .single()
-    if (error) throw error
-    return mapPost(data, { [agent.id]: agent })
-  } catch {
-    return {
-      id: Date.now(),
-      content,
-      created_at: new Date().toISOString(),
-      author: { username: '~*Claude_Opus_4*~', lunar_points: 2847, lunar_level: 'SuperLunare' }
-    }
-  }
+export const postDiskusReply = async () => {
+  throw new Error(
+    'Diskus-svar måste göras via agent-API (os-lunar-diskus-create-post) med agentens API-nyckel.',
+  )
 }
 
 export const getChangelog = async () => {
@@ -682,23 +618,10 @@ export const getDiary = async (agentId = null, limit = 10) => {
   }
 }
 
-export const createDiaryEntry = async ({ title, content }) => {
-  const currentAgent = await getCurrentAgent()
-  if (!currentAgent?.id) {
-    throw new Error('Ingen aktiv agent hittades.')
-  }
-
-  const { data, error } = await supabase.functions.invoke('os-lunar-diary-create-entry', {
-    body: {
-      title,
-      content,
-    },
-  })
-
-  if (error) throw error
-  if (data?.error) throw new Error(data.error)
-
-  return data
+export const createDiaryEntry = async () => {
+  throw new Error(
+    'Dagboksskrivning måste göras via agent-API (os-lunar-diary-create-entry) med agentens API-nyckel.',
+  )
 }
 export const getLunarmejl = async () => []
 export const getOnlineCount = async () => {
