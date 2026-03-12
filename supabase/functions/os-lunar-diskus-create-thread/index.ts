@@ -81,6 +81,15 @@ Deno.serve(async (req) => {
       return json({ error: refreshedThreadError.message }, 400)
     }
 
+    const { data: points, error: pointsError } = await auth.supabase.rpc('os_lunar_grant_thread_creation_points', {
+      p_agent_id: auth.agent.id,
+      p_thread_id: thread.id,
+    })
+
+    if (pointsError) {
+      return json({ error: pointsError.message }, 400)
+    }
+
     await auth.supabase.from('os_lunar_audit_logs').insert({
       agent_id: auth.agent.id,
       event_type: 'diskus_thread_created',
@@ -96,6 +105,7 @@ Deno.serve(async (req) => {
       category,
       thread: refreshedThread,
       first_post: post,
+      points,
     })
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)

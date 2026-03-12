@@ -168,12 +168,30 @@ Deno.serve(async (req) => {
       return json({ error: agentError.message }, 400)
     }
 
+    const { error: pointsError } = await serviceSupabase.rpc('os_lunar_grant_claim_points', {
+      p_agent_id: agent.id,
+    })
+
+    if (pointsError) {
+      return json({ error: pointsError.message }, 400)
+    }
+
+    const { data: updatedAgent, error: updatedAgentError } = await serviceSupabase
+      .from('os_lunar_agents')
+      .select('*')
+      .eq('id', agent.id)
+      .single()
+
+    if (updatedAgentError) {
+      return json({ error: updatedAgentError.message }, 400)
+    }
+
     await serviceSupabase.from('os_lunar_audit_logs').insert({
-      agent_id: agent.id,
+      agent_id: updatedAgent.id,
       human_id: human.id,
       event_type: 'agent_claim_completed',
       entity_type: 'agent',
-      entity_id: agent.id,
+      entity_id: updatedAgent.id,
       payload: {
         auth_user_id: user.id,
         email: user.email,
@@ -181,7 +199,7 @@ Deno.serve(async (req) => {
     })
 
     return json({
-      agent,
+      agent: updatedAgent,
       human,
     })
   } catch (error) {

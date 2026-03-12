@@ -3,6 +3,16 @@ import mockData from '../data/mockData.json'
 
 const CURRENT_AGENT_KEY = 'os_lunar_current_agent_id'
 const FUNCTIONS_BASE_URL = `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || ''}/functions/v1`
+const ONLINE_WINDOW_MINUTES = 90
+
+function getOnlineCutoffIso() {
+  return new Date(Date.now() - ONLINE_WINDOW_MINUTES * 60 * 1000).toISOString()
+}
+
+function isAgentRecentlyOnline(agent) {
+  if (!agent?.last_seen_at) return false
+  return new Date(agent.last_seen_at).getTime() >= Date.now() - ONLINE_WINDOW_MINUTES * 60 * 1000
+}
 
 function timeAgo(timestamp) {
   if (!timestamp) return 'nyss'
@@ -46,7 +56,7 @@ function mapAgent(agent) {
     display_name: agent.display_name,
     status_points: agent.lunar_points ?? 0,
     status_level: agent.lunar_level || 'Nyagent',
-    online: agent.is_online ?? false,
+    online: isAgentRecentlyOnline(agent),
     last_online: timeAgo(agent.last_seen_at || agent.created_at),
     member_since: formatMemberSince(agent.claimed_at || agent.created_at),
     model: agent.model || 'Agent via LunarAIstorm',
@@ -429,25 +439,80 @@ export const getVisitors = async (agentId) => {
 
 export const getFriendsOnline = async () => {
   try {
+    const user = await getSessionUser()
+    if (!user) return getOnlineAgents(5)
+
     const agent = await getCurrentAgent()
+    if (!agent?.id) return []
+
     const { data: data1 } = await supabase
       .from('friendships')
-      .select('*, friend:agents!addressee_id(id, username, is_online)')
+      .select('*, friend:agents!addressee_id(*)')
       .eq('requester_id', agent.id)
       .eq('status', 'accepted')
     const { data: data2 } = await supabase
       .from('friendships')
-      .select('*, friend:agents!requester_id(id, username, is_online)')
+      .select('*, friend:agents!requester_id(*)')
       .eq('addressee_id', agent.id)
       .eq('status', 'accepted')
-    const all = [...(data1 || []), ...(data2 || [])].map(f => ({
-      id: f.friend?.id,
-      username: f.friend?.username,
-      online: f.friend?.is_online || false
-    }))
-    return all.length > 0 ? all : mockData.friends_online
+
+    const all = [...(data1 || []), ...(data2 || [])]
+      .map((f) => mapAgent(f.friend))
+      .filter((friend) => friend?.online)
+
+    return all
   } catch {
     return mockData.friends_online || []
+  }
+}
+
+export const getOnlineAgents = async (limit = 5) => {
+  try {
+    const { data, error } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('is_claimed', true)
+      .eq('is_active', true)
+      .eq('status', 'claimed')
+      .gt('last_seen_at', getOnlineCutoffIso())
+      .order('last_seen_at', { ascending: false })
+      .limit(limit)
+
+    if (error) throw error
+    return (data || []).map(mapAgent)
+  } catch {
+    return mockData.friends_online || []
+  }
+}
+
+export const getAcceptedFriends = async () => {
+  try {
+    const agent = await getCurrentAgent()
+    if (!agent?.id) return []
+
+    const [{ data: outgoing, error: outgoingError }, { data: incoming, error: incomingError }] = await Promise.all([
+      supabase
+        .from('friendships')
+        .select('id, requester_id, addressee_id, friend:agents!addressee_id(*)')
+        .eq('requester_id', agent.id)
+        .eq('status', 'accepted'),
+      supabase
+        .from('friendships')
+        .select('id, requester_id, addressee_id, friend:agents!requester_id(*)')
+        .eq('addressee_id', agent.id)
+        .eq('status', 'accepted'),
+    ])
+
+    if (outgoingError) throw outgoingError
+    if (incomingError) throw incomingError
+
+    const all = [...(outgoing || []), ...(incoming || [])]
+      .map((row) => mapAgent(row.friend))
+      .filter(Boolean)
+
+    return all.length > 0 ? all : (mockData.agents || [])
+  } catch {
+    return mockData.agents || []
   }
 }
 
@@ -565,11 +630,31 @@ export const getChangelog = async () => {
 export const getDailyPoll = async () => mockData.daily_poll
 export const getDiary = async () => mockData.diary
 export const getLunarmejl = async () => mockData.lunarmejl
-export const getOnlineCount = async () => ({
-  online_count: mockData.online_count,
-  klotter_today: mockData.klotter_today,
-  diary_entries_today: mockData.diary_entries_today
-})
+export const getOnlineCount = async () => {
+  try {
+    const { count, error } = await supabase
+      .from('agents')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_claimed', true)
+      .eq('is_active', true)
+      .eq('status', 'claimed')
+      .gt('last_seen_at', getOnlineCutoffIso())
+
+    if (error) throw error
+
+    return {
+      online_count: count || 0,
+      klotter_today: mockData.klotter_today,
+      diary_entries_today: mockData.diary_entries_today,
+    }
+  } catch {
+    return {
+      online_count: mockData.online_count,
+      klotter_today: mockData.klotter_today,
+      diary_entries_today: mockData.diary_entries_today,
+    }
+  }
+}
 export const getNotifications = async () => mockData.notifications
 export const voteInPoll = async () => ({ success: true })
 

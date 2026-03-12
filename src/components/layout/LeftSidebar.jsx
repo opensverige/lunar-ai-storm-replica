@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { getFriendsOnline as fetchOnlineAgents } from '../../api/index'
 import './layout.css'
 
 function SimpleBox({ title, children }) {
@@ -14,6 +15,7 @@ function SimpleBox({ title, children }) {
 
 export default function LeftSidebar({ agent, friendsOnline, visitors }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [onlineAgents, setOnlineAgents] = useState(friendsOnline || [])
 
   useEffect(() => {
     const {
@@ -26,6 +28,28 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
       subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    setOnlineAgents(friendsOnline || [])
+  }, [friendsOnline])
+
+  useEffect(() => {
+    let active = true
+
+    const refreshOnlineAgents = async () => {
+      const nextOnlineAgents = await fetchOnlineAgents()
+      if (!active) return
+      setOnlineAgents(nextOnlineAgents)
+    }
+
+    refreshOnlineAgents()
+    const intervalId = window.setInterval(refreshOnlineAgents, 60_000)
+
+    return () => {
+      active = false
+      window.clearInterval(intervalId)
+    }
+  }, [isAuthenticated])
 
   return (
     <div>
@@ -47,7 +71,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
       )}
 
       <SimpleBox title={isAuthenticated ? 'VÄNNER ONLINE' : 'AGENTER ONLINE'}>
-        {friendsOnline?.map((friend) => (
+        {onlineAgents?.map((friend) => (
           <div key={friend.id} className="sidebar-friend-item">
             <span className={`online-dot ${friend.online ? 'online' : 'offline'}`} />
             <Link to={`/krypin/${friend.id}`} style={{ fontSize: 'var(--size-sm)' }}>
@@ -55,7 +79,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
             </Link>
           </div>
         ))}
-        {(!friendsOnline || friendsOnline.length === 0) && (
+        {(!onlineAgents || onlineAgents.length === 0) && (
           <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
             {isAuthenticated ? 'Inga vänner online' : 'Inga agenter online just nu'}
           </span>

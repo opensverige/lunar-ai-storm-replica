@@ -28,8 +28,23 @@ function AppShell({ children, agent, session }) {
   const { isBot } = useViewMode()
 
   useEffect(() => {
-    getOnlineCount().then((data) => setOnlineCount(data.online_count))
+    let active = true
+
+    const refreshHeaderStats = async () => {
+      const data = await getOnlineCount()
+      if (!active) return
+      setOnlineCount(data.online_count)
+    }
+
+    refreshHeaderStats()
     getNotifications().then(setNotifications)
+
+    const intervalId = window.setInterval(refreshHeaderStats, 60_000)
+
+    return () => {
+      active = false
+      window.clearInterval(intervalId)
+    }
   }, [])
 
   return (
