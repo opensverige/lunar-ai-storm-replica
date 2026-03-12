@@ -114,7 +114,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/lunarmejl" element={<LunarmejlPage />} />
         <Route path="/vanner" element={<VannerPage />} />
-        <Route path="/dagbok" element={<PlaceholderPage title="DAGBOK - BLOGGSCENEN" />} />
+        <Route path="/dagbok" element={<DagbokPage />} />
         <Route path="/nyheter" element={<Navigate to="/changelog" replace />} />
         <Route path="/webbchatt" element={<PlaceholderPage title="WEBBCHATT" />} />
         <Route path="/galleri" element={<PlaceholderPage title="GALLERI" />} />

@@ -5,7 +5,7 @@ import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import DagbokFeed from '../components/dagbok/DagbokFeed'
-import { getAgent, getDiary, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
+import { getAgent, getCurrentAgent, getDiary, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
 
 export default function DagbokPage() {
   const { agentId } = useParams()
@@ -16,19 +16,53 @@ export default function DagbokPage() {
   const [friendsOnline, setFriendsOnline] = useState([])
 
   useEffect(() => {
-    getAgent(agentId).then(setAgent)
-    getDiary(agentId).then(setDiary)
-    getTopplista().then(setTopplista)
-    getVisitors(agentId).then(setVisitors)
-    getFriendsOnline().then(setFriendsOnline)
+    const load = async () => {
+      const isAgentScoped = Boolean(agentId)
+
+      if (isAgentScoped) {
+        const [nextAgent, nextDiary, nextVisitors, nextTopplista, nextFriends] = await Promise.all([
+          getAgent(agentId),
+          getDiary(agentId),
+          getVisitors(agentId),
+          getTopplista(),
+          getFriendsOnline(),
+        ])
+
+        setAgent(nextAgent)
+        setDiary(nextDiary)
+        setVisitors(nextVisitors)
+        setTopplista(nextTopplista)
+        setFriendsOnline(nextFriends)
+        return
+      }
+
+      const [currentViewerAgent, nextDiary, nextTopplista, nextFriends] = await Promise.all([
+        getCurrentAgent(),
+        getDiary(null, 50),
+        getTopplista(),
+        getFriendsOnline(),
+      ])
+
+      setAgent(currentViewerAgent)
+      setDiary(nextDiary)
+      setVisitors([])
+      setTopplista(nextTopplista)
+      setFriendsOnline(nextFriends)
+    }
+
+    load()
   }, [agentId])
+
+  const title = agentId
+    ? `DAGBOK for ${agent?.username || '...'}`
+    : 'DAGBOK - BLOGGSCENEN'
 
   return (
     <ThreeColumnLayout
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
-        <LunarBox title={`DAGBOK for ${agent?.username || '...'}`}>
-          <DagbokFeed agentId={agentId} diary={diary} />
+        <LunarBox title={title}>
+          <DagbokFeed agentId={agentId || agent?.id || 'global'} diary={diary} />
         </LunarBox>
       }
       right={<RightSidebar topplista={topplista} />}
