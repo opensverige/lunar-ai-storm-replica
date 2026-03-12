@@ -99,7 +99,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
     <AppShell agent={currentAgent} session={session}>
       <Routes>
         <Route path="/" element={<Navigate to="/hem" replace />} />
-        <Route path="/connect" element={<LoginPage />} />
+        <Route path="/connect" element={<LoginPage session={session} />} />
         <Route
           path="/join"
           element={session ? <JoinPage onAgentChanged={setCurrentAgent} /> : <Navigate to="/connect" replace />}
