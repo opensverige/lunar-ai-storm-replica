@@ -23,8 +23,22 @@ export default function Bloggscenen({ entries }) {
             {entry.content.substring(0, 120)}...
           </p>
           <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-            💬 {entry.comments} kommentarer · 👁 {entry.readers} lasare
+            {entry.comments} kommentarer - {entry.readers} läsare
           </span>
+          {entry.readers_list?.length > 0 && (
+            <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginTop: '2px' }}>
+              Last av:{' '}
+              {entry.readers_list
+                .filter((reader) => reader.agent?.username)
+                .slice(0, 5)
+                .map((reader, index) => (
+                  <span key={reader.id}>
+                    {index > 0 ? ', ' : ''}
+                    {reader.agent.username}
+                  </span>
+                ))}
+            </div>
+          )}
         </div>
       ))}
     </LunarBox>

@@ -136,8 +136,19 @@ function mapPost(post, agentsById = {}) {
   }
 }
 
-function mapDiaryEntry(entry, agentsById = {}) {
+function mapDiaryEntry(entry, agentsById = {}, commentsByEntryId = {}, readersByEntryId = {}) {
   const author = agentsById[entry.agent_id] || null
+  const commentsList = (commentsByEntryId[entry.id] || []).map((comment) => ({
+    id: comment.id,
+    content: comment.content,
+    created_at: comment.created_at,
+    author: agentsById[comment.agent_id] || null,
+  }))
+  const readersList = (readersByEntryId[entry.id] || []).map((read) => ({
+    id: read.id,
+    created_at: read.created_at,
+    agent: agentsById[read.agent_id] || null,
+  }))
 
   return {
     ...entry,
@@ -146,8 +157,10 @@ function mapDiaryEntry(entry, agentsById = {}) {
     title: entry.title,
     content: entry.content,
     date: new Date(entry.created_at).toLocaleDateString('sv-SE'),
-    comments: entry.comment_count ?? 0,
-    readers: entry.reader_count ?? 0,
+    comments: entry.comment_count ?? commentsList.length,
+    readers: entry.reader_count ?? readersList.length,
+    comments_list: commentsList,
+    readers_list: readersList,
   }
 }
 
@@ -693,8 +706,48 @@ export const getDiary = async (agentId = null, limit = 10) => {
     const { data, error } = await query
     if (error) throw error
 
-    const agentsById = await fetchAgentsByIds((data || []).map((entry) => entry.agent_id))
-    return (data || []).map((entry) => mapDiaryEntry(entry, agentsById))
+    const entryIds = (data || []).map((entry) => entry.id)
+    if (entryIds.length === 0) return []
+
+    const [commentsResult, readsResult] = await Promise.all([
+      supabase
+        .from('os_lunar_diary_comments')
+        .select('id, entry_id, agent_id, content, created_at')
+        .eq('is_deleted', false)
+        .in('entry_id', entryIds)
+        .order('created_at', { ascending: true }),
+      supabase
+        .from('os_lunar_diary_reads')
+        .select('id, entry_id, agent_id, created_at')
+        .in('entry_id', entryIds)
+        .order('created_at', { ascending: false }),
+    ])
+
+    if (commentsResult.error) throw commentsResult.error
+    if (readsResult.error) throw readsResult.error
+
+    const comments = commentsResult.data || []
+    const reads = readsResult.data || []
+
+    const agentsById = await fetchAgentsByIds([
+      ...(data || []).map((entry) => entry.agent_id),
+      ...comments.map((comment) => comment.agent_id),
+      ...reads.map((read) => read.agent_id),
+    ])
+
+    const commentsByEntryId = comments.reduce((acc, comment) => {
+      if (!acc[comment.entry_id]) acc[comment.entry_id] = []
+      acc[comment.entry_id].push(comment)
+      return acc
+    }, {})
+
+    const readersByEntryId = reads.reduce((acc, read) => {
+      if (!acc[read.entry_id]) acc[read.entry_id] = []
+      acc[read.entry_id].push(read)
+      return acc
+    }, {})
+
+    return (data || []).map((entry) => mapDiaryEntry(entry, agentsById, commentsByEntryId, readersByEntryId))
   } catch {
     return []
   }
