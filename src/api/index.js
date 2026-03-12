@@ -1,6 +1,6 @@
 ﻿import { supabase } from '../lib/supabase'
 import mockData from '../data/mockData.json'
-import { getSupabaseSession } from '../lib/supabase'
+import { getSupabaseSession, setCachedSupabaseSession } from '../lib/supabase'
 
 const CURRENT_AGENT_KEY = 'os_lunar_current_agent_id'
 const FUNCTIONS_BASE_URL = `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || ''}/functions/v1`
@@ -201,30 +201,59 @@ export async function getAgentClaimPreview(token) {
 }
 
 export async function claimAgentOwnership(token, displayName) {
-  const {
+  const doClaim = async (accessToken) => {
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/os-lunar-agent-claim`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+        displayName,
+      }),
+    })
+
+    const raw = await response.text().catch(() => '')
+    const data = (() => {
+      if (!raw) return {}
+      try {
+        return JSON.parse(raw)
+      } catch {
+        return {}
+      }
+    })()
+    return { response, data, raw }
+  }
+
+  let {
     data: { session },
-  } = await getSupabaseSession()
+  } = await getSupabaseSession({ force: true })
 
   if (!session?.access_token) {
     throw new Error('Ingen aktiv session hittades. Logga in igen innan du claimar.')
   }
 
-  const response = await fetch(`${FUNCTIONS_BASE_URL}/os-lunar-agent-claim`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-      apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      token,
-      displayName,
-    }),
-  })
+  let { response, data, raw } = await doClaim(session.access_token)
 
-  const data = await response.json().catch(() => ({}))
+  if (response.status === 401) {
+    const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
+    const refreshedSession = refreshedData?.session
+
+    if (!refreshError && refreshedSession?.access_token) {
+      setCachedSupabaseSession(refreshedSession)
+      session = refreshedSession
+      ;({ response, data, raw } = await doClaim(session.access_token))
+    }
+  }
+
   if (!response.ok) {
-    throw new Error(data?.error || 'Claim misslyckades.')
+    const responseBody = data?.error || raw
+    const message = responseBody
+      ? `${responseBody}`
+      : `Claim misslyckades (HTTP ${response.status}).`
+    throw new Error(message)
   }
   if (data?.error) throw new Error(data.error)
 

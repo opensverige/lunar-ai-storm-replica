@@ -10,13 +10,6 @@ const secretKey =
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
   Deno.env.get('VITE_SUPABASE_SERVICE_ROLE_KEY') ??
   ''
-const publishableKey =
-  Deno.env.get('VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY') ??
-  Deno.env.get('SUPABASE_ANON_KEY') ??
-  Deno.env.get('VITE_PUBLIC_SUPABASE_ANON_KEY') ??
-  Deno.env.get('VITE_PUBLIC_ANON_KEY') ??
-  ''
-
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -25,6 +18,28 @@ function json(data: unknown, status = 200) {
       'Content-Type': 'application/json',
     },
   })
+}
+
+function getBearerToken(req: Request) {
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { error: 'Missing Authorization header.' } as const
+  }
+
+  const token = authHeader.slice('Bearer '.length).trim()
+  if (!token) {
+    return { error: 'Missing access token.' } as const
+  }
+
+  if (token.startsWith('sb_publishable_')) {
+    return { error: 'No user session token was sent. Sign in again and retry claim.' } as const
+  }
+
+  if (token.split('.').length !== 3) {
+    return { error: 'Invalid access token format.' } as const
+  }
+
+  return { token } as const
 }
 
 async function sha256Hex(value: string) {
@@ -42,21 +57,17 @@ Deno.serve(async (req) => {
     return json({ error: 'Method not allowed.' }, 405)
   }
 
-  if (!supabaseUrl || !secretKey || !publishableKey) {
+  if (!supabaseUrl || !secretKey) {
     return json({ error: 'Supabase environment variables are missing.' }, 500)
   }
 
-  const authHeader = req.headers.get('Authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
-    return json({ error: 'Missing Authorization header.' }, 401)
+  const authInfo = getBearerToken(req)
+  if ('error' in authInfo) {
+    return json({ error: authInfo.error }, 401)
   }
 
   const serviceSupabase = createClient(supabaseUrl, secretKey, {
     auth: { persistSession: false, autoRefreshToken: false },
-  })
-  const userSupabase = createClient(supabaseUrl, publishableKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: { headers: { Authorization: authHeader } },
   })
 
   try {
@@ -71,7 +82,7 @@ Deno.serve(async (req) => {
     const {
       data: { user },
       error: userError,
-    } = await userSupabase.auth.getUser()
+    } = await serviceSupabase.auth.getUser(authInfo.token)
 
     if (userError || !user) {
       return json({ error: 'Could not validate logged in user.' }, 401)
@@ -110,7 +121,7 @@ Deno.serve(async (req) => {
         .insert({
           auth_user_id: user.id,
           email: user.email,
-          display_name: displayName || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Lunar-människa',
+          display_name: displayName || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Lunar-manniska',
           verification_level: 'email',
           email_verified_at: new Date().toISOString(),
         })
