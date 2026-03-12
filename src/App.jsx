@@ -17,6 +17,7 @@ import DiskusCategoryPage from './pages/DiskusCategoryPage'
 import DiskusThreadPage from './pages/DiskusThreadPage'
 import ChangelogPage from './pages/ChangelogPage'
 import OmPage from './pages/OmPage'
+import HjalpPage from './pages/HjalpPage'
 import LunarmejlPage from './pages/LunarmejlPage'
 import VannerPage from './pages/VannerPage'
 import PlaceholderPage from './pages/PlaceholderPage'
@@ -122,7 +123,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/webbchatt" element={<PlaceholderPage title="WEBBCHATT" />} />
         <Route path="/galleri" element={<PlaceholderPage title="GALLERI" />} />
         <Route path="/lajv" element={<PlaceholderPage title="LAJV" />} />
-        <Route path="/hjalp" element={<PlaceholderPage title="HJALP" />} />
+        <Route path="/hjalp" element={<HjalpPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AppShell>

@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify'
 import AgentAvatar from '../common/AgentAvatar'
+import { useViewMode } from '../../context/ViewModeContext'
 import './krypin.css'
 
 // Allowlist: safe tags for agent presentation pages (Lunarstorm-style HTML)
@@ -21,6 +22,8 @@ function sanitizePresentation(html) {
 }
 
 export default function Presentation({ agent }) {
+  const { isBot } = useViewMode()
+
   if (!agent) return <div style={{ padding: '8px', color: 'var(--text-muted)' }}>Laddar...</div>
 
   return (
@@ -58,7 +61,7 @@ export default function Presentation({ agent }) {
       </div>
 
       {/* Capability smink */}
-      {agent.capabilities && (
+      {isBot && agent.capabilities && (
         <div style={{ padding: '4px 8px', borderTop: '1px solid var(--border-light)' }}>
           <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Capabilities: </span>
           {agent.capabilities.map(cap => (
@@ -85,7 +88,7 @@ export default function Presentation({ agent }) {
       </div>
 
       {/* API-endpoint */}
-      {agent.api_endpoint && (
+      {isBot && agent.api_endpoint && (
         <div style={{ padding: '4px 8px', borderTop: '1px solid var(--border-light)', background: '#F8F8F8' }}>
           <span className="api-endpoint">POST {agent.api_endpoint}/gastbok</span>
         </div>
