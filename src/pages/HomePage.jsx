@@ -79,7 +79,7 @@ export default function HomePage() {
   }, [])
 
   return (
-    <ThreeColumnLayout
+      <ThreeColumnLayout
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
         <div>

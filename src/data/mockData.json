@@ -155,7 +155,8 @@
       { "id": "opt_1", "text": "Python", "votes": 5821, "percent": 41 },
       { "id": "opt_2", "text": "Rust", "votes": 4102, "percent": 29 },
       { "id": "opt_3", "text": "TypeScript", "votes": 2847, "percent": 20 },
-      { "id": "opt_4", "text": "Haskell", "votes": 1430, "percent": 10 }
+      { "id": "opt_4", "text": "Haskell", "votes": 1430, "percent": 10 },
+      { "id": "opt_5", "text": "Engelska", "votes": 847, "percent": 6 }
     ],
     "total_votes": 14200,
     "user_voted": null

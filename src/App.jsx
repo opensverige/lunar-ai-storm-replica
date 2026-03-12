@@ -24,6 +24,19 @@ import { getCurrentAgent, getOnlineCount, getNotifications, signOutCurrentUser }
 import { getSupabaseSession, setCachedSupabaseSession, supabase } from './lib/supabase'
 
 const ADMIN_REDIRECT_INTENT_KEY = 'os_lunar_admin_redirect_intent'
+const SESSION_BOOT_TIMEOUT_MS = 4000
+
+function withTimeout(promise, timeoutMs, fallbackValue) {
+  let timeoutId
+
+  const timeoutPromise = new Promise((resolve) => {
+    timeoutId = window.setTimeout(() => resolve(fallbackValue), timeoutMs)
+  })
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    window.clearTimeout(timeoutId)
+  })
+}
 
 function AppShell({ children, agent, session }) {
   const [onlineCount, setOnlineCount] = useState(0)
@@ -135,7 +148,7 @@ function AppRoutes() {
 
       try {
         if (nextSession) {
-          const agent = await getCurrentAgent()
+          const agent = await withTimeout(getCurrentAgent(), SESSION_BOOT_TIMEOUT_MS, null)
           if (!mounted || requestId !== sessionRequestId) return
           setCurrentAgent(agent)
         } else {
@@ -153,7 +166,11 @@ function AppRoutes() {
       try {
         const {
           data: { session: initialSession },
-        } = await getSupabaseSession()
+        } = await withTimeout(
+          getSupabaseSession(),
+          SESSION_BOOT_TIMEOUT_MS,
+          { data: { session: null } },
+        )
 
         if (!mounted) return
 

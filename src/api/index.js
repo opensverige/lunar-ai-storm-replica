@@ -322,10 +322,12 @@ export const getCurrentAgent = async () => {
     }
 
     if (user) {
+      setCurrentAgentId(null)
       return null
     }
   } catch {
     if (user) {
+      setCurrentAgentId(null)
       return null
     }
   }

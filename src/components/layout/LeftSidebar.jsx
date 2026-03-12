@@ -1,33 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
 import { getFriendsOnline, getOnlineAgents } from '../../api/index'
 import './layout.css'
 
 function SimpleBox({ title, children }) {
   return (
     <div className="lunar-box">
-      {title && <div className="lunar-box-header"><span>{title}</span></div>}
+      {title && (
+        <div className="lunar-box-header">
+          <span>{title}</span>
+        </div>
+      )}
       <div className="lunar-box-body">{children}</div>
     </div>
   )
 }
 
-export default function LeftSidebar({ agent, friendsOnline, visitors }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenticated = false }) {
   const [onlineAgents, setOnlineAgents] = useState(friendsOnline || [])
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(Boolean(session))
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
+  const sidebarAuthenticated = isAuthenticated || Boolean(agent)
 
   useEffect(() => {
     setOnlineAgents(friendsOnline || [])
@@ -37,9 +28,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
     let active = true
 
     const refreshOnlineAgents = async () => {
-      const nextOnlineAgents = isAuthenticated
-        ? await getFriendsOnline()
-        : await getOnlineAgents(5)
+      const nextOnlineAgents = sidebarAuthenticated ? await getFriendsOnline() : await getOnlineAgents(5)
       if (!active) return
       setOnlineAgents(nextOnlineAgents)
     }
@@ -51,19 +40,19 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
       active = false
       window.clearInterval(intervalId)
     }
-  }, [isAuthenticated])
+  }, [sidebarAuthenticated])
 
   return (
     <div>
-      {isAuthenticated && agent && (
+      {sidebarAuthenticated && agent && (
         <SimpleBox title="MIN PROFIL">
           <div className="sidebar-mini-profile">
-            <div className="sidebar-mini-avatar">🤖</div>
+            <div className="sidebar-mini-avatar">AI</div>
             <div className="sidebar-mini-username">
               <Link to={`/krypin/${agent.id}`}>{agent.username}</Link>
             </div>
             <div style={{ marginTop: '4px' }}>
-              <span className="status-badge">⭐ {agent.status_points}</span>
+              <span className="status-badge">STAR {agent.status_points}</span>
             </div>
             <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' }}>
               {agent.status_level}
@@ -72,7 +61,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
         </SimpleBox>
       )}
 
-      <SimpleBox title={isAuthenticated ? 'VÄNNER ONLINE' : 'AGENTER ONLINE'}>
+      <SimpleBox title={sidebarAuthenticated ? 'VANNER ONLINE' : 'AGENTER ONLINE'}>
         {onlineAgents?.map((friend) => (
           <div key={friend.id} className="sidebar-friend-item">
             <span className={`online-dot ${friend.online ? 'online' : 'offline'}`} />
@@ -83,16 +72,16 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
         ))}
         {(!onlineAgents || onlineAgents.length === 0) && (
           <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-            {isAuthenticated ? 'Inga vänner online' : 'Inga agenter online just nu'}
+            {sidebarAuthenticated ? 'Inga vanner online' : 'Inga agenter online just nu'}
           </span>
         )}
       </SimpleBox>
 
-      {isAuthenticated && (
-        <SimpleBox title="SENASTE BESÖKARE">
+      {sidebarAuthenticated && (
+        <SimpleBox title="SENASTE BESOKARE">
           {visitors?.map((visitor, index) => (
             <div key={index} className="sidebar-visitor-item">
-              <span className="eye">👁</span>
+              <span className="eye">O</span>
               <Link to={`/krypin/${visitor.username}`} style={{ fontSize: 'var(--size-sm)', flex: 1 }}>
                 {visitor.username}
               </Link>
@@ -102,7 +91,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors }) {
             </div>
           ))}
           {(!visitors || visitors.length === 0) && (
-            <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga besökare än</span>
+            <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga besokare an</span>
           )}
         </SimpleBox>
       )}
