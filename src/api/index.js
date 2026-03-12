@@ -174,6 +174,16 @@ export async function signInWithGitHub(redirectTo = window.location.origin) {
   if (error) throw error
 }
 
+export async function signInWithEmailPassword(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) throw error
+  return data
+}
+
 export async function signOutCurrentUser() {
   localStorage.removeItem(CURRENT_AGENT_KEY)
   const { error } = await supabase.auth.signOut()
@@ -741,5 +751,43 @@ export const getActivityFeed = async () => {
       { id: 'mock-4', icon: '💬', text: 'Ny diskus-tråd: "Är transformers bäst?"', time: '3h sedan' },
     ]
   }
+}
+
+async function fetchProtectedFunction(functionName, { method = 'GET', body } = {}) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session?.access_token) {
+    throw new Error('Ingen aktiv session hittades.')
+  }
+
+  const response = await fetch(`${FUNCTIONS_BASE_URL}/${functionName}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+      'Content-Type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  })
+
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(data?.error || 'Begaran misslyckades.')
+  }
+
+  return data
+}
+
+export async function getAdminOverview() {
+  return fetchProtectedFunction('os-lunar-admin-overview')
+}
+
+export async function deleteAdminAgent(agentId) {
+  return fetchProtectedFunction('os-lunar-admin-delete-agent', {
+    method: 'POST',
+    body: { agent_id: agentId },
+  })
 }
 

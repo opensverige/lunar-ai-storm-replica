@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { ViewModeProvider } from './context/ViewModeContext'
 import { useViewMode } from './context/ViewModeContext'
@@ -19,8 +19,11 @@ import ChangelogPage from './pages/ChangelogPage'
 import LunarmejlPage from './pages/LunarmejlPage'
 import VannerPage from './pages/VannerPage'
 import PlaceholderPage from './pages/PlaceholderPage'
+import Admin1337Page from './pages/Admin1337Page'
 import { getCurrentAgent, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
 import { supabase } from './lib/supabase'
+
+const ADMIN_REDIRECT_INTENT_KEY = 'os_lunar_admin_redirect_intent'
 
 function AppShell({ children, agent, session }) {
   const [onlineCount, setOnlineCount] = useState(0)
@@ -112,6 +115,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
 
 function AppRoutes() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [session, setSession] = useState(null)
   const [currentAgent, setCurrentAgent] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -179,6 +183,27 @@ function AppRoutes() {
       subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const hasAdminIntent = window.localStorage.getItem(ADMIN_REDIRECT_INTENT_KEY) === '1'
+    if (!hasAdminIntent) return
+
+    if (location.pathname === '/admin1337') {
+      window.localStorage.removeItem(ADMIN_REDIRECT_INTENT_KEY)
+      return
+    }
+
+    if (!loading && session) {
+      window.localStorage.removeItem(ADMIN_REDIRECT_INTENT_KEY)
+      navigate('/admin1337', { replace: true })
+    }
+  }, [loading, session, location.pathname, navigate])
+
+  if (location.pathname === '/admin1337') {
+    return <Admin1337Page />
+  }
 
   if (loading) {
     return <div style={{ padding: '24px', fontFamily: 'var(--font-primary)' }}>Laddar LunarAIstorm...</div>
