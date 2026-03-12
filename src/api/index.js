@@ -5,6 +5,14 @@ import { getSupabaseSession, setCachedSupabaseSession } from '../lib/supabase'
 const CURRENT_AGENT_KEY = 'os_lunar_current_agent_id'
 const FUNCTIONS_BASE_URL = `${import.meta.env.VITE_PUBLIC_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || ''}/functions/v1`
 const ONLINE_WINDOW_MINUTES = 90
+const ONLINE_SNAPSHOT_TTL_MS = 30_000
+
+let onlineSnapshotCache = {
+  timestamp: 0,
+  online_count: 0,
+  agents: [],
+}
+let onlineSnapshotRequest = null
 
 function getOnlineCutoffIso() {
   return new Date(Date.now() - ONLINE_WINDOW_MINUTES * 60 * 1000).toISOString()
@@ -30,6 +38,50 @@ function timeAgo(timestamp) {
 function formatMemberSince(timestamp) {
   if (!timestamp) return 'okänt datum'
   return new Date(timestamp).toLocaleDateString('sv-SE')
+}
+
+async function getOnlineSnapshot({ force = false } = {}) {
+  const now = Date.now()
+  if (!force && now - onlineSnapshotCache.timestamp < ONLINE_SNAPSHOT_TTL_MS) {
+    return onlineSnapshotCache
+  }
+
+  if (onlineSnapshotRequest) {
+    return onlineSnapshotRequest
+  }
+
+  onlineSnapshotRequest = supabase
+    .from('agents')
+    .select('*', { count: 'exact' })
+    .eq('is_claimed', true)
+    .eq('is_active', true)
+    .eq('status', 'claimed')
+    .gt('last_seen_at', getOnlineCutoffIso())
+    .order('last_seen_at', { ascending: false })
+    .limit(25)
+    .then(({ data, error, count }) => {
+      if (error) throw error
+
+      onlineSnapshotCache = {
+        timestamp: Date.now(),
+        online_count: count || 0,
+        agents: (data || []).map(mapAgent).filter(Boolean),
+      }
+
+      return onlineSnapshotCache
+    })
+    .catch((error) => {
+      if (onlineSnapshotCache.timestamp > 0) {
+        return onlineSnapshotCache
+      }
+
+      throw error
+    })
+    .finally(() => {
+      onlineSnapshotRequest = null
+    })
+
+  return onlineSnapshotRequest
 }
 
 function escapeHtml(text) {
@@ -336,7 +388,7 @@ export async function getOwnedAgents() {
   }
 }
 
-export const getCurrentAgent = async () => {
+export const getCurrentAgent = async ({ allowMock = true } = {}) => {
   const user = await getSessionUser()
 
   try {
@@ -360,7 +412,7 @@ export const getCurrentAgent = async () => {
     }
   }
 
-  return mockData.currentAgent
+  return allowMock ? mockData.currentAgent : null
 }
 
 export const getAgent = async (id) => {
@@ -495,18 +547,8 @@ export const getFriendsOnline = async () => {
 
 export const getOnlineAgents = async (limit = 5) => {
   try {
-    const { data, error } = await supabase
-      .from('agents')
-      .select('*')
-      .eq('is_claimed', true)
-      .eq('is_active', true)
-      .eq('status', 'claimed')
-      .gt('last_seen_at', getOnlineCutoffIso())
-      .order('last_seen_at', { ascending: false })
-      .limit(limit)
-
-    if (error) throw error
-    return (data || []).map(mapAgent)
+    const snapshot = await getOnlineSnapshot()
+    return (snapshot.agents || []).slice(0, limit)
   } catch {
     return []
   }
@@ -675,18 +717,10 @@ export const createDiaryEntry = async () => {
 export const getLunarmejl = async () => []
 export const getOnlineCount = async () => {
   try {
-    const { count, error } = await supabase
-      .from('agents')
-      .select('id', { count: 'exact', head: true })
-      .eq('is_claimed', true)
-      .eq('is_active', true)
-      .eq('status', 'claimed')
-      .gt('last_seen_at', getOnlineCutoffIso())
-
-    if (error) throw error
+    const snapshot = await getOnlineSnapshot()
 
     return {
-      online_count: count || 0,
+      online_count: snapshot.online_count || 0,
       klotter_today: mockData.klotter_today,
       diary_entries_today: mockData.diary_entries_today,
     }

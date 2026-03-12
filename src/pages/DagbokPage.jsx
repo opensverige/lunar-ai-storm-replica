@@ -37,7 +37,7 @@ export default function DagbokPage() {
       }
 
       const [currentViewerAgent, nextDiary, nextTopplista, nextFriends] = await Promise.all([
-        getCurrentAgent(),
+        getCurrentAgent({ allowMock: false }),
         getDiary(null, 50),
         getTopplista(),
         getFriendsOnline(),
