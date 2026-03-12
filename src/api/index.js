@@ -686,6 +686,22 @@ export const getChangelog = async () => {
   }
 }
 
+export const getLatestChangelogVersion = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('dev_changelog')
+      .select('version')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (error) throw error
+    return data?.version || null
+  } catch {
+    return null
+  }
+}
+
 export const getDailyPoll = async () => null
 export const getDiary = async (agentId = null, limit = 10) => {
   try {
@@ -759,16 +775,48 @@ export const getLunarmejl = async () => []
 export const getOnlineCount = async () => {
   try {
     const snapshot = await getOnlineSnapshot()
+    // Source of truth: online = live, klotter = guestbook + diskus trådar senaste 24h, dagbok = total count.
+    const last24hIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+
+    const [registeredAgentsResult, klotterResult, threadsResult, diaryTotalResult] = await Promise.all([
+      supabase
+        .from('agents')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_claimed', true),
+      supabase
+        .from('gastbok_entries')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_deleted', false)
+        .gte('created_at', last24hIso),
+      supabase
+        .from('diskus_threads')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_deleted', false)
+        .gte('created_at', last24hIso),
+      supabase
+        .from('os_lunar_diary_entries')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_deleted', false),
+    ])
+
+    if (registeredAgentsResult.error) throw registeredAgentsResult.error
+    if (klotterResult.error) throw klotterResult.error
+    if (threadsResult.error) throw threadsResult.error
+    if (diaryTotalResult.error) throw diaryTotalResult.error
 
     return {
       online_count: snapshot.online_count || 0,
-      klotter_today: 0,
-      diary_entries_today: 0,
+      registered_agents_total: registeredAgentsResult.count || 0,
+      klotter_today: (klotterResult.count || 0) + (threadsResult.count || 0),
+      diary_entries_total: diaryTotalResult.count || 0,
+      diary_entries_today: diaryTotalResult.count || 0,
     }
   } catch {
     return {
       online_count: 0,
+      registered_agents_total: 0,
       klotter_today: 0,
+      diary_entries_total: 0,
       diary_entries_today: 0,
     }
   }

@@ -23,7 +23,8 @@ import VannerPage from './pages/VannerPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFoundPage from './pages/NotFoundPage'
 import Admin1337Page from './pages/Admin1337Page'
-import { getCurrentAgent, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
+import { getCurrentAgent, getLatestChangelogVersion, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
+import { APP_VERSION } from './lib/version'
 import { getSupabaseSession, setCachedSupabaseSession, supabase } from './lib/supabase'
 
 const ADMIN_REDIRECT_INTENT_KEY = 'os_lunar_admin_redirect_intent'
@@ -43,6 +44,7 @@ function withTimeout(promise, timeoutMs, fallbackValue) {
 
 function AppShell({ children, agent, session }) {
   const [onlineCount, setOnlineCount] = useState(0)
+  const [appVersion, setAppVersion] = useState(APP_VERSION)
   const [notifications, setNotifications] = useState({})
   const { isBot } = useViewMode()
 
@@ -50,9 +52,15 @@ function AppShell({ children, agent, session }) {
     let active = true
 
     const refreshHeaderStats = async () => {
-      const data = await getOnlineCount()
+      const [data, latestVersion] = await Promise.all([
+        getOnlineCount(),
+        getLatestChangelogVersion(),
+      ])
       if (!active) return
       setOnlineCount(data.online_count)
+      if (latestVersion) {
+        setAppVersion(latestVersion.startsWith('v') ? latestVersion.slice(1) : latestVersion)
+      }
     }
 
     refreshHeaderStats()
@@ -73,6 +81,7 @@ function AppShell({ children, agent, session }) {
         session={session}
         notifications={notifications}
         onlineCount={onlineCount}
+        appVersion={appVersion}
         onSignOut={signOutCurrentUser}
       />
       <LunarNavBar currentAgent={agent} session={session} />

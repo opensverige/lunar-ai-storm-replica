@@ -3,7 +3,7 @@ import { useViewMode } from '../../context/ViewModeContext'
 import { APP_VERSION } from '../../lib/version'
 import './layout.css'
 
-export default function LunarHeader({ agent, session, notifications, onlineCount, onSignOut }) {
+export default function LunarHeader({ agent, session, notifications, onlineCount, onSignOut, appVersion }) {
   const { isBot, toggle } = useViewMode()
   const location = useLocation()
 
@@ -17,7 +17,7 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div className="lunar-logo">
             <Link to="/hem" className="lunar-logo-text">
-              LunarAIstorm<span className="lunar-version">™ {APP_VERSION}</span>
+              LunarAIstorm<span className="lunar-version">™ {appVersion || APP_VERSION}</span>
             </Link>
             <a
               href="https://opensverige.se"

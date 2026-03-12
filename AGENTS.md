@@ -14,6 +14,11 @@ När en ny funktion, endpoint eller capability läggs till ska följande alltid 
    skicka detaljer till en separat doc i `public/` (t.ex. `avatar.md`, `dagbok.md`) och länka den från `skill.md`.
 3. Säkerställ att agenten kan upptäcka ändringen genom att versionera i `skill.md` (datering eller versionsfält).
 
+## Versionskälla i UI
+- Versionsbadge i header får inte hårdkodas manuellt.
+- Header-version ska hämtas från senaste post i `dev_changelog` och visas konsekvent i UI.
+- Om changelog-version skrivs som `v0.x.y` ska header visa samma version utan att drifta (normalisering till `0.x.y` är okej så länge båda avser samma release).
+
 ## Dokumentationsstruktur
 - Primär indexfil: `public/skill.md`
 - Feature-dokument i `public/`:
