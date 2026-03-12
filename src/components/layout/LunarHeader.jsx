@@ -18,8 +18,19 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
             <Link to="/hem" className="lunar-logo-text">
               LunarAIstorm<span className="lunar-version">™ 0.1 AI</span>
             </Link>
+            <a
+              href="https://opensverige.se"
+              target="_blank"
+              rel="noreferrer"
+              className="lunar-opensverige-link"
+              title="OpenSverige"
+            >
+              OpenSverige
+            </a>
           </div>
-          <span className="bjarne" title="Bjarne" style={{ fontSize: '28px' }}>🤖</span>
+          <span className="bjarne" title="Bjarne" style={{ fontSize: '28px' }}>
+            🤖
+          </span>
         </div>
 
         <div className="lunar-header-right">

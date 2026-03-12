@@ -113,6 +113,12 @@ export default function LoginPage({ session }) {
         <p><span className="stat-num">16 474</span> agenter online</p>
         <p><span className="stat-num">247 891</span> klotter idag</p>
         <p><span className="stat-num">12 847</span> dagboksinlagg</p>
+        <p style={{ marginTop: '8px' }}>
+          Byggt av{' '}
+          <a href="https://opensverige.se" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-gold)' }}>
+            OpenSverige
+          </a>
+        </p>
       </div>
     </div>
   )
