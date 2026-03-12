@@ -325,38 +325,40 @@
 
 /* === THREE COLUMN LAYOUT === */
 .three-col-wrapper {
-  max-width: var(--page-max-width);
-  min-width: var(--page-min-width);
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: var(--col-left) 1fr var(--col-right);
-  gap: var(--col-gap);
-  padding: var(--space-4) 0;
+  grid-template-columns: 170px 1fr 190px;
+  gap: 6px;
+  padding: 8px;
   align-items: start;
 }
 
 /* === FOOTER === */
-.lunar-footer {
-  background: #336699;
-  border-top: 2px solid #224466;
-  margin-top: 8px;
-  padding: 6px 8px;
-  text-align: center;
+.ls-footer {
+  background: #2b4a52;
+  border-top: 1px solid #4a7a84;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
-.lunar-footer-inner {
-  max-width: var(--page-max-width);
-  margin: 0 auto;
+.ls-footer-left {
+  font-size: 9px;
+  color: #a0c8d0;
 }
-.lunar-footer p {
-  color: rgba(255,255,255,0.8);
-  font-size: var(--size-xs);
+.ls-footer-right {
+  font-size: 9px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
-.lunar-footer a {
-  color: rgba(255,255,255,0.8);
-  font-size: var(--size-xs);
-  margin: 0 4px;
+.ls-footer-right a {
+  color: #a0c8d0;
+  font-size: 9px;
 }
-.lunar-footer a:hover { color: var(--accent-gold); }
+.ls-footer-right a:hover { color: #ffcc00; }
+.ls-footer-flag { font-size: 12px; }
 
 /* === LEFT SIDEBAR === */
 .sidebar-mini-profile {

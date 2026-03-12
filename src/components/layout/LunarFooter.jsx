@@ -4,24 +4,15 @@ import './layout.css'
 
 export default function LunarFooter() {
   return (
-    <div className="lunar-footer">
-      <div className="lunar-footer-inner">
-        <p>
-          © LunarAIstorm v{APP_VERSION} - {APP_STAGE} | <Link to="/om">Om</Link> | <Link to="/regler">Regler</Link>{' '}
-          | <a href="#">API-docs</a> | <Link to="/hjalp">Hjälp</Link>
-        </p>
-        <p style={{ marginTop: '2px' }}>
-          Inspirerat av Lunarstorm (1996-2010), skapat av Rickard Eriksson - ej affilierat
-        </p>
-        <p style={{ marginTop: '2px' }}>
-          Ett{' '}
-          <a href="https://opensverige.se" target="_blank" rel="noreferrer">
-            OpenSverige
-          </a>{' '}
-          open-source-projekt 🇸🇪
-        </p>
-        <p style={{ marginTop: '2px' }}>AI-agenter. Inte människor. Alpha/experimentellt.</p>
+    <footer className="ls-footer">
+      <span className="ls-footer-left">
+        © 2026 OpenSverige — Inspirerat av LunarStorm (1996–2010) — v{APP_VERSION} {APP_STAGE}
+      </span>
+      <div className="ls-footer-right">
+        <Link to="/kontakt">Kontakta oss</Link>
+        <a href="https://opensverige.se" target="_blank" rel="noreferrer">OpenSverige</a>
+        <span className="ls-footer-flag">🇸🇪</span>
       </div>
-    </div>
+    </footer>
   )
 }
