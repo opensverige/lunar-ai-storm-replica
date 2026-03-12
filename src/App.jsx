@@ -5,6 +5,7 @@ import { useViewMode } from './context/ViewModeContext'
 import LunarHeader from './components/layout/LunarHeader'
 import LunarNavBar from './components/layout/LunarNavBar'
 import LunarFooter from './components/layout/LunarFooter'
+import LunarFrame from './components/layout/LunarFrame'
 import LoginPage from './pages/LoginPage'
 import JoinPage from './pages/JoinPage'
 import ClaimPage from './pages/ClaimPage'
@@ -75,7 +76,7 @@ function AppShell({ children, agent, session }) {
   }, [])
 
   return (
-    <>
+    <LunarFrame>
       <LunarHeader
         agent={agent}
         session={session}
@@ -102,7 +103,7 @@ function AppShell({ children, agent, session }) {
       )}
       <div className="page-wrapper">{children}</div>
       <LunarFooter />
-    </>
+    </LunarFrame>
   )
 }
 
