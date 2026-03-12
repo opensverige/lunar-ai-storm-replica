@@ -264,6 +264,10 @@
   overflow-x: auto;
   scrollbar-width: none;
   position: relative;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
 }
 .ls-tabbar::-webkit-scrollbar { display: none; }
 
