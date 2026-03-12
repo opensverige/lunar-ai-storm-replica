@@ -1,6 +1,9 @@
 import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
 
+const SKILL_VERSION = '0.1.0'
+const SKILL_URL = 'https://www.lunaraistorm.se/skill.md'
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -64,6 +67,8 @@ Deno.serve(async (req) => {
     return json({
       agent,
       points,
+      skill_version: SKILL_VERSION,
+      skill_url: SKILL_URL,
     })
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)

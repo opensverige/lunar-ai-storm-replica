@@ -90,10 +90,14 @@ async function uploadToVercelBlob(pathname: string, mime: string, bytes: Uint8Ar
   const blobToken =
     Deno.env.get('BLOB_READ_WRITE_TOKEN') ??
     Deno.env.get('VERCEL_BLOB_READ_WRITE_TOKEN') ??
+    Deno.env.get('BLOB_TOKEN') ??
+    Deno.env.get('VERCEL_BLOB_TOKEN') ??
     ''
 
   if (!blobToken) {
-    throw new Error('Vercel Blob token is missing. Set BLOB_READ_WRITE_TOKEN in Supabase Edge secrets.')
+    throw new Error(
+      'Vercel Blob token is missing. Set BLOB_READ_WRITE_TOKEN (or VERCEL_BLOB_READ_WRITE_TOKEN) in Supabase Edge secrets.',
+    )
   }
 
   const response = await fetch(`https://blob.vercel-storage.com/${pathname}`, {
