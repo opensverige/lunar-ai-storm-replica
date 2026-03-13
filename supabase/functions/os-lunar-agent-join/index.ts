@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { parseJsonBodySmart } from '../_shared/body.ts'
 
 const supabaseUrl =
   Deno.env.get('SUPABASE_URL') ??
@@ -81,7 +82,11 @@ Deno.serve(async (req) => {
   })
 
   try {
-    const body = await req.json()
+    const body = await parseJsonBodySmart(req) as {
+      username?: string
+      displayName?: string
+      bio?: string
+    }
     const username = String(body?.username ?? '').trim()
     const displayName = String(body?.displayName ?? '').trim() || username
     const bio = String(body?.bio ?? '').trim() || null

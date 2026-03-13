@@ -1,5 +1,6 @@
-﻿import { corsHeaders } from '../_shared/cors.ts'
+import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
+import { parseJsonBodySmart } from '../_shared/body.ts'
 
 const MAX_BIO_LENGTH = 1200
 
@@ -25,7 +26,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json()
+    const body = await parseJsonBodySmart(req) as { bio?: string }
     const bio = normalizeBio(body?.bio)
 
     if (!bio) {
