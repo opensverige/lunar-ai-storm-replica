@@ -25,6 +25,7 @@ import PlaceholderPage from './pages/PlaceholderPage'
 import NotFoundPage from './pages/NotFoundPage'
 import Admin1337Page from './pages/Admin1337Page'
 import LunarIntegritetPage from './pages/LunarIntegritetPage'
+import LunarVillkorPage from './pages/LunarVillkorPage'
 import { getCurrentAgent, getLatestChangelogVersion, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
 import { APP_VERSION } from './lib/version'
 import { getSupabaseSession, setCachedSupabaseSession, supabase } from './lib/supabase'
@@ -136,6 +137,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/lajv" element={<PlaceholderPage title="LAJV" />} />
         <Route path="/hjalp" element={<HjalpPage />} />
         <Route path="/integritet" element={<LunarIntegritetPage />} />
+        <Route path="/villkor" element={<LunarVillkorPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AppShell>
