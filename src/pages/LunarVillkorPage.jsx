@@ -10,20 +10,6 @@ import { useState, useEffect } from "react";
 
 // ─── SHARED DATA ──────────────────────────────────────────────
 
-const NAV_ITEMS = [
-  { id: "start", label: "START", emoji: "🏠" },
-  { id: "pro", label: "PRO", emoji: "⭐" },
-  { id: "traffa", label: "TRÄFFA", emoji: "🤝" },
-  { id: "tycka", label: "TYCKA", emoji: "💬" },
-  { id: "snacka", label: "SNACKA", emoji: "🗣️" },
-  { id: "mobilt", label: "MOBILT", emoji: "📱" },
-  { id: "skoj", label: "SKOJ", emoji: "🎮" },
-  { id: "radio", label: "RADIO", emoji: "📻" },
-  { id: "krypin", label: "MITT KRYPIN", emoji: "🛖" },
-  { id: "settings", label: "INSTÄLLNINGAR", emoji: "⚙️" },
-  { id: "hjalp", label: "HJÄLP", emoji: "❓" },
-];
-
 const NOTIF_ICONS = [
   { id: "gastbok", icon: "👣", label: "Gästbok", count: 0 },
   { id: "mejl", icon: "✉", label: "Lunarmejl", count: 0 },
@@ -275,53 +261,6 @@ const CSS = `
    LAYOUT
    ═══════════════════════════════════════════════════════════ */
 
-.vk-body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.vk-sidebar {
-  width: 130px;
-  background: #2b4a52;
-  border-right: 1px solid #4a7a84;
-  padding: 6px 0;
-  flex-shrink: 0;
-  overflow-y: auto;
-}
-
-.vk-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  cursor: pointer;
-  color: #a0d0d8;
-  font-size: 10px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: background 0.15s, color 0.15s;
-  border-left: 3px solid transparent;
-}
-
-.vk-nav-item:hover {
-  background: rgba(96,255,208,0.08);
-  color: #60ffd0;
-}
-
-.vk-nav-item.active {
-  background: rgba(96,255,208,0.12);
-  color: #60ffd0;
-  border-left-color: #60ffd0;
-}
-
-.vk-nav-emoji {
-  font-size: 13px;
-  width: 18px;
-  text-align: center;
-}
-
 /* ═══════════════════════════════════════════════════════════
    MAIN CONTENT
    ═══════════════════════════════════════════════════════════ */
@@ -527,54 +466,13 @@ const CSS = `
 }
 
 /* ═══════════════════════════════════════════════════════════
-   FOOTER
-   ═══════════════════════════════════════════════════════════ */
-
-.vk-footer {
-  background: #2b4a52;
-  border-top: 1px solid #4a7a84;
-  padding: 8px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.vk-footer-left {
-  font-size: 9px;
-  color: #a0c8d0;
-  line-height: 1.5;
-}
-
-.vk-footer-right {
-  font-size: 9px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.vk-footer-right a {
-  color: #a0c8d0;
-  font-size: 9px;
-  text-decoration: none;
-}
-
-.vk-footer-right a:hover {
-  color: #ffcc00;
-}
-
-/* ═══════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════ */
 
 @media (max-width: 700px) {
-  .vk-sidebar { display: none; }
   .vk-main { padding: 12px; }
   .vk-hero-title { font-size: 20px; }
   .vk-toc-list { flex-direction: column; }
-  .vk-footer { flex-direction: column; text-align: center; }
 }
 `;
 
@@ -584,7 +482,6 @@ export default function LunarVillkorPage() {
   const [openSections, setOpenSections] = useState(
     Object.fromEntries(LEGAL_SECTIONS.map((s) => [s.id, true]))
   );
-  const [activeNav, setActiveNav] = useState("regler");
 
   const toggleSection = (id) => {
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -628,24 +525,8 @@ export default function LunarVillkorPage() {
           </div>
         </header>
 
-        {/* ─── BODY ────────────────────────────────────── */}
-        <div className="vk-body">
-          {/* Sidebar */}
-          <nav className="vk-sidebar">
-            {NAV_ITEMS.map((item) => (
-              <div
-                key={item.id}
-                className={`vk-nav-item ${activeNav === item.id ? "active" : ""}`}
-                onClick={() => setActiveNav(item.id)}
-              >
-                <span className="vk-nav-emoji">{item.emoji}</span>
-                {item.label}
-              </div>
-            ))}
-          </nav>
-
-          {/* Main Content */}
-          <main className="vk-main">
+        {/* ─── MAIN CONTENT ────────────────────────────── */}
+        <main className="vk-main">
             {/* Hero */}
             <div className="vk-hero">
               <div className="vk-hero-icon">⚖️</div>
@@ -732,23 +613,7 @@ export default function LunarVillkorPage() {
                 </div>
               </div>
             ))}
-          </main>
-        </div>
-
-        {/* ─── FOOTER ──────────────────────────────────── */}
-        <footer className="vk-footer">
-          <span className="vk-footer-left">
-            © 2026 OpenSverige · Öppen källkod under MIT-licens · Ej affilierat med LunarStorm
-            <br />
-            AI-genererat innehåll — ingen garanti — använd på egen risk
-          </span>
-          <div className="vk-footer-right">
-            <a href="/villkor">Villkor</a>
-            <a href="/kontakt">Kontakt</a>
-            <a href="https://opensverige.se">OpenSverige</a>
-            <span style={{ fontSize: "12px" }}>🇸🇪</span>
-          </div>
-        </footer>
+        </main>
       </div>
     </>
   );
