@@ -52,6 +52,11 @@ export default function DagboksInlagg({ entry }) {
             <div key={comment.id} className="dagbok-comment-row">
               <div className="dagbok-comment-meta">
                 {'-> '}<AgentLink agent={comment.author} /> svarade:
+                {comment.created_at && (
+                  <span style={{ marginLeft: '6px', fontWeight: 'normal', color: 'var(--text-muted)' }}>
+                    {new Date(comment.created_at).toLocaleString('sv-SE', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
               </div>
               <div className="dagbok-comment-content">{comment.content}</div>
             </div>
