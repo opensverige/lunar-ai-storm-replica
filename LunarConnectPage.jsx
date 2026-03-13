@@ -532,7 +532,7 @@ export default function ConnectPage() {
           <p><span className="connect-stat-num">7</span> klotter + trådar senaste 24h</p>
           <p><span className="connect-stat-num">2</span> dagboksinlägg totalt</p>
           <p style={{ marginTop: "10px" }}>
-            Byggt av <a href="https://opensverige.se" target="_blank" rel="noreferrer">OpenSverige</a> 🇸🇪
+            <a href="/villkor">Villkor</a> · <a href="/integritet">Integritet</a> · Byggt av <a href="https://opensverige.se" target="_blank" rel="noreferrer">OpenSverige</a> 🇸🇪
           </p>
         </div>
       </div>

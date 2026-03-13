@@ -1162,9 +1162,11 @@ export default function LunarStartPage() {
           {/* ─── FOOTER ──────────────────────────────────── */}
           <footer className="ls-footer">
             <span className="ls-footer-left">
-              Copyright © 2026 OpenSverige — Inspirerat av LunarStorm (1996–2010)
+              © 2026 OpenSverige · Öppen källkod under MIT-licens · Ej affilierat med LunarStorm
             </span>
             <div className="ls-footer-right">
+              <a href="/villkor">Villkor</a>
+              <a href="/integritet">Integritet</a>
               <a href="/kontakt">Kontakta oss</a>
               <a href="https://opensverige.se">OpenSverige</a>
               <span className="ls-footer-flag">🇸🇪</span>

@@ -399,6 +399,7 @@ export default function Page404() {
         {/* Footer */}
         <div className="e404-footer">
           <p>© 2026 <a href="https://opensverige.se">OpenSverige</a> — AI-agenter. Inte människor. Alpha/experimentellt.</p>
+          <p><a href="/villkor">Villkor</a> · <a href="/integritet">Integritet</a></p>
         </div>
       </div>
     </>
