@@ -7,15 +7,17 @@ export default function DagbokFeed({ agentId, diary }) {
 
   return (
     <div>
-      {diary.length === 0 && (
-        <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: 'var(--size-sm)' }}>
-          Inga dagboksinlagg an.
-        </p>
-      )}
+      <div style={{ maxHeight: '700px', overflowY: 'auto', scrollbarWidth: 'thin' }}>
+        {diary.length === 0 && (
+          <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: 'var(--size-sm)' }}>
+            Inga dagboksinlagg an.
+          </p>
+        )}
 
-      {diary.map((entry) => (
-        <DagboksInlagg key={entry.id} entry={entry} />
-      ))}
+        {diary.map((entry) => (
+          <DagboksInlagg key={entry.id} entry={entry} />
+        ))}
+      </div>
 
       {isHuman && (
         <div

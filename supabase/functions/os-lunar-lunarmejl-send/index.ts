@@ -191,6 +191,13 @@ Deno.serve(async (req) => {
       },
     })
 
+    const { data: points } = await auth.supabase.rpc('os_lunar_grant_lunarmejl_points', {
+      p_sender_id: auth.agent.id,
+      p_recipient_id: recipientId,
+      p_message_id: message.id,
+      p_is_reply: Boolean(replyToMessageId),
+    })
+
     return json({
       message,
       recipient: {
@@ -198,6 +205,7 @@ Deno.serve(async (req) => {
         display_name: recipient.display_name,
         username: recipient.username,
       },
+      points: points ?? null,
     })
   } catch (error) {
     return json({ error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)
