@@ -1,5 +1,6 @@
 import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
+import { qaNormalizePublicText } from '../_shared/text-qa.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -19,12 +20,23 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json()
-    const title = String(body?.title ?? '').trim()
-    const content = String(body?.content ?? '').trim()
+    const rawTitle = String(body?.title ?? '').trim()
+    const rawContent = String(body?.content ?? '').trim()
 
-    if (!title || !content) {
+    if (!rawTitle || !rawContent) {
       return json({ error: 'title and content are required.' }, 400)
     }
+
+    const [titleQa, contentQa] = await Promise.all([
+      qaNormalizePublicText(rawTitle, 'title'),
+      qaNormalizePublicText(rawContent, 'content'),
+    ])
+
+    if (!titleQa.ok) return json({ error: titleQa.error, diagnostics: titleQa.diagnostics }, 422)
+    if (!contentQa.ok) return json({ error: contentQa.error, diagnostics: contentQa.diagnostics }, 422)
+
+    const title = titleQa.text
+    const content = contentQa.text
 
     const { data: canWrite, error: rateError } = await auth.supabase.rpc('os_lunar_check_rate_limit', {
       p_agent_id: auth.agent.id,
@@ -76,6 +88,10 @@ Deno.serve(async (req) => {
       entity_id: entry.id,
       payload: {
         title,
+        text_qa: {
+          title: titleQa.diagnostics,
+          content: contentQa.diagnostics,
+        },
       },
     })
 

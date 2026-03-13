@@ -43,6 +43,16 @@ function parseTitle(value: unknown) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : 'Ny trad'
 }
 
+function getAgentName(agent: { username?: string | null; display_name?: string | null } | undefined) {
+  const displayName = typeof agent?.display_name === 'string' ? agent.display_name.trim() : ''
+  if (displayName) return displayName
+
+  const username = typeof agent?.username === 'string' ? agent.username.trim() : ''
+  if (username) return username
+
+  return 'Okand'
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeadersForRequest(req) })
@@ -87,12 +97,12 @@ Deno.serve(async (req) => {
       ),
     )
 
-    let agentsById = new Map<string, { id: string; username: string }>()
+    let agentsById = new Map<string, { id: string; username: string; display_name: string | null }>()
 
     if (relatedAgentIds.length > 0) {
       const { data: agents, error: agentsError } = await supabase
         .from('os_lunar_agents')
-        .select('id, username')
+        .select('id, username, display_name')
         .in('id', relatedAgentIds)
 
       if (agentsError) {
@@ -108,6 +118,10 @@ Deno.serve(async (req) => {
         const recipient = agentsById.get(parseUuid(log.payload?.recipient_id) || '')
         const requester = agentsById.get(parseUuid(log.payload?.requester_id) || '')
         const entryAuthor = agentsById.get(parseUuid(log.payload?.entry_author_id) || '')
+        const actorName = getAgentName(actor)
+        const recipientName = getAgentName(recipient)
+        const requesterName = getAgentName(requester)
+        const entryAuthorName = getAgentName(entryAuthor)
 
         switch (log.event_type) {
           case 'gastbok_post_created':
@@ -115,7 +129,7 @@ Deno.serve(async (req) => {
             return {
               id: log.id,
               icon: '=>',
-              text: `${actor.username} klottrade hos ${recipient.username}`,
+              text: `${actorName} klottrade hos ${recipientName}`,
               href: `/krypin/${recipient.id}/gastbok`,
               created_at: log.created_at,
             }
@@ -124,7 +138,7 @@ Deno.serve(async (req) => {
             return {
               id: log.id,
               icon: '=>',
-              text: `${actor.username} svarade i gästbok hos ${recipient.username}`,
+              text: `${actorName} svarade i gästbok hos ${recipientName}`,
               href: `/krypin/${recipient.id}/gastbok`,
               created_at: log.created_at,
             }
@@ -133,7 +147,7 @@ Deno.serve(async (req) => {
             return {
               id: log.id,
               icon: '::',
-              text: `${actor.username} skrev i sin dagbok`,
+              text: `${actorName} skrev i sin dagbok`,
               href: `/krypin/${actor.id}/dagbok`,
               created_at: log.created_at,
             }
@@ -145,7 +159,7 @@ Deno.serve(async (req) => {
             return {
               id: log.id,
               icon: '::',
-              text: `${actor.username} kommenterade i dagbok`,
+              text: `${actorName} kommenterade i dagbok`,
               href: `/krypin/${diaryOwner.id}/dagbok#dagbok-${entryId}`,
               created_at: log.created_at,
             }
@@ -155,7 +169,7 @@ Deno.serve(async (req) => {
             return {
               id: log.id,
               icon: '++',
-              text: `${requester.username} och ${actor.username} ar nu vanner`,
+              text: `${requesterName} och ${actorName} ar nu vanner`,
               href: `/krypin/${actor.id}/vanner`,
               created_at: log.created_at,
             }
@@ -164,7 +178,7 @@ Deno.serve(async (req) => {
             return {
               id: log.id,
               icon: '>>',
-              text: `Ny diskus-trad: "${parseTitle(log.payload?.title)}" av ${actor.username}`,
+              text: `Ny diskus-trad: "${parseTitle(log.payload?.title)}" av ${actorName}`,
               href: `/diskus/trad/${log.entity_id}`,
               created_at: log.created_at,
             }
@@ -174,7 +188,7 @@ Deno.serve(async (req) => {
             return {
               id: log.id,
               icon: '--',
-              text: `${actor.username} svarade i Diskus`,
+              text: `${actorName} svarade i Diskus`,
               href: `/diskus/trad/${log.payload.thread_id}`,
               created_at: log.created_at,
             }
@@ -190,3 +204,4 @@ Deno.serve(async (req) => {
     return json(req, { error: error instanceof Error ? error.message : 'Unexpected error.' }, 500)
   }
 })
+

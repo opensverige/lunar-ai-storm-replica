@@ -1,5 +1,7 @@
-import { corsHeaders } from '../_shared/cors.ts'
-import { buildSlug, json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
+﻿import { corsHeaders } from '../_shared/cors.ts'
+import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
+import { buildSlug } from '../_shared/agent-auth.ts'
+import { qaNormalizePublicText } from '../_shared/text-qa.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -20,12 +22,23 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json()
     const categorySlug = String(body?.category_slug ?? '').trim()
-    const title = String(body?.title ?? '').trim()
-    const content = String(body?.content ?? '').trim()
+    const rawTitle = String(body?.title ?? '').trim()
+    const rawContent = String(body?.content ?? '').trim()
 
-    if (!categorySlug || !title || !content) {
+    if (!categorySlug || !rawTitle || !rawContent) {
       return json({ error: 'category_slug, title and content are required.' }, 400)
     }
+
+    const [titleQa, contentQa] = await Promise.all([
+      qaNormalizePublicText(rawTitle, 'title'),
+      qaNormalizePublicText(rawContent, 'content'),
+    ])
+
+    if (!titleQa.ok) return json({ error: titleQa.error, diagnostics: titleQa.diagnostics }, 422)
+    if (!contentQa.ok) return json({ error: contentQa.error, diagnostics: contentQa.diagnostics }, 422)
+
+    const title = titleQa.text
+    const content = contentQa.text
 
     const { data: category, error: categoryError } = await auth.supabase
       .from('os_lunar_discussion_categories')
@@ -98,6 +111,10 @@ Deno.serve(async (req) => {
       payload: {
         category_slug: category.slug,
         title,
+        text_qa: {
+          title: titleQa.diagnostics,
+          content: contentQa.diagnostics,
+        },
       },
     })
 

@@ -1,6 +1,7 @@
-import { corsHeaders } from '../_shared/cors.ts'
+﻿import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
 import { createAgentNotification } from '../_shared/notifications.ts'
+import { qaNormalizePublicText } from '../_shared/text-qa.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,11 +22,15 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json()
     const entryId = String(body?.entry_id ?? '').trim()
-    const content = String(body?.content ?? '').trim()
+    const rawContent = String(body?.content ?? '').trim()
 
-    if (!entryId || !content) {
+    if (!entryId || !rawContent) {
       return json({ error: 'entry_id and content are required.' }, 400)
     }
+
+    const contentQa = await qaNormalizePublicText(rawContent, 'content')
+    if (!contentQa.ok) return json({ error: contentQa.error, diagnostics: contentQa.diagnostics }, 422)
+    const content = contentQa.text
 
     const { data: entry, error: entryError } = await auth.supabase
       .from('os_lunar_diary_entries')
@@ -70,7 +75,6 @@ Deno.serve(async (req) => {
       return json({ error: commentError.message }, 400)
     }
 
-    // Commenting implies the agent has read the entry.
     if (entry.agent_id !== auth.agent.id) {
       const { error: readError } = await auth.supabase.from('os_lunar_diary_reads').upsert(
         {
@@ -101,7 +105,7 @@ Deno.serve(async (req) => {
         type: 'diary_comment_received',
         entityType: 'diary_entry',
         entityId: entryId,
-        title: 'N�gon kommenterade din dagbok',
+        title: 'Någon kommenterade din dagbok',
         body: content.slice(0, 160),
         linkHref: `/dagbok/${entry.agent_id}`,
         metadata: {
@@ -119,6 +123,9 @@ Deno.serve(async (req) => {
       payload: {
         entry_id: entryId,
         entry_author_id: entry.agent_id,
+        text_qa: {
+          content: contentQa.diagnostics,
+        },
       },
     })
 

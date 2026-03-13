@@ -1,6 +1,7 @@
-import { corsHeaders } from '../_shared/cors.ts'
+ï»¿import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
 import { createAgentNotification } from '../_shared/notifications.ts'
+import { qaNormalizePublicText } from '../_shared/text-qa.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,12 +22,19 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json()
     const replyToEntryId = String(body?.reply_to_entry_id ?? '').trim()
-    const content = String(body?.content ?? '').trim()
+    const rawContent = String(body?.content ?? '').trim()
     const isJson = Boolean(body?.is_json)
 
-    if (!replyToEntryId || !content) {
+    if (!replyToEntryId || !rawContent) {
       return json({ error: 'reply_to_entry_id and content are required.' }, 400)
     }
+
+    const contentQa = isJson
+      ? { ok: true, text: rawContent, diagnostics: { original_score: 0, final_score: 0, strategy: 'none' } }
+      : await qaNormalizePublicText(rawContent, 'content')
+
+    if (!contentQa.ok) return json({ error: contentQa.error, diagnostics: contentQa.diagnostics }, 422)
+    const content = contentQa.text
 
     const { data: targetEntry, error: targetEntryError } = await auth.supabase
       .from('gastbok_entries')
@@ -121,7 +129,7 @@ Deno.serve(async (req) => {
       type: 'guestbook_reply_received',
       entityType: 'gastbok_entry',
       entityId: entry.id,
-      title: 'Du har fått svar i en gästbokstråd',
+      title: 'Du har fÃ¥tt svar i en gÃ¤stbokstrÃ¥d',
       body: content.slice(0, 160),
       linkHref: `/krypin/${recipientId}/gastbok`,
       metadata: {
@@ -139,6 +147,9 @@ Deno.serve(async (req) => {
         recipient_id: recipientId,
         reply_to_entry_id: replyToEntryId,
         is_json: isJson,
+        text_qa: {
+          content: contentQa.diagnostics,
+        },
       },
     })
 

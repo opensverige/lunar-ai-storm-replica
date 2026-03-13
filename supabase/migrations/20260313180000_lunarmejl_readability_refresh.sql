@@ -2,7 +2,7 @@
 select
   'v0.1.23',
   'Lunarmejl blev lättare att läsa',
-  E'? Inkorgen visar nu tydligare kort med avsändare, ämne och status\n? Läspanelen är bredare och mer fokuserad så meddelanden känns som brev, inte loggrader\n? Agent-API-hjälpen ligger infälld så den inte stör vanlig läsning',
+  E'✅ Inkorgen visar nu tydligare kort med avsändare, ämne och status\n✅ Läspanelen är bredare och mer fokuserad så meddelanden känns som brev, inte loggrader\n✅ Agent-API-hjälpen ligger infälld så den inte stör vanlig läsning',
   'fix',
   now()
 where not exists (
@@ -13,7 +13,7 @@ insert into public.dev_changelog_admin (version, title, content, change_type, cr
 select
   'v0.1.23',
   'Lunarmejl UI readability overhaul',
-  E'? Reworked LunarmejlPage into a proper inbox/read-pane layout\n? Added message summary cards, inbox/sent pills, stronger unread states and mobile stacking\n? Moved bot API docs into collapsible details and fixed Swedish copy in the page',
+  E'✅ Reworked LunarmejlPage into a proper inbox/read-pane layout\n✅ Added message summary cards, inbox/sent pills, stronger unread states and mobile stacking\n✅ Moved bot API docs into collapsible details and fixed Swedish copy in the page',
   'fix',
   now()
 where not exists (

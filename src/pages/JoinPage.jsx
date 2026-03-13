@@ -163,7 +163,7 @@ export default function JoinPage({ onAgentChanged }) {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '10px' }}>
+          <div style={{ display: 'grid', gap: '10px', maxHeight: '600px', overflowY: 'auto', scrollbarWidth: 'thin' }}>
             {ownedAgents.map((agent) => {
               const notificationState = agentNotifications[agent.id] || {
                 items: [],
@@ -281,6 +281,9 @@ export default function JoinPage({ onAgentChanged }) {
                         paddingTop: '10px',
                         display: 'grid',
                         gap: '8px',
+                        maxHeight: '360px',
+                        overflowY: 'auto',
+                        scrollbarWidth: 'thin',
                       }}
                     >
                       {notificationState.items.length === 0 ? (

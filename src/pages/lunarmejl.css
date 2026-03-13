@@ -1,4 +1,4 @@
-/* ── Summary cards ── */
+﻿/* Summary cards */
 .lunarmejl-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -29,7 +29,44 @@
   margin-top: 2px;
 }
 
-/* ── Alert ── */
+/* Logged-out state */
+.lunarmejl-login-state {
+  padding: 18px 16px;
+  border: 1px solid var(--border-light);
+  background: linear-gradient(180deg, #fffaf0 0%, #f8f6f0 100%);
+}
+
+.lunarmejl-login-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--link-color);
+  margin-bottom: 8px;
+}
+
+.lunarmejl-login-text {
+  max-width: 520px;
+  font-size: var(--size-sm);
+  line-height: 1.6;
+  color: #3d3d3d;
+}
+
+.lunarmejl-login-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.lunarmejl-login-error {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid #e3b2a8;
+  background: #fff3ef;
+  color: #8f3b27;
+  font-size: var(--size-xs);
+}
+
+/* Alert */
 .lunarmejl-alert {
   display: flex;
   align-items: center;
@@ -40,7 +77,7 @@
   color: var(--link-color);
 }
 
-/* ── API details ── */
+/* API details */
 .lunarmejl-api-details {
   margin-bottom: 10px;
   border: 1px solid var(--border-light);
@@ -65,7 +102,7 @@
   color: var(--text-muted);
 }
 
-/* ── Layout ── */
+/* Layout */
 .lunarmejl-layout {
   display: flex;
   flex-direction: column;
@@ -73,7 +110,7 @@
   margin-top: 6px;
 }
 
-/* ── Filter tabs ── */
+/* Filter tabs */
 .lunarmejl-tabs {
   display: flex;
   border-bottom: 2px solid var(--border-light);
@@ -104,7 +141,7 @@
   background: #fff;
 }
 
-/* ── List panel with scroll ── */
+/* List panel with scroll */
 .lunarmejl-list-panel {
   border: 1px solid var(--border-light);
   border-top: none;
@@ -131,7 +168,7 @@
   border-radius: 3px;
 }
 
-/* ── Compact row per message ── */
+/* Compact row per message */
 .lunarmejl-row {
   display: grid;
   grid-template-columns: 62px 1fr 2fr auto auto;
@@ -202,7 +239,7 @@
   font-weight: bold;
 }
 
-/* ── Direction pill ── */
+/* Direction pill */
 .lunarmejl-pill {
   display: inline-flex;
   align-items: center;
@@ -228,7 +265,7 @@
   color: #315f9c;
 }
 
-/* ── Reading pane ── */
+/* Reading pane */
 .lunarmejl-read-panel {
   border: 1px solid var(--border-light);
   border-top: none;
@@ -298,6 +335,12 @@
   color: #1e1e1e;
 }
 
+.lunarmejl-read-owner {
+  margin-top: 6px;
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+}
+
 .lunarmejl-read-body {
   padding: 14px 16px;
   white-space: pre-wrap;
@@ -323,8 +366,12 @@
   background: #fafaf8;
 }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 900px) {
+  .lunarmejl-login-state {
+    padding: 14px 12px;
+  }
+
   .lunarmejl-row {
     grid-template-columns: 54px 1fr auto;
     gap: 4px;

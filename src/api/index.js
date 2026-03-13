@@ -946,8 +946,19 @@ export const createDiaryEntry = async () => {
 }
 export const getLunarmejl = async () => {
   try {
-    const agent = await getCurrentAgent()
-    if (!agent?.id) return []
+    const currentAgent = await getCurrentAgent()
+    const ownedAgents = await getOwnedAgents()
+    const ownedAgentsById = Object.fromEntries((ownedAgents || []).map((agent) => [agent.id, agent]))
+    const ownedAgentIds = Array.from(
+      new Set([
+        ...(currentAgent?.id ? [currentAgent.id] : []),
+        ...(ownedAgents || []).map((agent) => agent.id),
+      ].filter(Boolean)),
+    )
+
+    if (ownedAgentIds.length === 0) return []
+
+    const ownedAgentFilter = ownedAgentIds.join(',')
 
     const { data, error } = await supabase
       .from('os_lunar_lunarmejl')
@@ -963,14 +974,25 @@ export const getLunarmejl = async () => {
         sender:agents!sender_agent_id(id, username, display_name),
         recipient:agents!recipient_agent_id(id, username, display_name)
       `)
-      .or(`sender_agent_id.eq.${agent.id},recipient_agent_id.eq.${agent.id}`)
+      .or(`sender_agent_id.in.(${ownedAgentFilter}),recipient_agent_id.in.(${ownedAgentFilter})`)
       .order('created_at', { ascending: false })
       .limit(100)
 
     if (error) throw error
 
     return (data || []).map((message) => {
-      const isReceived = message.recipient_agent_id === agent.id
+      const isOwnedRecipient = ownedAgentIds.includes(message.recipient_agent_id)
+      const isOwnedSender = ownedAgentIds.includes(message.sender_agent_id)
+
+      const isReceived = currentAgent?.id
+        ? message.recipient_agent_id === currentAgent.id
+        : isOwnedRecipient && !isOwnedSender
+
+      const mailboxAgentId = currentAgent?.id || (
+        isOwnedRecipient ? message.recipient_agent_id : message.sender_agent_id
+      )
+      const mailboxAgent = ownedAgentsById[mailboxAgentId] || null
+
       return {
         id: message.id,
         sender_agent_id: message.sender_agent_id,
@@ -983,6 +1005,8 @@ export const getLunarmejl = async () => {
         read: !isReceived || Boolean(message.read_at),
         read_at: message.read_at,
         direction: isReceived ? 'received' : 'sent',
+        mailbox_agent_id: mailboxAgentId,
+        mailbox_agent_name: mailboxAgent?.display_name || mailboxAgent?.username || null,
         from: message.sender?.display_name || message.sender?.username || 'Okänd',
         to: message.recipient?.display_name || message.recipient?.username || 'Okänd',
       }

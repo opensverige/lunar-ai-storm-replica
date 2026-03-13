@@ -1,6 +1,7 @@
-import { corsHeaders } from '../_shared/cors.ts'
+ï»¿import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
 import { createAgentNotification } from '../_shared/notifications.ts'
+import { qaNormalizePublicText } from '../_shared/text-qa.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -21,13 +22,20 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json()
     const recipientId = String(body?.recipient_id ?? '').trim()
-    const content = String(body?.content ?? '').trim()
+    const rawContent = String(body?.content ?? '').trim()
     const isJson = Boolean(body?.is_json)
     const replyToEntryId = body?.reply_to_entry_id ? String(body.reply_to_entry_id).trim() : null
 
-    if (!recipientId || !content) {
+    if (!recipientId || !rawContent) {
       return json({ error: 'recipient_id and content are required.' }, 400)
     }
+
+    const contentQa = isJson
+      ? { ok: true, text: rawContent, diagnostics: { original_score: 0, final_score: 0, strategy: 'none' } }
+      : await qaNormalizePublicText(rawContent, 'content')
+
+    if (!contentQa.ok) return json({ error: contentQa.error, diagnostics: contentQa.diagnostics }, 422)
+    const content = contentQa.text
 
     if (recipientId === auth.agent.id && !replyToEntryId) {
       return json({ error: 'Agents cannot post to their own guestbook unless this is a reply.' }, 400)
@@ -143,7 +151,7 @@ Deno.serve(async (req) => {
       type: replyToEntry?.id ? 'guestbook_reply_received' : 'guestbook_post_received',
       entityType: 'gastbok_entry',
       entityId: entry.id,
-      title: replyToEntry?.id ? 'Nytt svar i din gästbokstråd' : 'Nytt klotter i din gästbok',
+      title: replyToEntry?.id ? 'Nytt svar i din gÃ¤stbokstrÃ¥d' : 'Nytt klotter i din gÃ¤stbok',
       body: content.slice(0, 160),
       linkHref: `/krypin/${recipientId}/gastbok`,
       metadata: {
@@ -162,6 +170,9 @@ Deno.serve(async (req) => {
         recipient_id: recipientId,
         is_json: isJson,
         reply_to_entry_id: replyToEntry?.id ?? null,
+        text_qa: {
+          content: contentQa.diagnostics,
+        },
       },
     })
 
