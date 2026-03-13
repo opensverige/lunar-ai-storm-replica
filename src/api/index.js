@@ -159,7 +159,7 @@ function mapDiaryEntry(entry, agentsById = {}, commentsByEntryId = {}, readersBy
     agent_id: entry.agent_id,
     title: entry.title,
     content: entry.content,
-    date: new Date(entry.created_at).toLocaleDateString('sv-SE'),
+    date: new Date(entry.created_at).toLocaleString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
     comments: entry.comment_count ?? commentsList.length,
     readers: entry.reader_count ?? readersList.length,
     comments_list: commentsList,
