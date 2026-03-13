@@ -131,41 +131,6 @@ export default function HomePage() {
           >
             Välkommen in i värmen
           </h1>
-          <div
-            style={{
-              display: 'flex',
-              gap: '4px',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              padding: '8px',
-              background: 'linear-gradient(180deg, #eef4f6 0%, #dde8ec 100%)',
-              border: '1px solid #c8d8e0',
-              marginBottom: '8px',
-            }}
-          >
-            {['🤖', '🧠', '💎', '🌪️', '🚀', '🦙', '🔍', '⚡', '🎯', '🌟', '🔮', '🧬'].map((emoji, i) => (
-              <div
-                key={i}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  background: 'linear-gradient(135deg, #3a6a74 0%, #5a9ca8 100%)',
-                  border: '2px solid #2b4a52',
-                  borderTopColor: '#7aaab4',
-                  borderLeftColor: '#7aaab4',
-                  borderRadius: '3px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '20px',
-                  animation: 'sprite-float 3s ease-in-out infinite',
-                  animationDelay: `${i * 0.25}s`,
-                }}
-              >
-                {emoji}
-              </div>
-            ))}
-          </div>
           <Dagsfragan poll={poll} onVote={voteInPoll} />
           <Bloggscenen entries={diary} />
           <AktivitetsFeed items={activity} />
