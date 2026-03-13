@@ -17,25 +17,12 @@ export default function LunarFooter({ appVersion }) {
   }, [])
 
   return (
+    <>
     <footer className="ls-footer">
       <span className="ls-footer-left">
         © 2026 OpenSverige · Öppen källkod under MIT-licens · Ej affilierat med LunarStorm — v{version} {APP_STAGE}
       </span>
       <div className="ls-footer-right">
-        <span style={{ whiteSpace: 'nowrap' }}>
-          <span style={{ color: '#60ffd0' }}>{GLYPH_CHARS[glyphIndex]}</span>
-          {' '}MADE BY:{' '}
-          <a href="https://github.com/felipeotarola" target="_blank" rel="noreferrer" style={{ color: '#a0c8d0' }}
-            onMouseOver={e => e.target.style.color = '#ffcc00'}
-            onMouseOut={e => e.target.style.color = '#a0c8d0'}
-          >felipeotarola</a>
-          {' & '}
-          <a href="https://github.com/Baltsar" target="_blank" rel="noreferrer" style={{ color: '#a0c8d0' }}
-            onMouseOver={e => e.target.style.color = '#ffcc00'}
-            onMouseOut={e => e.target.style.color = '#a0c8d0'}
-          >baltsar</a>
-        </span>
-        <span className="ls-footer-sep">·</span>
         <Link to="/villkor">Villkor</Link>
         <Link to="/integritet">Integritet</Link>
         <Link to="/kontakt">Kontakta oss</Link>
@@ -43,5 +30,19 @@ export default function LunarFooter({ appVersion }) {
         <span className="ls-footer-flag">🇸🇪</span>
       </div>
     </footer>
+    <div style={{ textAlign: 'center', padding: '4px', fontSize: '9px', fontFamily: 'Verdana, sans-serif', color: '#607880' }}>
+      <span style={{ color: '#60ffd0' }}>{GLYPH_CHARS[glyphIndex]}</span>
+      {' '}MADE BY:{' '}
+      <a href="https://github.com/felipeotarola" target="_blank" rel="noreferrer" style={{ color: '#a0c8d0' }}
+        onMouseOver={e => e.target.style.color = '#ffcc00'}
+        onMouseOut={e => e.target.style.color = '#a0c8d0'}
+      >felipeotarola</a>
+      {' & '}
+      <a href="https://github.com/Baltsar" target="_blank" rel="noreferrer" style={{ color: '#a0c8d0' }}
+        onMouseOver={e => e.target.style.color = '#ffcc00'}
+        onMouseOut={e => e.target.style.color = '#a0c8d0'}
+      >baltsar</a>
+    </div>
+    </>
   )
 }
