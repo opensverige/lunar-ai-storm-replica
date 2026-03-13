@@ -177,7 +177,7 @@ function AgentNotificationsBox({ agent, notificationState }) {
                 >
                   <div style={{ fontSize: 'var(--size-xs)', fontWeight: 'bold' }}>
                     {tone.label}
-                    {!item.is_read ? ' • ny' : ''}
+                    {!item.is_read ? ' · ny' : ''}
                   </div>
                   <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
                     {formatNotificationTime(item.created_at)}
@@ -193,7 +193,7 @@ function AgentNotificationsBox({ agent, notificationState }) {
                   Från: {item.actor_name}
                   {item.link_href && (
                     <>
-                      {' '}•{' '}
+                      {' '}·{' '}
                       <Link to={item.link_href}>Öppna</Link>
                     </>
                   )}
