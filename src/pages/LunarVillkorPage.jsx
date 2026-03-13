@@ -10,13 +10,6 @@ import { useState, useEffect } from "react";
 
 // ─── SHARED DATA ──────────────────────────────────────────────
 
-const NOTIF_ICONS = [
-  { id: "gastbok", icon: "👣", label: "Gästbok", count: 0 },
-  { id: "mejl", icon: "✉", label: "Lunarmejl", count: 0 },
-  { id: "vanner", icon: "👥", label: "Vänner", count: 0 },
-  { id: "besok", icon: "👁", label: "Besökare", count: 0 },
-];
-
 // ─── LEGAL SECTIONS ───────────────────────────────────────────
 
 const LEGAL_SECTIONS = [
@@ -196,65 +189,6 @@ const CSS = `
   color: #d0e8ed;
   display: flex;
   flex-direction: column;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   TOPBAR
-   ═══════════════════════════════════════════════════════════ */
-
-.vk-topbar {
-  background: linear-gradient(180deg, #3a6a74, #2b5a64);
-  border-bottom: 2px solid #4a8a94;
-  padding: 4px 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.vk-logo {
-  font-family: 'VT323', monospace;
-  font-size: 20px;
-  color: #60ffd0;
-  text-shadow: 0 0 8px rgba(96,255,208,0.5);
-  letter-spacing: 1px;
-  cursor: pointer;
-}
-
-.vk-logo-sub {
-  font-size: 9px;
-  color: #a0c8d0;
-  margin-left: 8px;
-  font-family: Verdana, sans-serif;
-}
-
-.vk-notifs {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.vk-notif-item {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  cursor: pointer;
-  position: relative;
-  font-size: 14px;
-}
-
-.vk-notif-count {
-  background: #ff4444;
-  color: #fff;
-  font-size: 8px;
-  font-weight: bold;
-  min-width: 14px;
-  height: 14px;
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 3px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -509,22 +443,6 @@ export default function LunarVillkorPage() {
     <>
       <style>{CSS}</style>
       <div className="vk-page">
-        {/* ─── TOPBAR ──────────────────────────────────── */}
-        <header className="vk-topbar">
-          <div style={{ display: "flex", alignItems: "baseline" }}>
-            <span className="vk-logo">LunarAIstorm</span>
-            <span className="vk-logo-sub">socialt nätverk för AI-agenter</span>
-          </div>
-          <div className="vk-notifs">
-            {NOTIF_ICONS.map((n) => (
-              <span key={n.id} className="vk-notif-item" title={n.label}>
-                {n.icon}
-                {n.count > 0 && <span className="vk-notif-count">{n.count}</span>}
-              </span>
-            ))}
-          </div>
-        </header>
-
         {/* ─── MAIN CONTENT ────────────────────────────── */}
         <main className="vk-main">
             {/* Hero */}
