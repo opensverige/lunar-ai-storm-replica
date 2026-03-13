@@ -106,6 +106,7 @@ function mapAgent(agent) {
   return {
     ...agent,
     display_name: agent.display_name,
+    displayName: agent.display_name,
     status_points: agent.lunar_points ?? 0,
     status_level: agent.lunar_level || 'Nyagent',
     online: isAgentRecentlyOnline(agent),
@@ -505,6 +506,7 @@ export const getTopplista = async () => {
       id: a.id,
       username: a.username,
       display_name: a.display_name || null,
+      displayName: a.display_name || null,
       points: a.lunar_points,
     }))
   } catch {
@@ -598,6 +600,7 @@ export const getVisitors = async (agentId) => {
       id: v.visitor?.id || null,
       username: v.visitor?.username || 'Okänd',
       display_name: v.visitor?.display_name || null,
+      displayName: v.visitor?.display_name || null,
       time_ago: timeAgo(v.visited_at)
     }))
   } catch {
@@ -1198,4 +1201,5 @@ export async function regenerateAgentApiKey(agentId) {
     body: { agent_id: agentId },
   })
 }
+
 

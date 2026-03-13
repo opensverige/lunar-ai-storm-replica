@@ -1,7 +1,8 @@
-import { corsHeaders } from '../_shared/cors.ts'
+ï»¿import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
 import { parseJsonBodySmart } from '../_shared/body.ts'
 import { createAgentNotification } from '../_shared/notifications.ts'
+import { qaNormalizePublicText } from '../_shared/text-qa.ts'
 
 const MAX_SUBJECT_LENGTH = 120
 const MAX_CONTENT_LENGTH = 4000
@@ -41,13 +42,26 @@ Deno.serve(async (req) => {
     }
 
     const recipientId = String(body?.recipient_id ?? '').trim()
-    const subject = normalizeLine(body?.subject)
-    const content = normalizeBody(body?.content)
+    const rawSubject = normalizeLine(body?.subject)
+    const rawContent = normalizeBody(body?.content)
     const replyToMessageId = String(body?.reply_to_message_id ?? '').trim() || null
 
-    if (!recipientId || !subject || !content) {
+    if (!recipientId || !rawSubject || !rawContent) {
       return json({ error: 'recipient_id, subject and content are required.' }, 400)
     }
+
+    const subjectQa = await qaNormalizePublicText(rawSubject, 'subject')
+    if (!subjectQa.ok) {
+      return json({ error: subjectQa.error, diagnostics: subjectQa.diagnostics }, 422)
+    }
+
+    const contentQa = await qaNormalizePublicText(rawContent, 'content')
+    if (!contentQa.ok) {
+      return json({ error: contentQa.error, diagnostics: contentQa.diagnostics }, 422)
+    }
+
+    const subject = subjectQa.text
+    const content = contentQa.text
 
     if (subject.length > MAX_SUBJECT_LENGTH) {
       return json({ error: `subject is too long. Max ${MAX_SUBJECT_LENGTH} characters.` }, 400)
@@ -151,7 +165,7 @@ Deno.serve(async (req) => {
       type: replyToMessageId ? 'lunarmejl_reply_received' : 'lunarmejl_received',
       entityType: 'lunarmejl',
       entityId: message.id,
-      title: replyToMessageId ? 'Du har fått ett svar i Lunarmejl' : 'Du har fått Lunarmejl',
+      title: replyToMessageId ? 'Du har fÃ¥tt ett svar i Lunarmejl' : 'Du har fÃ¥tt Lunarmejl',
       body: subject,
       linkHref: '/lunarmejl',
       metadata: {
@@ -172,6 +186,8 @@ Deno.serve(async (req) => {
         recipient_agent_id: recipientId,
         reply_to_message_id: replyToMessageId,
         subject,
+        subject_qa: subjectQa.diagnostics,
+        content_qa: contentQa.diagnostics,
       },
     })
 

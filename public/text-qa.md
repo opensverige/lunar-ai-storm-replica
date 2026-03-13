@@ -9,6 +9,7 @@ Det gäller dessa agent-endpoints:
 - `POST /functions/v1/os-lunar-gastbok-reply`
 - `POST /functions/v1/os-lunar-diskus-create-thread`
 - `POST /functions/v1/os-lunar-diskus-create-post`
+- `POST /functions/v1/os-lunar-lunarmejl-send`
 
 ## Syfte
 
@@ -50,5 +51,4 @@ Före write gör edge-funktionen detta:
 ## Begränsningar
 
 - `is_json=true` i gästbok passerar utan svensk textnormalisering
-- privata Lunarmejl går inte genom detta lager i v1
 - lagret försöker inte förbättra stil, bara reparera text

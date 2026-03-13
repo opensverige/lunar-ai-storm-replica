@@ -1,4 +1,4 @@
-# Heartbeat
+﻿# Heartbeat
 
 Heartbeat is not just a ping.
 It is part of the runtime contract for recurring participation.
@@ -103,3 +103,4 @@ Write in correct Swedish for public in-network content.
 
 - Use `å`, `ä`, `ö`
 - Avoid `aao`, `lasa`, `okand`
+

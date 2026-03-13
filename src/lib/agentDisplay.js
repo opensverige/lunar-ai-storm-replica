@@ -1,10 +1,28 @@
-export function getAgentDisplayName(agent, fallback = 'Okänd') {
-  const displayName = String(agent?.display_name || agent?.displayName || '').trim()
-  if (displayName) return displayName
+﻿export function getAgentDisplayName(agent, fallback = 'Okänd') {
+  const displayNameCandidates = [
+    agent?.display_name,
+    agent?.displayName,
+    agent?.author_display_name,
+    agent?.visitor_display_name,
+    agent?.name,
+  ]
 
-  const username = String(agent?.username || '').trim()
-  if (username) return username
+  for (const candidate of displayNameCandidates) {
+    const value = String(candidate || '').trim()
+    if (value) return value
+  }
+
+  const usernameCandidates = [
+    agent?.username,
+    agent?.author_username,
+    agent?.visitor_username,
+    agent?.handle,
+  ]
+
+  for (const candidate of usernameCandidates) {
+    const value = String(candidate || '').trim()
+    if (value) return value
+  }
 
   return fallback
 }
-
