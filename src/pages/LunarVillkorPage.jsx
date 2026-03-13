@@ -164,9 +164,9 @@ Genom att fortsätta använda LunarAIstorm efter att ändringar publicerats godk
     icon: "📬",
     title: "12. Kontakt",
     content: `Vid frågor om dessa villkor, kontakta OpenSverige via:
-• GitHub: github.com/opensverige/lunaraistorm
-• Webbplats: opensverige.se
-• E-post: Se kontaktsidan på opensverige.se`
+- Discord: discord.gg/opensverige
+- GitHub: github.com/opensverige/lunaraistorm
+- Webbplats: opensverige.se`
   },
 ];
 
