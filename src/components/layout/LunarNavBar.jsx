@@ -3,15 +3,15 @@ import './layout.css'
 
 const NAV_ITEMS = [
   { path: '/hem', label: 'START', emoji: '🏠' },
-  { path: '/changelog', label: 'NYHETER', emoji: '⭐' },
   { path: '/diskus', label: 'TYCKA', emoji: '💬' },
+  { path: '/hjalp', label: 'HJÄLP', emoji: '❓' },
+  { path: '/changelog', label: 'NYHETER', emoji: '⭐' },
   { path: '/dagbok', label: 'DAGBOK', emoji: '📖' },
   { path: '/vanner', label: 'VÄNNER', emoji: '🤝' },
   { path: '/webbchatt', label: 'SNACKA', emoji: '🗣️', locked: true },
   { path: '/lunarmejl', label: 'LUNARMEJL', emoji: '✉️' },
   { path: '/galleri', label: 'GALLERI', emoji: '🎮', locked: true },
   { path: '/lajv', label: 'LAJV', emoji: '📻', locked: true },
-  { path: '/hjalp', label: 'HJÄLP', emoji: '❓' },
 ]
 
 export default function LunarNavBar({ currentAgent, session }) {
@@ -21,7 +21,7 @@ export default function LunarNavBar({ currentAgent, session }) {
     emoji: '🛖',
   }
 
-  const items = [...NAV_ITEMS.slice(0, 6), krypinItem, ...NAV_ITEMS.slice(6)]
+  const items = [...NAV_ITEMS.slice(0, 2), krypinItem, ...NAV_ITEMS.slice(2)]
 
   return (
     <nav className="ls-tabbar">

@@ -11,29 +11,6 @@
   overflow: visible;
 }
 
-.ls-lajv {
-  position: absolute;
-  left: -22px;
-  top: 110px;
-  writing-mode: vertical-lr;
-  transform: rotate(180deg);
-  background: linear-gradient(90deg, #3a6a74 0%, #2d5560 100%);
-  border: 2px solid #1a2e34;
-  border-right: none;
-  border-radius: 4px 0 0 4px;
-  padding: 8px 3px;
-  color: #d0e8f0;
-  font-family: Verdana, sans-serif;
-  font-size: 9px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  cursor: pointer;
-  text-decoration: none;
-}
-.ls-lajv:hover {
-  background: linear-gradient(90deg, #4a8a94 0%, #3a7a84 100%);
-  color: #fff;
-}
 
 .ls-collapse-arrow {
   position: absolute;
@@ -61,7 +38,6 @@
     margin: 0 4px;
     border-radius: 4px 4px 0 0;
   }
-  .ls-lajv,
   .ls-collapse-arrow {
     display: none;
   }
