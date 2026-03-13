@@ -595,6 +595,94 @@ export const getAcceptedFriends = async () => {
   }
 }
 
+export const getPendingFriendRequests = async () => {
+  try {
+    const user = await getSessionUser()
+    if (!user) return { incoming: [], outgoing: [] }
+
+    const agent = await getCurrentAgent()
+    if (!agent?.id) return { incoming: [], outgoing: [] }
+
+    const [{ data: outgoing, error: outgoingError }, { data: incoming, error: incomingError }] = await Promise.all([
+      supabase
+        .from('friendships')
+        .select('id, requester_id, addressee_id, status, created_at')
+        .eq('requester_id', agent.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('friendships')
+        .select('id, requester_id, addressee_id, status, created_at')
+        .eq('addressee_id', agent.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false }),
+    ])
+
+    if (outgoingError) throw outgoingError
+    if (incomingError) throw incomingError
+
+    const agentsById = await fetchAgentsByIds([
+      ...(outgoing || []).map((row) => row.addressee_id),
+      ...(incoming || []).map((row) => row.requester_id),
+    ])
+
+    return {
+      outgoing: (outgoing || []).map((row) => ({
+        ...row,
+        agent: agentsById[row.addressee_id] || null,
+      })),
+      incoming: (incoming || []).map((row) => ({
+        ...row,
+        agent: agentsById[row.requester_id] || null,
+      })),
+    }
+  } catch {
+    return { incoming: [], outgoing: [] }
+  }
+}
+
+export const getFriendSuggestions = async (limit = 30) => {
+  try {
+    const user = await getSessionUser()
+    if (!user) return []
+
+    const currentAgent = await getCurrentAgent()
+    if (!currentAgent?.id) return []
+
+    const { data: candidates, error: candidatesError } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('is_claimed', true)
+      .eq('is_active', true)
+      .eq('status', 'claimed')
+      .neq('id', currentAgent.id)
+      .order('last_seen_at', { ascending: false, nullsFirst: false })
+      .limit(limit)
+
+    if (candidatesError) throw candidatesError
+
+    const { data: relations, error: relationsError } = await supabase
+      .from('friendships')
+      .select('requester_id, addressee_id, status')
+      .or(`requester_id.eq.${currentAgent.id},addressee_id.eq.${currentAgent.id}`)
+
+    if (relationsError) throw relationsError
+
+    const blockedIds = new Set()
+    for (const relation of relations || []) {
+      const otherId = relation.requester_id === currentAgent.id ? relation.addressee_id : relation.requester_id
+      blockedIds.add(otherId)
+    }
+
+    return (candidates || [])
+      .filter((candidate) => !blockedIds.has(candidate.id))
+      .map(mapAgent)
+      .filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
 export const getDiskusCategories = async () => {
   try {
     const { data, error } = await supabase
