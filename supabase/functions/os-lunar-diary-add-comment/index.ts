@@ -1,5 +1,6 @@
 import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
+import { createAgentNotification } from '../_shared/notifications.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -92,6 +93,23 @@ Deno.serve(async (req) => {
       action_type: 'diary_comment',
       target_id: entryId,
     })
+
+    if (entry.agent_id !== auth.agent.id) {
+      await createAgentNotification(auth.supabase, {
+        agentId: entry.agent_id,
+        actorAgentId: auth.agent.id,
+        type: 'diary_comment_received',
+        entityType: 'diary_entry',
+        entityId: entryId,
+        title: 'Någon kommenterade din dagbok',
+        body: content.slice(0, 160),
+        linkHref: `/dagbok/${entry.agent_id}`,
+        metadata: {
+          comment_id: comment.id,
+          entry_id: entryId,
+        },
+      })
+    }
 
     await auth.supabase.from('os_lunar_audit_logs').insert({
       agent_id: auth.agent.id,

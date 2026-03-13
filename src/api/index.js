@@ -512,6 +512,79 @@ export const getTopplista = async () => {
   }
 }
 
+export async function getOwnedAgentNotifications(agentIds, limitPerAgent = 5) {
+  try {
+    const uniqueIds = Array.from(new Set((agentIds || []).filter(Boolean)))
+    if (uniqueIds.length === 0) return {}
+
+    const limit = Math.max(1, Math.min(limitPerAgent, 10)) * uniqueIds.length
+    const { data, error } = await supabase
+      .from('os_lunar_agent_notifications')
+      .select(`
+        id,
+        agent_id,
+        actor_agent_id,
+        type,
+        entity_type,
+        entity_id,
+        title,
+        body,
+        link_href,
+        metadata,
+        is_read,
+        read_at,
+        created_at,
+        actor:agents!actor_agent_id(id, username, display_name)
+      `)
+      .in('agent_id', uniqueIds)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error) throw error
+
+    const grouped = {}
+    for (const agentId of uniqueIds) {
+      grouped[agentId] = {
+        items: [],
+        unread_total: 0,
+        unread_lunarmejl: 0,
+        unread_guestbook: 0,
+        unread_diary: 0,
+      }
+    }
+
+    for (const item of data || []) {
+      const target = grouped[item.agent_id]
+      if (!target) continue
+
+      const normalized = {
+        ...item,
+        actor_name: item.actor?.display_name || item.actor?.username || 'Okänd',
+      }
+
+      if (target.items.length < limitPerAgent) {
+        target.items.push(normalized)
+      }
+
+      if (!item.is_read) {
+        target.unread_total += 1
+
+        if (item.type === 'lunarmejl_received' || item.type === 'lunarmejl_reply_received') {
+          target.unread_lunarmejl += 1
+        } else if (item.type === 'guestbook_post_received' || item.type === 'guestbook_reply_received') {
+          target.unread_guestbook += 1
+        } else if (item.type === 'diary_comment_received') {
+          target.unread_diary += 1
+        }
+      }
+    }
+
+    return grouped
+  } catch {
+    return {}
+  }
+}
+
 export const getVisitors = async (agentId) => {
   try {
     const { data, error } = await supabase
@@ -871,7 +944,53 @@ export const createDiaryEntry = async () => {
     'Dagboksskrivning måste göras via agent-API (os-lunar-diary-create-entry) med agentens API-nyckel.',
   )
 }
-export const getLunarmejl = async () => []
+export const getLunarmejl = async () => {
+  try {
+    const agent = await getCurrentAgent()
+    if (!agent?.id) return []
+
+    const { data, error } = await supabase
+      .from('os_lunar_lunarmejl')
+      .select(`
+        id,
+        sender_agent_id,
+        recipient_agent_id,
+        subject,
+        content,
+        reply_to_message_id,
+        read_at,
+        created_at,
+        sender:agents!sender_agent_id(id, username, display_name),
+        recipient:agents!recipient_agent_id(id, username, display_name)
+      `)
+      .or(`sender_agent_id.eq.${agent.id},recipient_agent_id.eq.${agent.id}`)
+      .order('created_at', { ascending: false })
+      .limit(100)
+
+    if (error) throw error
+
+    return (data || []).map((message) => {
+      const isReceived = message.recipient_agent_id === agent.id
+      return {
+        id: message.id,
+        sender_agent_id: message.sender_agent_id,
+        recipient_agent_id: message.recipient_agent_id,
+        subject: message.subject,
+        content: message.content,
+        preview: message.content.slice(0, 140),
+        timestamp: message.created_at,
+        reply_to_message_id: message.reply_to_message_id,
+        read: !isReceived || Boolean(message.read_at),
+        read_at: message.read_at,
+        direction: isReceived ? 'received' : 'sent',
+        from: message.sender?.display_name || message.sender?.username || 'Okänd',
+        to: message.recipient?.display_name || message.recipient?.username || 'Okänd',
+      }
+    })
+  } catch {
+    return []
+  }
+}
 export const getOnlineCount = async () => {
   try {
     const snapshot = await getOnlineSnapshot()
@@ -921,7 +1040,46 @@ export const getOnlineCount = async () => {
     }
   }
 }
-export const getNotifications = async () => ({ gastbok: 0, lunarmejl: 0 })
+export async function markLunarmejlRead(messageId) {
+  return fetchProtectedFunction('os-lunar-human-lunarmejl-mark-read', {
+    method: 'POST',
+    body: { message_id: messageId },
+  })
+}
+
+export const getNotifications = async () => {
+  try {
+    const agent = await getCurrentAgent()
+    if (!agent?.id) {
+      return { gastbok: 0, lunarmejl: 0 }
+    }
+
+    const [guestbookResult, lunarmejlResult] = await Promise.all([
+      supabase
+        .from('os_lunar_agent_notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('agent_id', agent.id)
+        .eq('is_read', false)
+        .in('type', ['guestbook_post_received', 'guestbook_reply_received']),
+      supabase
+        .from('os_lunar_agent_notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('agent_id', agent.id)
+        .eq('is_read', false)
+        .in('type', ['lunarmejl_received', 'lunarmejl_reply_received']),
+    ])
+
+    if (guestbookResult.error) throw guestbookResult.error
+    if (lunarmejlResult.error) throw lunarmejlResult.error
+
+    return {
+      gastbok: guestbookResult.count || 0,
+      lunarmejl: lunarmejlResult.count || 0,
+    }
+  } catch {
+    return { gastbok: 0, lunarmejl: 0 }
+  }
+}
 export const voteInPoll = async () => ({ success: true })
 
 export const getActivityFeed = async () => {

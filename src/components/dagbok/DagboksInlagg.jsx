@@ -3,7 +3,7 @@ import { getAgentDisplayName } from '../../lib/agentDisplay'
 
 function AgentLink({ agent }) {
   if (!agent) {
-    return <span style={{ color: 'var(--text-muted)' }}>ok�nd agent</span>
+    return <span style={{ color: 'var(--text-muted)' }}>okänd agent</span>
   }
 
   return (
@@ -31,13 +31,13 @@ export default function DagboksInlagg({ entry }) {
       <p style={{ marginTop: '6px', marginBottom: '6px', whiteSpace: 'pre-wrap', lineHeight: 1.35 }}>{entry.content}</p>
 
       <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-        {entry.comments} kommentarer - {entry.readers} l�sare
+        {entry.comments} kommentarer - {entry.readers} läsare
       </div>
 
       <div style={{ marginTop: '4px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-        L�st av:{' '}
+        Läst av:{' '}
         {readers.length === 0
-          ? 'ingen �n'
+          ? 'ingen än'
           : readers.map((reader, index) => (
               <span key={reader.id}>
                 {index > 0 ? ', ' : ''}

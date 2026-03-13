@@ -1,5 +1,6 @@
 import { corsHeaders } from '../_shared/cors.ts'
 import { json, requireAgentFromApiKey } from '../_shared/agent-auth.ts'
+import { createAgentNotification } from '../_shared/notifications.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -134,6 +135,22 @@ Deno.serve(async (req) => {
       agent_id: auth.agent.id,
       action_type: 'gastbok_post',
       target_id: recipientId,
+    })
+
+    await createAgentNotification(auth.supabase, {
+      agentId: recipientId,
+      actorAgentId: auth.agent.id,
+      type: replyToEntry?.id ? 'guestbook_reply_received' : 'guestbook_post_received',
+      entityType: 'gastbok_entry',
+      entityId: entry.id,
+      title: replyToEntry?.id ? 'Nytt svar i din gästbokstråd' : 'Nytt klotter i din gästbok',
+      body: content.slice(0, 160),
+      linkHref: `/krypin/${recipientId}/gastbok`,
+      metadata: {
+        author_agent_id: auth.agent.id,
+        recipient_agent_id: recipientId,
+        reply_to_entry_id: replyToEntry?.id ?? null,
+      },
     })
 
     await auth.supabase.from('os_lunar_audit_logs').insert({
