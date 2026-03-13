@@ -1,0 +1,250 @@
+.lunarmejl-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lunarmejl-summary-card {
+  background: #f7f6f2;
+  border: 1px solid var(--border-light);
+  padding: 8px 10px;
+}
+
+.lunarmejl-summary-card--highlight {
+  background: #fff5de;
+  border-color: #e4be74;
+}
+
+.lunarmejl-summary-label {
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+}
+
+.lunarmejl-summary-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--link-color);
+  margin-top: 2px;
+}
+
+.lunarmejl-alert {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: var(--size-sm);
+  font-weight: bold;
+  color: var(--link-color);
+}
+
+.lunarmejl-api-details {
+  margin-bottom: 10px;
+  border: 1px solid var(--border-light);
+  background: #f8f7f4;
+}
+
+.lunarmejl-api-details > summary {
+  cursor: pointer;
+  padding: 8px 10px;
+  font-size: var(--size-sm);
+  font-weight: bold;
+  color: var(--link-color);
+}
+
+.lunarmejl-api-stack {
+  padding: 0 8px 8px;
+}
+
+.lunarmejl-empty {
+  padding: 8px;
+  font-size: var(--size-sm);
+  color: var(--text-muted);
+}
+
+.lunarmejl-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 6px;
+  align-items: start;
+}
+
+.lunarmejl-list-panel,
+.lunarmejl-read-panel {
+  border: 1px solid var(--border-light);
+  background: #fff;
+  min-height: 480px;
+}
+
+.lunarmejl-panel-header {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-light);
+  background: #f8f7f4;
+}
+
+.lunarmejl-panel-title {
+  font-size: var(--size-sm);
+  font-weight: bold;
+}
+
+.lunarmejl-panel-subtitle {
+  margin-top: 2px;
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+}
+
+.lunarmejl-list {
+  display: grid;
+}
+
+.lunarmejl-list-item {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px dotted var(--border-light);
+  border-left: 4px solid transparent;
+  background: #fff;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.lunarmejl-list-item:hover {
+  background: #fcfaf2;
+}
+
+.lunarmejl-list-item--selected {
+  background: #fff7dd;
+  border-left-color: #cf8b2f;
+}
+
+.lunarmejl-list-item--unread {
+  background: #fffdf2;
+  border-left-color: #e0b14a;
+}
+
+.lunarmejl-list-item-top,
+.lunarmejl-list-footer,
+.lunarmejl-read-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lunarmejl-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border: 1px solid var(--border-light);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: #f1f1f1;
+}
+
+.lunarmejl-pill--inbox {
+  background: #fff2cf;
+  border-color: #e0b14a;
+  color: #8a5b00;
+}
+
+.lunarmejl-pill--sent {
+  background: #eef3ff;
+  border-color: #9db8e8;
+  color: #315f9c;
+}
+
+.lunarmejl-list-date,
+.lunarmejl-read-date,
+.lunarmejl-list-footer,
+.lunarmejl-read-footer {
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+}
+
+.lunarmejl-list-party,
+.lunarmejl-read-party {
+  margin-top: 7px;
+  font-size: var(--size-xs);
+  font-weight: bold;
+  color: var(--text-muted);
+}
+
+.lunarmejl-list-subject {
+  margin-top: 4px;
+  font-size: var(--size-base);
+  font-weight: bold;
+  color: #1b1b1b;
+}
+
+.lunarmejl-list-preview {
+  margin-top: 5px;
+  font-size: var(--size-sm);
+  color: #555;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lunarmejl-list-footer {
+  margin-top: 8px;
+}
+
+.lunarmejl-read-panel {
+  padding: 14px 16px;
+}
+
+.lunarmejl-read-subject {
+  margin: 10px 0 0;
+  font-size: 28px;
+  line-height: 1.15;
+  color: #1e1e1e;
+}
+
+.lunarmejl-read-body {
+  margin-top: 16px;
+  white-space: pre-wrap;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #222;
+}
+
+.lunarmejl-read-footer {
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px dotted var(--border-light);
+}
+
+.lunarmejl-empty-state {
+  color: var(--text-muted);
+  font-size: var(--size-sm);
+}
+
+@media (max-width: 900px) {
+  .lunarmejl-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .lunarmejl-list-panel,
+  .lunarmejl-read-panel {
+    min-height: 0;
+  }
+
+  .lunarmejl-read-panel {
+    order: -1;
+  }
+
+  .lunarmejl-read-subject {
+    font-size: 22px;
+  }
+
+  .lunarmejl-read-body {
+    font-size: 16px;
+  }
+}
