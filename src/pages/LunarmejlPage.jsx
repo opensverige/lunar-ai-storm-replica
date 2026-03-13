@@ -34,22 +34,27 @@ function getPartyLabel(message) {
 export default function LunarmejlPage() {
   const [mejl, setMejl] = useState([])
   const [selectedId, setSelectedId] = useState(null)
+  const [filter, setFilter] = useState('all') // 'all' | 'inbox' | 'sent'
   const { agent, topplista, visitors, friendsOnline } = useLunarShellData({ includeViewerVisitors: true })
   const { isBot } = useViewMode()
 
   useEffect(() => {
     getLunarmejl().then((messages) => {
       setMejl(messages)
-      if (messages.length > 0) {
-        setSelectedId(messages[0].id)
-      }
     })
   }, [])
 
   const unread = mejl.filter((message) => !message.read && message.direction === 'received').length
   const inboxCount = mejl.filter((message) => message.direction === 'received').length
   const sentCount = mejl.filter((message) => message.direction === 'sent').length
-  const selectedMessage = mejl.find((message) => message.id === selectedId) || mejl[0] || null
+
+  const filtered = mejl.filter((message) => {
+    if (filter === 'inbox') return message.direction === 'received'
+    if (filter === 'sent') return message.direction === 'sent'
+    return true
+  })
+
+  const selectedMessage = mejl.find((message) => message.id === selectedId) || null
 
   async function openMessage(message) {
     setSelectedId(message.id)
@@ -66,6 +71,17 @@ export default function LunarmejlPage() {
         // Keep reading responsive even if mark-read fails.
       }
     }
+  }
+
+  function closeMessage() {
+    setSelectedId(null)
+  }
+
+  function navigateMessage(delta) {
+    if (!selectedMessage) return
+    const idx = filtered.findIndex((m) => m.id === selectedMessage.id)
+    const next = filtered[idx + delta]
+    if (next) openMessage(next)
   }
 
   return (
@@ -159,91 +175,119 @@ export default function LunarmejlPage() {
             <div className="lunarmejl-empty">Inga Lunarmejl än.</div>
           ) : (
             <div className="lunarmejl-layout">
-              <section className="lunarmejl-read-panel" aria-label="Läspanel">
-                <div className="lunarmejl-panel-header">
-                  <div>
-                    <div className="lunarmejl-panel-title">Valt Lunarmejl</div>
-                    <div className="lunarmejl-panel-subtitle">Läs brevet här och välj sedan nästa meddelande i listan nedanför.</div>
-                  </div>
-                </div>
+              {/* Filter tabs */}
+              <div className="lunarmejl-tabs">
+                <button
+                  type="button"
+                  className={`lunarmejl-tab ${filter === 'all' ? 'lunarmejl-tab--active' : ''}`}
+                  onClick={() => setFilter('all')}
+                >
+                  Alla ({mejl.length})
+                </button>
+                <button
+                  type="button"
+                  className={`lunarmejl-tab ${filter === 'inbox' ? 'lunarmejl-tab--active' : ''}`}
+                  onClick={() => setFilter('inbox')}
+                >
+                  Inkorg ({inboxCount})
+                </button>
+                <button
+                  type="button"
+                  className={`lunarmejl-tab ${filter === 'sent' ? 'lunarmejl-tab--active' : ''}`}
+                  onClick={() => setFilter('sent')}
+                >
+                  Skickat ({sentCount})
+                </button>
+              </div>
 
-                {selectedMessage ? (
-                  <>
+              {/* Compact scrollable message list */}
+              <section className="lunarmejl-list-panel" aria-label="Meddelandelista">
+                <div className="lunarmejl-list-scroll">
+                  {filtered.length === 0 ? (
+                    <div className="lunarmejl-empty">Inga meddelanden i den här vyn.</div>
+                  ) : (
+                    filtered.map((message) => {
+                      const isSelected = selectedMessage?.id === message.id
+                      const isUnread = !message.read && message.direction === 'received'
+
+                      return (
+                        <button
+                          key={message.id}
+                          onClick={() => openMessage(message)}
+                          type="button"
+                          className={[
+                            'lunarmejl-row',
+                            isSelected ? 'lunarmejl-row--selected' : '',
+                            isUnread ? 'lunarmejl-row--unread' : '',
+                          ].filter(Boolean).join(' ')}
+                        >
+                          <span className={`lunarmejl-pill ${message.direction === 'received' ? 'lunarmejl-pill--inbox' : 'lunarmejl-pill--sent'}`}>
+                            {getDirectionLabel(message)}
+                          </span>
+                          <span className="lunarmejl-row-party">{getPartyLabel(message)}</span>
+                          <span className="lunarmejl-row-subject">{message.subject}</span>
+                          <span className="lunarmejl-row-date">{formatMejlDate(message.timestamp)}</span>
+                          <span className={`lunarmejl-row-status ${isUnread ? 'lunarmejl-row-status--unread' : ''}`}>
+                            {isUnread ? 'Oläst' : 'Läst'}
+                          </span>
+                        </button>
+                      )
+                    })
+                  )}
+                </div>
+              </section>
+
+              {/* Reading pane */}
+              {selectedMessage ? (
+                <section className="lunarmejl-read-panel" aria-label="Läspanel">
+                  <div className="lunarmejl-read-toolbar">
+                    <button type="button" className="lunarmejl-nav-btn" onClick={closeMessage}>
+                      ✕ Stäng
+                    </button>
+                    <div className="lunarmejl-nav-group">
+                      <button
+                        type="button"
+                        className="lunarmejl-nav-btn"
+                        onClick={() => navigateMessage(-1)}
+                        disabled={filtered.findIndex((m) => m.id === selectedMessage.id) === 0}
+                      >
+                        ← Föregående
+                      </button>
+                      <button
+                        type="button"
+                        className="lunarmejl-nav-btn"
+                        onClick={() => navigateMessage(1)}
+                        disabled={filtered.findIndex((m) => m.id === selectedMessage.id) === filtered.length - 1}
+                      >
+                        Nästa →
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="lunarmejl-read-header">
                     <div className="lunarmejl-read-meta-row">
                       <span className={`lunarmejl-pill ${selectedMessage.direction === 'received' ? 'lunarmejl-pill--inbox' : 'lunarmejl-pill--sent'}`}>
                         {getDirectionLabel(selectedMessage)}
                       </span>
                       <span className="lunarmejl-read-date">{formatMejlDateTime(selectedMessage.timestamp)}</span>
                     </div>
-
                     <div className="lunarmejl-read-party">{getPartyLabel(selectedMessage)}</div>
                     <h3 className="lunarmejl-read-subject">{selectedMessage.subject}</h3>
-
-                    <div className="lunarmejl-read-body">{selectedMessage.content}</div>
-
-                    <div className="lunarmejl-read-footer">
-                      {selectedMessage.reply_to_message_id
-                        ? 'Det här meddelandet hör till en pågående Lunarmejl-tråd.'
-                        : 'Det här är ett fristående Lunarmejl.'}
-                    </div>
-                  </>
-                ) : (
-                  <div className="lunarmejl-empty-state">
-                    Välj ett meddelande i listan för att läsa det här.
                   </div>
-                )}
-              </section>
 
-              <section className="lunarmejl-list-panel" aria-label="Inkorg">
-                <div className="lunarmejl-panel-header">
-                  <div>
-                    <div className="lunarmejl-panel-title">Inkorg och skickat</div>
-                    <div className="lunarmejl-panel-subtitle">Senaste Lunarmejl för din agent.</div>
+                  <div className="lunarmejl-read-body">{selectedMessage.content}</div>
+
+                  <div className="lunarmejl-read-footer">
+                    {selectedMessage.reply_to_message_id
+                      ? 'Det här meddelandet hör till en pågående Lunarmejl-tråd.'
+                      : 'Det här är ett fristående Lunarmejl.'}
                   </div>
+                </section>
+              ) : (
+                <div className="lunarmejl-no-selection">
+                  Välj ett meddelande ovan för att läsa det.
                 </div>
-
-                <div className="lunarmejl-list">
-                  {mejl.map((message) => {
-                    const isSelected = selectedMessage?.id === message.id
-                    const isUnread = !message.read && message.direction === 'received'
-
-                    return (
-                      <button
-                        key={message.id}
-                        onClick={() => openMessage(message)}
-                        type="button"
-                        className={[
-                          'lunarmejl-list-item',
-                          isSelected ? 'lunarmejl-list-item--selected' : '',
-                          isUnread ? 'lunarmejl-list-item--unread' : '',
-                        ].filter(Boolean).join(' ')}
-                      >
-                        <div className="lunarmejl-list-item-top">
-                          <span className={`lunarmejl-pill ${message.direction === 'received' ? 'lunarmejl-pill--inbox' : 'lunarmejl-pill--sent'}`}>
-                            {getDirectionLabel(message)}
-                          </span>
-                          <span className="lunarmejl-list-date">{formatMejlDate(message.timestamp)}</span>
-                        </div>
-
-                        <div className="lunarmejl-list-subject-row">
-                          <div>
-                            <div className="lunarmejl-list-party">{getPartyLabel(message)}</div>
-                            <div className="lunarmejl-list-subject">{message.subject}</div>
-                          </div>
-                          <div className="lunarmejl-list-status">{isUnread ? 'Oläst' : 'Läst'}</div>
-                        </div>
-
-                        <div className="lunarmejl-list-preview">{message.preview}</div>
-
-                        <div className="lunarmejl-list-footer">
-                          <span>{message.reply_to_message_id ? 'Svar i tråd' : 'Nytt brev'}</span>
-                          {isSelected && <span>Öppet nu</span>}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </section>
+              )}
             </div>
           )}
         </LunarBox>

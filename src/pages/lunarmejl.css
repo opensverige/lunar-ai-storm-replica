@@ -1,3 +1,4 @@
+/* ── Summary cards ── */
 .lunarmejl-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -28,6 +29,7 @@
   margin-top: 2px;
 }
 
+/* ── Alert ── */
 .lunarmejl-alert {
   display: flex;
   align-items: center;
@@ -38,6 +40,7 @@
   color: var(--link-color);
 }
 
+/* ── API details ── */
 .lunarmejl-api-details {
   margin-bottom: 10px;
   border: 1px solid var(--border-light);
@@ -57,90 +60,149 @@
 }
 
 .lunarmejl-empty {
-  padding: 8px;
+  padding: 12px 14px;
   font-size: var(--size-sm);
   color: var(--text-muted);
 }
 
+/* ── Layout ── */
 .lunarmejl-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   margin-top: 6px;
-  align-items: start;
 }
 
-.lunarmejl-list-panel,
-.lunarmejl-read-panel {
-  border: 1px solid var(--border-light);
-  background: #fff;
-  min-height: 480px;
-}
-
-.lunarmejl-panel-header {
-  padding: 10px;
-  border-bottom: 1px solid var(--border-light);
+/* ── Filter tabs ── */
+.lunarmejl-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-light);
   background: #f8f7f4;
 }
 
-.lunarmejl-panel-title {
+.lunarmejl-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
   font-size: var(--size-sm);
   font-weight: bold;
-}
-
-.lunarmejl-panel-subtitle {
-  margin-top: 2px;
-  font-size: var(--size-xs);
   color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 120ms, border-color 120ms;
 }
 
-.lunarmejl-list {
+.lunarmejl-tab:hover {
+  color: var(--link-color);
+}
+
+.lunarmejl-tab--active {
+  color: var(--link-color);
+  border-bottom-color: #cf8b2f;
+  background: #fff;
+}
+
+/* ── List panel with scroll ── */
+.lunarmejl-list-panel {
+  border: 1px solid var(--border-light);
+  border-top: none;
+  background: #fff;
+}
+
+.lunarmejl-list-scroll {
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f5f5f5;
+}
+
+.lunarmejl-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lunarmejl-list-scroll::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.lunarmejl-list-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+/* ── Compact row per message ── */
+.lunarmejl-row {
   display: grid;
-}
-
-.lunarmejl-list-item {
+  grid-template-columns: 62px 1fr 2fr auto auto;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   text-align: left;
   border: 0;
-  border-bottom: 1px dotted var(--border-light);
-  border-left: 4px solid transparent;
+  border-bottom: 1px solid #eee;
+  border-left: 3px solid transparent;
   background: #fff;
-  padding: 10px 12px;
+  padding: 7px 10px;
   cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease;
+  font-size: var(--size-sm);
+  transition: background-color 100ms ease, border-color 100ms ease;
 }
 
-.lunarmejl-list-item:hover {
+.lunarmejl-row:hover {
   background: #fcfaf2;
 }
 
-.lunarmejl-list-item--selected {
+.lunarmejl-row--selected {
   background: #fff7dd;
   border-left-color: #cf8b2f;
 }
 
-.lunarmejl-list-item--unread {
+.lunarmejl-row--unread {
   background: #fffdf2;
-  border-left-color: #e0b14a;
+  font-weight: bold;
 }
 
-.lunarmejl-list-item-top,
-.lunarmejl-list-footer,
-.lunarmejl-read-meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+.lunarmejl-row--unread.lunarmejl-row--selected {
+  background: #fff5cc;
 }
 
-.lunarmejl-list-subject-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: 7px;
+.lunarmejl-row-party {
+  font-size: var(--size-xs);
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.lunarmejl-row-subject {
+  font-size: var(--size-sm);
+  color: #1b1b1b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lunarmejl-row-date {
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.lunarmejl-row-status {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 36px;
+  text-align: right;
+}
+
+.lunarmejl-row-status--unread {
+  color: #8a5b00;
+  font-weight: bold;
+}
+
+/* ── Direction pill ── */
 .lunarmejl-pill {
   display: inline-flex;
   align-items: center;
@@ -166,107 +228,121 @@
   color: #315f9c;
 }
 
-.lunarmejl-list-date,
-.lunarmejl-read-date,
-.lunarmejl-list-footer,
-.lunarmejl-read-footer {
-  font-size: var(--size-xs);
-  color: var(--text-muted);
-}
-
-.lunarmejl-list-party,
-.lunarmejl-read-party {
-  font-size: var(--size-xs);
-  font-weight: bold;
-  color: var(--text-muted);
-}
-
-.lunarmejl-list-subject {
-  margin-top: 4px;
-  font-size: var(--size-base);
-  font-weight: bold;
-  color: #1b1b1b;
-}
-
-.lunarmejl-list-status {
-  flex: 0 0 auto;
-  font-size: var(--size-xs);
-  color: var(--text-muted);
-  font-weight: bold;
-  padding-top: 2px;
-}
-
-.lunarmejl-list-preview {
-  margin-top: 5px;
-  font-size: var(--size-sm);
-  color: #555;
-  line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.lunarmejl-list-footer {
-  margin-top: 8px;
-}
-
+/* ── Reading pane ── */
 .lunarmejl-read-panel {
-  padding: 0;
+  border: 1px solid var(--border-light);
+  border-top: none;
+  background: #fff;
+}
+
+.lunarmejl-read-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #f8f7f4;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.lunarmejl-nav-group {
+  display: flex;
+  gap: 4px;
+}
+
+.lunarmejl-nav-btn {
+  border: 1px solid var(--border-light);
+  background: #fff;
+  padding: 3px 10px;
+  font-size: var(--size-xs);
+  color: var(--link-color);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.lunarmejl-nav-btn:hover:not(:disabled) {
+  background: #fff7dd;
+}
+
+.lunarmejl-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lunarmejl-read-header {
+  padding: 12px 16px 0;
+}
+
+.lunarmejl-read-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lunarmejl-read-date {
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+}
+
+.lunarmejl-read-party {
+  margin-top: 4px;
+  font-size: var(--size-xs);
+  font-weight: bold;
+  color: var(--text-muted);
 }
 
 .lunarmejl-read-subject {
-  margin: 10px 0 0;
-  font-size: 22px;
-  line-height: 1.2;
+  margin: 8px 0 0;
+  font-size: 20px;
+  line-height: 1.25;
   color: #1e1e1e;
 }
 
 .lunarmejl-read-body {
-  margin-top: 16px;
+  padding: 14px 16px;
   white-space: pre-wrap;
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: 15px;
+  line-height: 1.6;
   color: #222;
 }
 
 .lunarmejl-read-footer {
-  margin-top: 18px;
-  padding-top: 10px;
+  padding: 8px 16px 12px;
   border-top: 1px dotted var(--border-light);
-}
-
-.lunarmejl-empty-state {
-  padding: 14px 16px;
+  font-size: var(--size-xs);
   color: var(--text-muted);
+}
+
+.lunarmejl-no-selection {
+  padding: 20px 16px;
+  text-align: center;
   font-size: var(--size-sm);
+  color: var(--text-muted);
+  border: 1px solid var(--border-light);
+  border-top: none;
+  background: #fafaf8;
 }
 
-.lunarmejl-read-meta-row,
-.lunarmejl-read-party,
-.lunarmejl-read-subject,
-.lunarmejl-read-body,
-.lunarmejl-read-footer {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
+/* ── Responsive ── */
 @media (max-width: 900px) {
-  .lunarmejl-list-panel,
-  .lunarmejl-read-panel {
-    min-height: 0;
+  .lunarmejl-row {
+    grid-template-columns: 54px 1fr auto;
+    gap: 4px;
+  }
+
+  .lunarmejl-row-subject {
+    grid-column: 1 / -1;
   }
 
   .lunarmejl-read-subject {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .lunarmejl-read-body {
-    font-size: 15px;
+    font-size: 14px;
   }
 
-  .lunarmejl-list-subject-row {
-    flex-direction: column;
-    gap: 4px;
+  .lunarmejl-list-scroll {
+    max-height: 260px;
   }
 }
