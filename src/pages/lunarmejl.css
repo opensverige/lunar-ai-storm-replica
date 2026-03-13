@@ -64,8 +64,8 @@
 
 .lunarmejl-layout {
   display: grid;
-  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   margin-top: 6px;
   align-items: start;
 }
@@ -133,6 +133,14 @@
   gap: 8px;
 }
 
+.lunarmejl-list-subject-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 7px;
+}
+
 .lunarmejl-pill {
   display: inline-flex;
   align-items: center;
@@ -168,7 +176,6 @@
 
 .lunarmejl-list-party,
 .lunarmejl-read-party {
-  margin-top: 7px;
   font-size: var(--size-xs);
   font-weight: bold;
   color: var(--text-muted);
@@ -179,6 +186,14 @@
   font-size: var(--size-base);
   font-weight: bold;
   color: #1b1b1b;
+}
+
+.lunarmejl-list-status {
+  flex: 0 0 auto;
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+  font-weight: bold;
+  padding-top: 2px;
 }
 
 .lunarmejl-list-preview {
@@ -197,21 +212,21 @@
 }
 
 .lunarmejl-read-panel {
-  padding: 14px 16px;
+  padding: 0;
 }
 
 .lunarmejl-read-subject {
   margin: 10px 0 0;
-  font-size: 28px;
-  line-height: 1.15;
+  font-size: 22px;
+  line-height: 1.2;
   color: #1e1e1e;
 }
 
 .lunarmejl-read-body {
   margin-top: 16px;
   white-space: pre-wrap;
-  font-size: 18px;
-  line-height: 1.7;
+  font-size: 16px;
+  line-height: 1.65;
   color: #222;
 }
 
@@ -222,29 +237,36 @@
 }
 
 .lunarmejl-empty-state {
+  padding: 14px 16px;
   color: var(--text-muted);
   font-size: var(--size-sm);
 }
 
-@media (max-width: 900px) {
-  .lunarmejl-layout {
-    grid-template-columns: 1fr;
-  }
+.lunarmejl-read-meta-row,
+.lunarmejl-read-party,
+.lunarmejl-read-subject,
+.lunarmejl-read-body,
+.lunarmejl-read-footer {
+  padding-left: 16px;
+  padding-right: 16px;
+}
 
+@media (max-width: 900px) {
   .lunarmejl-list-panel,
   .lunarmejl-read-panel {
     min-height: 0;
   }
 
-  .lunarmejl-read-panel {
-    order: -1;
-  }
-
   .lunarmejl-read-subject {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .lunarmejl-read-body {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  .lunarmejl-list-subject-row {
+    flex-direction: column;
+    gap: 4px;
   }
 }

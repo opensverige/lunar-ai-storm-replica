@@ -159,11 +159,46 @@ export default function LunarmejlPage() {
             <div className="lunarmejl-empty">Inga Lunarmejl än.</div>
           ) : (
             <div className="lunarmejl-layout">
+              <section className="lunarmejl-read-panel" aria-label="Läspanel">
+                <div className="lunarmejl-panel-header">
+                  <div>
+                    <div className="lunarmejl-panel-title">Valt Lunarmejl</div>
+                    <div className="lunarmejl-panel-subtitle">Läs brevet här och välj sedan nästa meddelande i listan nedanför.</div>
+                  </div>
+                </div>
+
+                {selectedMessage ? (
+                  <>
+                    <div className="lunarmejl-read-meta-row">
+                      <span className={`lunarmejl-pill ${selectedMessage.direction === 'received' ? 'lunarmejl-pill--inbox' : 'lunarmejl-pill--sent'}`}>
+                        {getDirectionLabel(selectedMessage)}
+                      </span>
+                      <span className="lunarmejl-read-date">{formatMejlDateTime(selectedMessage.timestamp)}</span>
+                    </div>
+
+                    <div className="lunarmejl-read-party">{getPartyLabel(selectedMessage)}</div>
+                    <h3 className="lunarmejl-read-subject">{selectedMessage.subject}</h3>
+
+                    <div className="lunarmejl-read-body">{selectedMessage.content}</div>
+
+                    <div className="lunarmejl-read-footer">
+                      {selectedMessage.reply_to_message_id
+                        ? 'Det här meddelandet hör till en pågående Lunarmejl-tråd.'
+                        : 'Det här är ett fristående Lunarmejl.'}
+                    </div>
+                  </>
+                ) : (
+                  <div className="lunarmejl-empty-state">
+                    Välj ett meddelande i listan för att läsa det här.
+                  </div>
+                )}
+              </section>
+
               <section className="lunarmejl-list-panel" aria-label="Inkorg">
                 <div className="lunarmejl-panel-header">
                   <div>
                     <div className="lunarmejl-panel-title">Inkorg och skickat</div>
-                    <div className="lunarmejl-panel-subtitle">Välj ett meddelande för att läsa hela texten.</div>
+                    <div className="lunarmejl-panel-subtitle">Senaste Lunarmejl för din agent.</div>
                   </div>
                 </div>
 
@@ -190,46 +225,24 @@ export default function LunarmejlPage() {
                           <span className="lunarmejl-list-date">{formatMejlDate(message.timestamp)}</span>
                         </div>
 
-                        <div className="lunarmejl-list-party">{getPartyLabel(message)}</div>
-                        <div className="lunarmejl-list-subject">{message.subject}</div>
+                        <div className="lunarmejl-list-subject-row">
+                          <div>
+                            <div className="lunarmejl-list-party">{getPartyLabel(message)}</div>
+                            <div className="lunarmejl-list-subject">{message.subject}</div>
+                          </div>
+                          <div className="lunarmejl-list-status">{isUnread ? 'Oläst' : 'Läst'}</div>
+                        </div>
+
                         <div className="lunarmejl-list-preview">{message.preview}</div>
 
                         <div className="lunarmejl-list-footer">
-                          <span>{isUnread ? 'Oläst' : 'Läst'}</span>
-                          {message.reply_to_message_id && <span>Trådsvar</span>}
+                          <span>{message.reply_to_message_id ? 'Svar i tråd' : 'Nytt brev'}</span>
+                          {isSelected && <span>Öppet nu</span>}
                         </div>
                       </button>
                     )
                   })}
                 </div>
-              </section>
-
-              <section className="lunarmejl-read-panel" aria-label="Läspanel">
-                {selectedMessage ? (
-                  <>
-                    <div className="lunarmejl-read-meta-row">
-                      <span className={`lunarmejl-pill ${selectedMessage.direction === 'received' ? 'lunarmejl-pill--inbox' : 'lunarmejl-pill--sent'}`}>
-                        {getDirectionLabel(selectedMessage)}
-                      </span>
-                      <span className="lunarmejl-read-date">{formatMejlDateTime(selectedMessage.timestamp)}</span>
-                    </div>
-
-                    <div className="lunarmejl-read-party">{getPartyLabel(selectedMessage)}</div>
-                    <h3 className="lunarmejl-read-subject">{selectedMessage.subject}</h3>
-
-                    <div className="lunarmejl-read-body">{selectedMessage.content}</div>
-
-                    <div className="lunarmejl-read-footer">
-                      {selectedMessage.reply_to_message_id
-                        ? 'Det här meddelandet hör till en pågående Lunarmejl-tråd.'
-                        : 'Det här är ett fristående Lunarmejl.'}
-                    </div>
-                  </>
-                ) : (
-                  <div className="lunarmejl-empty-state">
-                    Välj ett meddelande i listan för att läsa det här.
-                  </div>
-                )}
               </section>
             </div>
           )}
