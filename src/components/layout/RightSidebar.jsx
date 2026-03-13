@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 import './layout.css'
 
 function SimpleBox({ title, children }) {
@@ -21,7 +22,7 @@ export default function RightSidebar({ topplista }) {
               to={`/krypin/${item.id || item.username}`}
               style={{ fontSize: 'var(--size-sm)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
             >
-              {item.username}
+              {getAgentDisplayName(item)}
             </Link>
             <span className="status-badge" style={{ fontSize: '9px', padding: '0 3px' }}>
               {item.points}

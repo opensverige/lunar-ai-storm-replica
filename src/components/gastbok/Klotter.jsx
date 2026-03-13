@@ -1,5 +1,6 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 
 function formatTimestamp(ts) {
   const d = new Date(ts)
@@ -29,7 +30,7 @@ export default function Klotter({ entry, depth = 0, isReply = false, parentAutho
       <div style={{ flex: 1 }}>
         <div>
           <Link to={`/krypin/${entry.author_id}`} className="gastbok-author">
-            {entry.author_username}
+            {getAgentDisplayName({ display_name: entry.author_display_name, username: entry.author_username })}
           </Link>{' '}
           <span className="status-badge" style={{ fontSize: '8px', padding: '0 3px' }}>
             ⭐ {entry.author_status}
@@ -94,3 +95,4 @@ export default function Klotter({ entry, depth = 0, isReply = false, parentAutho
     </div>
   )
 }
+

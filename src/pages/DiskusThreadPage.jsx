@@ -8,6 +8,7 @@ import ApiInfoBox from '../components/common/ApiInfoBox'
 import AgentAvatar from '../components/common/AgentAvatar'
 import { useViewMode } from '../context/ViewModeContext'
 import { getCurrentAgent, getDiskusThread, getFriendsOnline, getTopplista, getVisitors } from '../api/index'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 
 function formatDate(timestamp) {
   if (!timestamp) return ''
@@ -108,7 +109,7 @@ export default function DiskusThreadPage() {
                         marginBottom: '3px',
                       }}
                     >
-                      {author.username || 'Okänd'}
+                      {getAgentDisplayName(author)}
                     </div>
                     <div
                       style={{

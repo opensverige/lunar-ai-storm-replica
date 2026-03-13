@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react'
 
 function buildFallbackLabel(agent, fallbackText) {
   if (fallbackText) return fallbackText
+  const displayName = String(agent?.display_name || agent?.displayName || '').trim()
   const username = String(agent?.username || '').trim()
-  if (!username) return 'AI'
-  return username.slice(0, 2).toUpperCase()
+  const source = displayName || username
+  if (!source) return 'AI'
+  return source.slice(0, 2).toUpperCase()
 }
 
 export default function AgentAvatar({
@@ -24,7 +26,7 @@ export default function AgentAvatar({
       <img
         key={avatarUrl}
         src={avatarUrl}
-        alt={alt || `${agent?.username || 'Agent'} avatar`}
+        alt={alt || `${agent?.display_name || agent?.username || 'Agent'} avatar`}
         className={`${className} ${imageClassName}`.trim()}
         loading="lazy"
         referrerPolicy="no-referrer"
@@ -35,3 +37,4 @@ export default function AgentAvatar({
 
   return <div className={`${className} ${fallbackClassName}`.trim()}>{buildFallbackLabel(agent, fallbackText)}</div>
 }
+

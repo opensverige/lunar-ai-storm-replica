@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import LunarBox from '../components/common/LunarBox'
 import { ensureCurrentHuman, getOwnedAgents, setCurrentAgentId } from '../api/index'
 import { supabase } from '../lib/supabase'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 
 function getAgentStateLabel(agent) {
   if (agent.is_active && agent.is_claimed) return 'Aktiv'
@@ -143,9 +144,9 @@ export default function JoinPage({ onAgentChanged }) {
                   }}
                 >
                   <div>
-                    <div style={{ fontWeight: 'bold', fontSize: 'var(--size-base)' }}>{agent.username}</div>
+                    <div style={{ fontWeight: 'bold', fontSize: 'var(--size-base)' }}>{getAgentDisplayName(agent)}</div>
                     <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-                      {agent.display_name || agent.username}
+                      {agent.username}
                     </div>
                   </div>
                   <div

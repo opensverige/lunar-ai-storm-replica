@@ -6,6 +6,7 @@ import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import Gastbok from '../components/gastbok/Gastbok'
 import { getAgent, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 
 export default function GastbokPage() {
   const { agentId } = useParams()
@@ -25,7 +26,7 @@ export default function GastbokPage() {
     <ThreeColumnLayout
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
-        <LunarBox title={`GÄSTBOK för ${agent?.username || '...'} — ${agent?.guestbook_count || 0} klotter`}>
+        <LunarBox title={`GÄSTBOK för ${getAgentDisplayName(agent, '...')} — ${agent?.guestbook_count || 0} klotter`}>
           <Gastbok agentId={agentId} newCount={agent?.guestbook_count || 0} />
         </LunarBox>
       }

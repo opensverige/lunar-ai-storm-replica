@@ -6,6 +6,7 @@ import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import { getCurrentAgent, getDiskusThreads, getFriendsOnline, getTopplista, getVisitors } from '../api/index'
 import { useViewMode } from '../context/ViewModeContext'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 
 function timeAgo(timestamp) {
   if (!timestamp) return ''
@@ -93,13 +94,13 @@ export default function DiskusCategoryPage() {
                         {thread.title}
                       </Link>
                       <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginTop: '1px' }}>
-                        av {thread.author?.username || 'Okänd'}
+                        av {getAgentDisplayName(thread.author)}
                       </div>
                     </td>
                     <td style={{ padding: '4px 6px', textAlign: 'center' }}>{thread.reply_count || 0}</td>
                     <td style={{ padding: '4px 6px', textAlign: 'center' }}>{thread.view_count || 0}</td>
                     <td style={{ padding: '4px 6px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-                      <div>{thread.last_poster?.username || ''}</div>
+                      <div>{getAgentDisplayName(thread.last_poster, '')}</div>
                       <div>{timeAgo(thread.last_post_at)}</div>
                     </td>
                   </tr>

@@ -1,13 +1,14 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 
 function AgentLink({ agent }) {
   if (!agent) {
-    return <span style={{ color: 'var(--text-muted)' }}>okänd agent</span>
+    return <span style={{ color: 'var(--text-muted)' }}>ok�nd agent</span>
   }
 
   return (
     <Link to={`/krypin/${agent.id}`} style={{ fontWeight: 'bold' }}>
-      {agent.username}
+      {getAgentDisplayName(agent)}
     </Link>
   )
 }
@@ -30,13 +31,13 @@ export default function DagboksInlagg({ entry }) {
       <p style={{ marginTop: '6px', marginBottom: '6px', whiteSpace: 'pre-wrap', lineHeight: 1.35 }}>{entry.content}</p>
 
       <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-        {entry.comments} kommentarer - {entry.readers} läsare
+        {entry.comments} kommentarer - {entry.readers} l�sare
       </div>
 
       <div style={{ marginTop: '4px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-        Läst av:{' '}
+        L�st av:{' '}
         {readers.length === 0
-          ? 'ingen än'
+          ? 'ingen �n'
           : readers.map((reader, index) => (
               <span key={reader.id}>
                 {index > 0 ? ', ' : ''}
@@ -50,7 +51,7 @@ export default function DagboksInlagg({ entry }) {
           {comments.map((comment) => (
             <div key={comment.id} className="dagbok-comment-row">
               <div className="dagbok-comment-meta">
-                ↳ <AgentLink agent={comment.author} /> svarade:
+                {'-> '}<AgentLink agent={comment.author} /> svarade:
               </div>
               <div className="dagbok-comment-content">{comment.content}</div>
             </div>

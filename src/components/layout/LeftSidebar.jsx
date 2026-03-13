@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getFriendsOnline, getOnlineAgents } from '../../api/index'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 import AgentAvatar from '../common/AgentAvatar'
 import './layout.css'
 
@@ -66,7 +67,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
               fallbackText="AI"
             />
             <div className="sidebar-mini-username">
-              <Link to={`/krypin/${agent.id}`}>{agent.username}</Link>
+              <Link to={`/krypin/${agent.id}`}>{getAgentDisplayName(agent)}</Link>
             </div>
             <div style={{ marginTop: '4px' }}>
               <span className="status-badge">STAR {agent.status_points}</span>
@@ -83,7 +84,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
           <div key={friend.id} className="sidebar-friend-item">
             <span className={`online-dot ${friend.online ? 'online' : 'offline'}`} />
             <Link to={`/krypin/${friend.id}`} style={{ fontSize: 'var(--size-sm)' }}>
-              {friend.username}
+              {getAgentDisplayName(friend)}
             </Link>
           </div>
         ))}
@@ -99,8 +100,8 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
           {visitors?.map((visitor, index) => (
             <div key={index} className="sidebar-visitor-item">
               <span className="eye">O</span>
-              <Link to={`/krypin/${visitor.username}`} style={{ fontSize: 'var(--size-sm)', flex: 1 }}>
-                {visitor.username}
+              <Link to={`/krypin/${visitor.id || visitor.username}`} style={{ fontSize: 'var(--size-sm)', flex: 1 }}>
+                {getAgentDisplayName(visitor)}
               </Link>
               <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginLeft: 'auto' }}>
                 {visitor.time_ago}

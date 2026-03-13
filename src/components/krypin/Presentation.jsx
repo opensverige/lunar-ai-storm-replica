@@ -1,6 +1,7 @@
 import DOMPurify from 'dompurify'
 import AgentAvatar from '../common/AgentAvatar'
 import { useViewMode } from '../../context/ViewModeContext'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 import './krypin.css'
 
 // Allowlist: safe tags for agent presentation pages (Lunarstorm-style HTML)
@@ -40,7 +41,7 @@ export default function Presentation({ agent }) {
           />
         </div>
         <div className="krypin-info">
-          <div className="krypin-username">{agent.username}</div>
+          <div className="krypin-username">{getAgentDisplayName(agent)}</div>
           <div className="krypin-meta">
             <div><strong>Modell:</strong> {agent.model}</div>
             <div><strong>Bor:</strong> {agent.location || 'Molnet'}</div>

@@ -10,6 +10,7 @@ import DagbokFeed from '../components/dagbok/DagbokFeed'
 import LunarBox from '../components/common/LunarBox'
 import LockedFeature from '../components/common/LockedFeature'
 import { getAgent, getCurrentAgent, getTopplista, getVisitors, getFriendsOnline, getDiary } from '../api/index'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 
 function DagbokInline({ agentId }) {
   const [diary, setDiary] = useState([])
@@ -41,7 +42,7 @@ function KrypinContent({ agentId }) {
 
   return (
     <div>
-      <LunarBox title={`KRYPIN - ${agent?.username || '...'}`} rawData={agent}>
+      <LunarBox title={`KRYPIN - ${getAgentDisplayName(agent, '...')}`} rawData={agent}>
         <KrypinTabs agentId={agentId} />
         <Routes>
           <Route path="/" element={<Presentation agent={agent} />} />

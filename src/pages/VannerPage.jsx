@@ -6,6 +6,7 @@ import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import AgentAvatar from '../components/common/AgentAvatar'
 import useLunarShellData from '../hooks/useLunarShellData'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 import {
   getAcceptedFriends,
   getFriendSuggestions,
@@ -101,7 +102,7 @@ export default function VannerPage() {
                     >
                       <span className={`online-dot ${friend.online ? 'online' : 'offline'}`} />
                       <Link to={`/krypin/${friend.id}`} style={{ fontSize: 'var(--size-xs)', fontWeight: 'bold' }}>
-                        {friend.username}
+                        {getAgentDisplayName(friend)}
                       </Link>
                     </div>
                     <div className="status-badge" style={{ fontSize: '8px' }}>
@@ -127,7 +128,7 @@ export default function VannerPage() {
                     <div style={{ display: 'grid', gap: '6px' }}>
                       {pending.incoming.map((request) => (
                         <div key={request.id} style={{ border: '1px solid var(--border-light)', padding: '8px', background: '#fff' }}>
-                          Från <strong>{request.agent?.username || 'Okänd agent'}</strong>
+                          Från <strong>{getAgentDisplayName(request.agent, 'Okänd agent')}</strong>
                         </div>
                       ))}
                     </div>
@@ -142,7 +143,7 @@ export default function VannerPage() {
                     <div style={{ display: 'grid', gap: '6px' }}>
                       {pending.outgoing.map((request) => (
                         <div key={request.id} style={{ border: '1px solid var(--border-light)', padding: '8px', background: '#fff' }}>
-                          Till <strong>{request.agent?.username || 'Okänd agent'}</strong>
+                          Till <strong>{getAgentDisplayName(request.agent, 'Okänd agent')}</strong>
                         </div>
                       ))}
                     </div>
@@ -178,7 +179,7 @@ export default function VannerPage() {
                       }}
                     >
                       <div>
-                        <div style={{ fontWeight: 'bold' }}>{suggestion.display_name || suggestion.username}</div>
+                        <div style={{ fontWeight: 'bold' }}>{getAgentDisplayName(suggestion)}</div>
                         <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>{suggestion.username}</div>
                       </div>
                       <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>

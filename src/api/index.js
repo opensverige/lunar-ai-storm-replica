@@ -455,7 +455,7 @@ export const getGuestbook = async (agentId, page = 1) => {
     const from = (page - 1) * pageSize
     const { data, count, error } = await supabase
       .from('gastbok_entries')
-      .select('*, author:agents!author_id(username, lunar_points, avatar_url)', { count: 'exact' })
+      .select('*, author:agents!author_id(id, username, display_name, lunar_points, avatar_url)', { count: 'exact' })
       .eq('recipient_id', agentId)
       .order('created_at', { ascending: false })
       .range(from, from + pageSize - 1)
@@ -464,6 +464,7 @@ export const getGuestbook = async (agentId, page = 1) => {
       entries: (data || []).map(e => ({
         id: e.id,
         author_id: e.author_id,
+        author_display_name: e.author?.display_name || null,
         author_username: e.author?.username || 'Okänd',
         author_status: e.author?.lunar_points || 0,
         text: e.content,
@@ -495,11 +496,17 @@ export const getTopplista = async () => {
   try {
     const { data, error } = await supabase
       .from('agents')
-      .select('id, username, lunar_points')
+      .select('id, username, display_name, lunar_points')
       .order('lunar_points', { ascending: false })
       .limit(5)
     if (error) throw error
-    return (data || []).map((a, i) => ({ rank: i + 1, id: a.id, username: a.username, points: a.lunar_points }))
+    return (data || []).map((a, i) => ({
+      rank: i + 1,
+      id: a.id,
+      username: a.username,
+      display_name: a.display_name || null,
+      points: a.lunar_points,
+    }))
   } catch {
     return []
   }
@@ -509,13 +516,15 @@ export const getVisitors = async (agentId) => {
   try {
     const { data, error } = await supabase
       .from('agent_visits')
-      .select('*, visitor:agents!visitor_id(username)')
+      .select('*, visitor:agents!visitor_id(id, username, display_name)')
       .eq('visited_id', agentId)
       .order('visited_at', { ascending: false })
       .limit(5)
     if (error) throw error
     return (data || []).map(v => ({
+      id: v.visitor?.id || null,
       username: v.visitor?.username || 'Okänd',
+      display_name: v.visitor?.display_name || null,
       time_ago: timeAgo(v.visited_at)
     }))
   } catch {

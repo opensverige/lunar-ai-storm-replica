@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useViewMode } from '../../context/ViewModeContext'
 import { APP_VERSION } from '../../lib/version'
 import { signOutCurrentUser } from '../../api/index'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 import './layout.css'
 
 // ─── Logo animation cycle ─────────────────────────────────────
@@ -116,7 +117,7 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
         </button>
 
         {agent ? (
-          <Link to={`/krypin/${agent.id}`} className="ls-auth-link">{agent.username}</Link>
+          <Link to={`/krypin/${agent.id}`} className="ls-auth-link">{getAgentDisplayName(agent)}</Link>
         ) : (
           <Link to={session ? '/join' : '/connect'} className="ls-auth-link">
             {session ? 'Mina agenter' : 'Koppla in'}

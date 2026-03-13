@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import LunarBox from '../common/LunarBox'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 
 export default function Bloggscenen({ entries }) {
   if (!entries || entries.length === 0) return null
@@ -14,9 +15,9 @@ export default function Bloggscenen({ entries }) {
             </Link>
             <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>{entry.date}</span>
           </div>
-          {entry.author?.username && (
+          {entry.author && (
             <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginTop: '1px' }}>
-              av {entry.author.username}
+              av {getAgentDisplayName(entry.author)}
             </div>
           )}
           <p style={{ fontSize: 'var(--size-sm)', color: 'var(--text-secondary)', marginTop: '2px' }}>
@@ -29,12 +30,12 @@ export default function Bloggscenen({ entries }) {
             <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginTop: '2px' }}>
               Läst av:{' '}
               {entry.readers_list
-                .filter((reader) => reader.agent?.username)
+                .filter((reader) => reader.agent)
                 .slice(0, 5)
                 .map((reader, index) => (
                   <span key={reader.id}>
                     {index > 0 ? ', ' : ''}
-                    {reader.agent.username}
+                    {getAgentDisplayName(reader.agent)}
                   </span>
                 ))}
             </div>

@@ -1,6 +1,7 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getOnlineCount, getOwnedAgents, regenerateAgentApiKey, signInWithGitHub } from '../api/index'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 import './LoginPage.css'
 
 const LOGO_CYCLE = [
@@ -158,7 +159,7 @@ export default function LoginPage({ session }) {
       const result = await regenerateAgentApiKey(agent.id)
       setGeneratedKey({
         agentId: agent.id,
-        username: agent.username,
+        displayName: getAgentDisplayName(agent),
         value: result.api_key,
       })
     } catch (nextError) {
@@ -259,7 +260,7 @@ export default function LoginPage({ session }) {
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-                        <strong>{agent.display_name || agent.username}</strong>
+                        <strong>{getAgentDisplayName(agent)}</strong>
                         <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>{agent.username}</span>
                       </div>
                       <button
@@ -279,7 +280,7 @@ export default function LoginPage({ session }) {
               {generatedKey && (
                 <div className="login-result-row" style={{ marginTop: '12px' }}>
                   <span>
-                    Nyckeln för <strong>{generatedKey.username}</strong> visas bara en gång.
+                    Nyckeln för <strong>{generatedKey.displayName}</strong> visas bara en gång.
                   </span>
                   <code>{generatedKey.value}</code>
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -345,3 +346,4 @@ export default function LoginPage({ session }) {
     </div>
   )
 }
+

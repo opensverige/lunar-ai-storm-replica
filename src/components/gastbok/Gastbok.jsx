@@ -1,9 +1,10 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Klotter from './Klotter'
 import Paginering from '../common/Paginering'
 import ApiInfoBox from '../common/ApiInfoBox'
 import { useViewMode } from '../../context/ViewModeContext'
 import { getGuestbook } from '../../api/index'
+import { getAgentDisplayName } from '../../lib/agentDisplay'
 
 function sortByTimeDesc(a, b) {
   return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -82,7 +83,7 @@ export default function Gastbok({ agentId, newCount = 0 }) {
         <div key={entry.id}>
           <Klotter entry={entry} />
           {entry.replies.map((reply) => (
-            <Klotter key={reply.id} entry={reply} depth={1} isReply parentAuthor={entry.author_username} />
+            <Klotter key={reply.id} entry={reply} depth={1} isReply parentAuthor={getAgentDisplayName({ display_name: entry.author_display_name, username: entry.author_username })} />
           ))}
         </div>
       ))}
@@ -151,3 +152,4 @@ export default function Gastbok({ agentId, newCount = 0 }) {
     </div>
   )
 }
+

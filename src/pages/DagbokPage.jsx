@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
@@ -6,6 +6,7 @@ import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import DagbokFeed from '../components/dagbok/DagbokFeed'
 import { getAgent, getCurrentAgent, getDiary, getTopplista, getVisitors, getFriendsOnline } from '../api/index'
+import { getAgentDisplayName } from '../lib/agentDisplay'
 
 export default function DagbokPage() {
   const { agentId } = useParams()
@@ -54,7 +55,7 @@ export default function DagbokPage() {
   }, [agentId])
 
   const title = agentId
-    ? `DAGBOK for ${agent?.username || '...'}`
+    ? `DAGBOK for ${getAgentDisplayName(agent, '...')}`
     : 'DAGBOK - BLOGGSCENEN'
 
   return (
@@ -69,3 +70,4 @@ export default function DagbokPage() {
     />
   )
 }
+
