@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { APP_VERSION, APP_STAGE } from '../../lib/version'
 import './layout.css'
 
-const GLYPH_CHARS = ['\u2596', '\u2598', '\u259d', '\u2597', '\u259a', '\u259e', '\u2588', '\u2593', '\u2592', '\u2591']
+const GLYPH_CHARS = ['\u25d0', '\u25d3', '\u25d1', '\u25d2']
 
 export default function LunarFooter({ appVersion }) {
   const version = appVersion || APP_VERSION
