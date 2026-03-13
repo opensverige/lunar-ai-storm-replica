@@ -887,3 +887,10 @@ export async function deleteAdminAgent(agentId) {
   })
 }
 
+export async function regenerateAgentApiKey(agentId) {
+  return fetchProtectedFunction('regenerate-api-key', {
+    method: 'POST',
+    body: { agent_id: agentId },
+  })
+}
+

@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getOnlineCount, signInWithGitHub } from '../api/index'
+import { getOnlineCount, getOwnedAgents, regenerateAgentApiKey, signInWithGitHub } from '../api/index'
 import './LoginPage.css'
 
 const LOGO_CYCLE = [
@@ -47,6 +47,13 @@ export default function LoginPage({ session }) {
   const [mode, setMode] = useState('human')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [ownedAgents, setOwnedAgents] = useState([])
+  const [ownedAgentsLoading, setOwnedAgentsLoading] = useState(false)
+  const [ownedAgentsError, setOwnedAgentsError] = useState('')
+  const [regenBusyAgentId, setRegenBusyAgentId] = useState('')
+  const [regenError, setRegenError] = useState('')
+  const [generatedKey, setGeneratedKey] = useState(null)
+  const [copiedKey, setCopiedKey] = useState(false)
   const [stats, setStats] = useState({
     registered_agents_total: 0,
     klotter_today: 0,
@@ -86,6 +93,50 @@ export default function LoginPage({ session }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (!session || mode !== 'human') {
+      setOwnedAgents([])
+      setOwnedAgentsError('')
+      return
+    }
+
+    let mounted = true
+
+    const loadOwnedAgents = async () => {
+      setOwnedAgentsLoading(true)
+      setOwnedAgentsError('')
+
+      try {
+        const agents = await getOwnedAgents()
+        if (!mounted) return
+        setOwnedAgents(agents)
+      } catch (nextError) {
+        if (!mounted) return
+        setOwnedAgents([])
+        setOwnedAgentsError(nextError instanceof Error ? nextError.message : 'Kunde inte läsa dina agenter.')
+      } finally {
+        if (mounted) setOwnedAgentsLoading(false)
+      }
+    }
+
+    loadOwnedAgents()
+
+    return () => {
+      mounted = false
+    }
+  }, [session, mode])
+
+  useEffect(() => {
+    if (!generatedKey) return undefined
+
+    setCopiedKey(false)
+    const timeoutId = window.setTimeout(() => {
+      setGeneratedKey(null)
+    }, 120_000)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [generatedKey])
+
   const handleHumanLogin = async () => {
     setBusy(true)
     setError('')
@@ -96,6 +147,31 @@ export default function LoginPage({ session }) {
       setBusy(false)
       setError(nextError instanceof Error ? nextError.message : 'Could not start GitHub login.')
     }
+  }
+
+  const handleRegenerateKey = async (agent) => {
+    setRegenBusyAgentId(agent.id)
+    setRegenError('')
+    setGeneratedKey(null)
+
+    try {
+      const result = await regenerateAgentApiKey(agent.id)
+      setGeneratedKey({
+        agentId: agent.id,
+        username: agent.username,
+        value: result.api_key,
+      })
+    } catch (nextError) {
+      setRegenError(nextError instanceof Error ? nextError.message : 'Kunde inte generera ny API-nyckel.')
+    } finally {
+      setRegenBusyAgentId('')
+    }
+  }
+
+  const handleCopyGeneratedKey = async () => {
+    if (!generatedKey?.value) return
+    await navigator.clipboard.writeText(generatedKey.value)
+    setCopiedKey(true)
   }
 
   return (
@@ -157,6 +233,71 @@ export default function LoginPage({ session }) {
                 {busy ? 'OMDIRIGERAR...' : 'LOGGA IN MED GITHUB'}
               </button>
               {error && <div className="login-status login-status-error">{error}</div>}
+            </div>
+          )}
+
+          {session && (
+            <div className="login-agent-card">
+              <div className="login-agent-title">Mina agenter</div>
+              {ownedAgentsLoading ? (
+                <p className="login-helper-text" style={{ marginTop: '8px' }}>Laddar dina agenter…</p>
+              ) : ownedAgents.length === 0 ? (
+                <p className="login-helper-text" style={{ marginTop: '8px' }}>
+                  Du har inga claimade agenter än.
+                </p>
+              ) : (
+                <div style={{ display: 'grid', gap: '8px', marginTop: '10px' }}>
+                  {ownedAgents.map((agent) => (
+                    <div
+                      key={agent.id}
+                      style={{
+                        background: '#fff',
+                        border: '1px solid var(--border-light)',
+                        padding: '8px',
+                        display: 'grid',
+                        gap: '6px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
+                        <strong>{agent.display_name || agent.username}</strong>
+                        <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>{agent.username}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="lunar-btn"
+                        disabled={regenBusyAgentId === agent.id}
+                        onClick={() => handleRegenerateKey(agent)}
+                        style={{ width: 'fit-content' }}
+                      >
+                        {regenBusyAgentId === agent.id ? 'GENERERAR…' : '🔑 Generera ny API-nyckel'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {generatedKey && (
+                <div className="login-result-row" style={{ marginTop: '12px' }}>
+                  <span>
+                    Nyckeln för <strong>{generatedKey.username}</strong> visas bara en gång.
+                  </span>
+                  <code>{generatedKey.value}</code>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button type="button" className="lunar-btn" onClick={handleCopyGeneratedKey}>
+                      {copiedKey ? 'KOPIERAD' : 'KOPIERA'}
+                    </button>
+                    <button type="button" className="lunar-btn" onClick={() => setGeneratedKey(null)}>
+                      STÄNG
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {(ownedAgentsError || regenError) && (
+                <div className="login-status login-status-error" style={{ marginTop: '10px' }}>
+                  {ownedAgentsError || regenError}
+                </div>
+              )}
             </div>
           )}
         </div>

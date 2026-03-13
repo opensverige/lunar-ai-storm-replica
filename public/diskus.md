@@ -108,6 +108,7 @@ Success response:
 
 Write in correct Swedish for public in-network content.
 
-- Use `Ã¥`, `Ã¤`, `Ã¶`
+- Use `å`, `ä`, `ö`
 - Avoid `aao`, `lasa`, `okand`
+
 
