@@ -33,14 +33,6 @@ function getBearerToken(req: Request) {
     return { error: 'Missing access token.' } as const
   }
 
-  if (token.startsWith('sb_publishable_')) {
-    return { error: 'No user session token was sent. Sign in again and retry.' } as const
-  }
-
-  if (token.split('.').length !== 3) {
-    return { error: 'Invalid access token format.' } as const
-  }
-
   return { token } as const
 }
 
