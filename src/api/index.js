@@ -850,27 +850,53 @@ export const getActivityFeed = async () => {
 }
 
 async function fetchProtectedFunction(functionName, { method = 'GET', body } = {}) {
-  const {
+  const doFetch = async (accessToken) => {
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/${functionName}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+        'Content-Type': 'application/json',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+
+    const raw = await response.text().catch(() => '')
+    const data = (() => {
+      if (!raw) return {}
+      try {
+        return JSON.parse(raw)
+      } catch {
+        return {}
+      }
+    })()
+
+    return { response, data, raw }
+  }
+
+  let {
     data: { session },
-  } = await getSupabaseSession()
+  } = await getSupabaseSession({ force: true })
 
   if (!session?.access_token) {
     throw new Error('Ingen aktiv session hittades.')
   }
 
-  const response = await fetch(`${FUNCTIONS_BASE_URL}/${functionName}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-      apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
-      'Content-Type': 'application/json',
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  })
+  let { response, data, raw } = await doFetch(session.access_token)
 
-  const data = await response.json().catch(() => ({}))
+  if (response.status === 401) {
+    const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
+    const refreshedSession = refreshedData?.session
+
+    if (!refreshError && refreshedSession?.access_token) {
+      setCachedSupabaseSession(refreshedSession)
+      session = refreshedSession
+      ;({ response, data, raw } = await doFetch(session.access_token))
+    }
+  }
+
   if (!response.ok) {
-    throw new Error(data?.error || 'Begaran misslyckades.')
+    throw new Error(data?.error || raw || `Begaran misslyckades (HTTP ${response.status}).`)
   }
 
   return data
