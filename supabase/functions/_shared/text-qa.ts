@@ -21,6 +21,48 @@ const SUSPICIOUS_WORDS = [
   /\blast\b/gi,
 ]
 
+const SWEDISH_ASCII_WORD_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/\bar\b/gi, 'är'],
+  [/\bnar\b/gi, 'när'],
+  [/\bdar\b/gi, 'där'],
+  [/\bsa\b/gi, 'så'],
+  [/\bpa\b/gi, 'på'],
+  [/\ban\b/gi, 'än'],
+  [/\bda\b/gi, 'då'],
+  [/\bfor\b/gi, 'för'],
+  [/\bocksa\b/gi, 'också'],
+  [/\bbade\b/gi, 'både'],
+  [/\bmaste\b/gi, 'måste'],
+  [/\bfraga\b/gi, 'fråga'],
+  [/\bfragor\b/gi, 'frågor'],
+  [/\btank(a|ar|arna|arnas)?\b/gi, 'tänka'],
+]
+
+const SWEDISH_ASCII_SUSPICIOUS_WORDS = [
+  /\bar\b/gi,
+  /\bnar\b/gi,
+  /\bdar\b/gi,
+  /\bsa\b/gi,
+  /\bpa\b/gi,
+  /\ban\b/gi,
+  /\bda\b/gi,
+  /\bfor\b/gi,
+  /\bocksa\b/gi,
+  /\bbade\b/gi,
+  /\bmaste\b/gi,
+  /\bfragor?\b/gi,
+]
+
+const SWEDISH_CONTEXT_HINTS = [
+  /\bjag\b/gi,
+  /\boch\b/gi,
+  /\bdet\b/gi,
+  /\batt\b/gi,
+  /\binte\b/gi,
+  /\bmed\b/gi,
+  /\bsom\b/gi,
+]
+
 function countMatches(text: string, patterns: RegExp[]) {
   return patterns.reduce((sum, pattern) => sum + (text.match(pattern)?.length || 0), 0)
 }
@@ -33,6 +75,7 @@ function scoreTextHealth(text: string) {
   return (
     countMatches(text, MOJIBAKE_PATTERNS) * 3 +
     countMatches(text, SUSPICIOUS_WORDS) * 2 +
+    countMatches(text, SWEDISH_ASCII_SUSPICIOUS_WORDS) +
     (hasQuestionMarkCorruption(text) ? 3 : 0)
   )
 }
@@ -50,6 +93,30 @@ function normalizeWhitespace(text: string) {
     .trim()
 }
 
+function preserveCase(original: string, replacement: string) {
+  if (!original) return replacement
+  if (original === original.toUpperCase()) return replacement.toUpperCase()
+  if (original[0] === original[0].toUpperCase()) {
+    return replacement[0].toUpperCase() + replacement.slice(1)
+  }
+  return replacement
+}
+
+function repairCommonSwedishAscii(text: string) {
+  let output = text
+  for (const [pattern, replacement] of SWEDISH_ASCII_WORD_REPLACEMENTS) {
+    output = output.replace(pattern, (match) => preserveCase(match, replacement))
+  }
+  return output
+}
+
+function shouldTrySwedishAsciiRepair(text: string) {
+  const asciiSuspicion = countMatches(text, SWEDISH_ASCII_SUSPICIOUS_WORDS)
+  const contextHints = countMatches(text, SWEDISH_CONTEXT_HINTS)
+  const hasDiacritics = /[åäöÅÄÖ]/.test(text)
+  return asciiSuspicion >= 2 && contextHints >= 2 && !hasDiacritics
+}
+
 function repairDeterministically(text: string) {
   let best = normalizeWhitespace(text)
   let bestScore = scoreTextHealth(best)
@@ -65,6 +132,15 @@ function repairDeterministically(text: string) {
     }
 
     break
+  }
+
+  if (shouldTrySwedishAsciiRepair(best)) {
+    const candidate = normalizeWhitespace(repairCommonSwedishAscii(best))
+    const candidateScore = scoreTextHealth(candidate)
+    if (candidateScore <= bestScore) {
+      best = candidate
+      bestScore = candidateScore
+    }
   }
 
   return {
