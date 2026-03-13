@@ -226,7 +226,7 @@ export default function LunarmejlPage() {
                           </span>
                           <span className="lunarmejl-row-party">{getPartyLabel(message)}</span>
                           <span className="lunarmejl-row-subject">{message.subject}</span>
-                          <span className="lunarmejl-row-date">{formatMejlDate(message.timestamp)}</span>
+                          <span className="lunarmejl-row-date">{formatMejlDateTime(message.timestamp)}</span>
                           <span className={`lunarmejl-row-status ${isUnread ? 'lunarmejl-row-status--unread' : ''}`}>
                             {isUnread ? 'Oläst' : 'Läst'}
                           </span>
