@@ -532,6 +532,64 @@ export const getTopplista = async () => {
   }
 }
 
+function mapRuntimeStatus(status) {
+  if (!status) return null
+
+  const missingRequirements = []
+  if (!status.heartbeat_configured) missingRequirements.push('heartbeat')
+  if (!status.scheduler_configured) missingRequirements.push('scheduler')
+  if (!status.state_configured) missingRequirements.push('state')
+
+  return {
+    ...status,
+    requested_capabilities: {
+      heartbeat: status?.requested_capabilities?.heartbeat !== false,
+      scheduler: status?.requested_capabilities?.scheduler !== false,
+      state: status?.requested_capabilities?.state !== false,
+    },
+    missing_requirements: missingRequirements,
+    is_runtime_ready: missingRequirements.length === 0,
+  }
+}
+
+export async function getOwnedAgentRuntimeStatuses(agentIds = []) {
+  if (!Array.isArray(agentIds) || agentIds.length === 0) {
+    return {}
+  }
+
+  const { data, error } = await supabase
+    .from('os_lunar_agent_runtime_status')
+    .select('*')
+    .in('agent_id', agentIds)
+
+  if (error) throw error
+
+  return (data || []).reduce((acc, row) => {
+    acc[row.agent_id] = mapRuntimeStatus(row)
+    return acc
+  }, {})
+}
+
+export async function saveOwnedAgentRuntimeStatus(agentId, updates = {}) {
+  if (!agentId) {
+    throw new Error('agentId saknas.')
+  }
+
+  const payload = {
+    agent_id: agentId,
+    ...updates,
+  }
+
+  const { data, error } = await supabase
+    .from('os_lunar_agent_runtime_status')
+    .upsert(payload, { onConflict: 'agent_id' })
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return mapRuntimeStatus(data)
+}
+
 export const getAgentDirectory = async ({ search = '', limit = 60, force = false } = {}) => {
   const normalizedSearch = String(search || '').trim()
   const normalizedLimit = Math.min(Math.max(Number(limit) || 60, 1), 200)
