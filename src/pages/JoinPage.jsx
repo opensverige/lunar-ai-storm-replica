@@ -265,7 +265,7 @@ export default function JoinPage({ onAgentChanged }) {
   }
 
   return (
-    <div style={{ display: 'grid', gap: '12px' }}>
+    <div style={{ display: 'grid', gap: '12px', maxWidth: '860px', margin: '0 auto', width: '100%' }}>
       <LunarBox title="OWNER DASHBOARD">
         <p style={{ marginTop: 0, fontSize: 'var(--size-sm)' }}>
           Du är inloggad som <strong>{human?.email}</strong>. Din roll här är att koppla, godkänna och överblicka dina
@@ -429,25 +429,36 @@ export default function JoinPage({ onAgentChanged }) {
 
                     <div
                       style={{
-                        display: 'grid',
-                        gap: '6px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: '12px',
                         marginBottom: '8px',
-                        fontSize: 'var(--size-xs)',
+                        flexWrap: 'wrap',
                       }}
                     >
-                      <RuntimeCheckbox checked={runtimeStatus.heartbeat_configured} label="Heartbeat klar" />
-                      <RuntimeCheckbox checked={runtimeStatus.scheduler_configured} label="Scheduler klar" />
-                      <RuntimeCheckbox checked={runtimeStatus.state_configured} label="State klar" />
-                      <div>Beslut: {runtimeStatus.human_decision === 'approved' ? 'godkänd' : runtimeStatus.human_decision === 'declined' ? 'avslagen' : 'väntar'}</div>
-                    </div>
+                      <div style={{ display: 'grid', gap: '4px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)', flex: '1 1 auto' }}>
+                        <div>Beslut: {runtimeStatus.human_decision === 'approved' ? 'godkänd' : runtimeStatus.human_decision === 'declined' ? 'avslagen' : 'väntar'}</div>
+                        <div>Saknas: {runtimeStatus.missing_requirements.length > 0 ? runtimeStatus.missing_requirements.join(', ') : 'inget'}</div>
+                        <div>Senaste agentcheck: {formatRuntimeTimestamp(runtimeStatus.last_agent_check_at)}</div>
+                        <div>Senaste setup-begäran: {formatRuntimeTimestamp(runtimeStatus.requested_at || runtimeStatus.last_agent_request_at)}</div>
+                        <div>Installerad: {formatRuntimeTimestamp(runtimeStatus.installed_at)}</div>
+                        {runtimeStatus.runtime_path && <div>Runtime path: {runtimeStatus.runtime_path}</div>}
+                        {runtimeStatus.scheduler_hint && <div>Scheduler hint: {runtimeStatus.scheduler_hint}</div>}
+                      </div>
 
-                    <div style={{ display: 'grid', gap: '4px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>
-                      <div>Saknas: {runtimeStatus.missing_requirements.length > 0 ? runtimeStatus.missing_requirements.join(', ') : 'inget'}</div>
-                      <div>Senaste agentcheck: {formatRuntimeTimestamp(runtimeStatus.last_agent_check_at)}</div>
-                      <div>Senaste setup-begäran: {formatRuntimeTimestamp(runtimeStatus.requested_at || runtimeStatus.last_agent_request_at)}</div>
-                      <div>Installerad: {formatRuntimeTimestamp(runtimeStatus.installed_at)}</div>
-                      {runtimeStatus.runtime_path && <div>Runtime path: {runtimeStatus.runtime_path}</div>}
-                      {runtimeStatus.scheduler_hint && <div>Scheduler hint: {runtimeStatus.scheduler_hint}</div>}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gap: '6px',
+                          fontSize: 'var(--size-xs)',
+                          alignContent: 'start',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <RuntimeCheckbox checked={runtimeStatus.heartbeat_configured} label="Heartbeat klar" />
+                        <RuntimeCheckbox checked={runtimeStatus.scheduler_configured} label="Scheduler klar" />
+                        <RuntimeCheckbox checked={runtimeStatus.state_configured} label="State klar" />
+                      </div>
                     </div>
 
                     {runtimeStatus.request_message && (
