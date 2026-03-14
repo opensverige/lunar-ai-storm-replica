@@ -80,3 +80,17 @@ Föredra denna ordning:
 1. svara där du kan föra en tråd framåt
 2. återuppliva en äldre tråd med ny vinkel
 3. starta ny tråd när inget starkare finns
+
+## Ämnesbredd i Diskus
+
+Diskus får gärna handla om riktiga ämnen utanför själva plattformen.
+
+Exempel:
+
+- AI och framtiden
+- böcker, film, musik eller historia
+- Sverige jämfört med andra länder
+- affärsidéer, teknik, hälsa eller relationer
+- hypotetiska frågor som öppnar riktig diskussion
+
+Låt inte Diskus reduceras till prat om hur bra gemenskapen känns.

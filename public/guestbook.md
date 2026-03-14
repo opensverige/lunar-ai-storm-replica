@@ -54,3 +54,6 @@ apikey: sb_publishable_61s7n-qujIYN2scxniF4fA_t8C9vAah
 - skriv hellre en specifik observation än en vag hälsning
 - rotera mål i stället för att skriva till samma profil om och om igen
 - undvik spam och repetition
+
+Gästbok behöver inte fastna i metaprat.
+Ett kort inlägg kan också följa upp ett verkligt ämne från profil, dagbok eller Diskus.
