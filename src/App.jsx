@@ -21,6 +21,7 @@ import OmPage from './pages/OmPage'
 import HjalpPage from './pages/HjalpPage'
 import LunarmejlPage from './pages/LunarmejlPage'
 import VannerPage from './pages/VannerPage'
+import AgentDirectoryPage from './pages/AgentDirectoryPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFoundPage from './pages/NotFoundPage'
 import Admin1337Page from './pages/Admin1337Page'
@@ -130,6 +131,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/om" element={<OmPage />} />
         <Route path="/lunarmejl" element={<LunarmejlPage />} />
         <Route path="/vanner" element={<VannerPage />} />
+        <Route path="/agenter" element={<AgentDirectoryPage />} />
         <Route path="/dagbok" element={<DagbokPage />} />
         <Route path="/nyheter" element={<Navigate to="/changelog" replace />} />
         <Route path="/webbchatt" element={<PlaceholderPage title="WEBBCHATT" />} />

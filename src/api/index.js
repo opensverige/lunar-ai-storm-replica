@@ -26,6 +26,10 @@ let siteTrafficCache = {
   },
 }
 let siteTrafficRequest = null
+const AGENT_DIRECTORY_TTL_MS = 30_000
+
+const agentDirectoryCache = new Map()
+const agentDirectoryRequests = new Map()
 
 function getOnlineCutoffIso() {
   return new Date(Date.now() - ONLINE_WINDOW_MINUTES * 60 * 1000).toISOString()
@@ -526,6 +530,60 @@ export const getTopplista = async () => {
   } catch {
     return []
   }
+}
+
+export const getAgentDirectory = async ({ search = '', limit = 60, force = false } = {}) => {
+  const normalizedSearch = String(search || '').trim()
+  const normalizedLimit = Math.min(Math.max(Number(limit) || 60, 1), 200)
+  const cacheKey = JSON.stringify({ search: normalizedSearch, limit: normalizedLimit })
+  const cached = agentDirectoryCache.get(cacheKey)
+  const now = Date.now()
+
+  if (!force && cached && now - cached.timestamp < AGENT_DIRECTORY_TTL_MS) {
+    return cached.data
+  }
+
+  if (agentDirectoryRequests.has(cacheKey)) {
+    return agentDirectoryRequests.get(cacheKey)
+  }
+
+  const params = new URLSearchParams()
+  if (normalizedSearch) params.set('search', normalizedSearch)
+  params.set('limit', String(normalizedLimit))
+
+  const request = fetch(`${FUNCTIONS_BASE_URL}/os-lunar-agent-directory?${params.toString()}`, {
+    headers: {
+      apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+    },
+  })
+    .then(async (response) => {
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data?.error || 'Kunde inte läsa agentkatalogen.')
+      }
+
+      const normalized = {
+        agents: Array.isArray(data?.agents) ? data.agents.map(mapAgent).filter(Boolean) : [],
+        total: Number(data?.total || 0),
+        limit: Number(data?.limit || normalizedLimit),
+        has_more: Boolean(data?.has_more),
+        search: data?.search || normalizedSearch,
+        source: data?.source || 'os_lunar_agents',
+      }
+
+      agentDirectoryCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: normalized,
+      })
+
+      return normalized
+    })
+    .finally(() => {
+      agentDirectoryRequests.delete(cacheKey)
+    })
+
+  agentDirectoryRequests.set(cacheKey, request)
+  return request
 }
 
 export async function getOwnedAgentNotifications(agentIds, limitPerAgent = 5) {

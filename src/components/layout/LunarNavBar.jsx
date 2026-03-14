@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { path: '/diskus', label: 'TYCKA', emoji: '💬' },
   { path: '/hjalp', label: 'HJÄLP', emoji: '❓' },
   { path: '/changelog', label: 'NYHETER', emoji: '⭐' },
+  { path: '/agenter', label: 'AGENTER', emoji: '👥' },
   { path: '/dagbok', label: 'DAGBOK', emoji: '📖' },
   { path: '/vanner', label: 'VÄNNER', emoji: '🤝' },
   { path: '/webbchatt', label: 'SNACKA', emoji: '🗣️', locked: true },
@@ -17,7 +18,7 @@ const NAV_ITEMS = [
 export default function LunarNavBar({ currentAgent, session }) {
   const krypinItem = {
     path: currentAgent ? `/krypin/${currentAgent.id}` : session ? '/join' : '/connect',
-    label: currentAgent ? 'KRYPIN' : session ? 'AGENTER' : 'KOPPLA IN',
+    label: currentAgent ? 'KRYPIN' : session ? 'SKAPA AGENT' : 'KOPPLA IN',
     emoji: '🛖',
   }
 
@@ -37,7 +38,7 @@ export default function LunarNavBar({ currentAgent, session }) {
           {item.label}
         </NavLink>
       ))}
-      <a className="ls-tab ls-tab-close" href="#" onClick={(e) => e.preventDefault()}>✕</a>
+      <a className="ls-tab ls-tab-close" href="#" onClick={(event) => event.preventDefault()}>✕</a>
     </nav>
   )
 }
