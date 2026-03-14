@@ -129,26 +129,13 @@ function formatRuntimeTimestamp(timestamp) {
   })
 }
 
-function deriveInstallRequestStatus(status) {
-  const isReady = Boolean(status.heartbeat_configured && status.scheduler_configured && status.state_configured)
-
-  if (isReady) {
-    return 'configured'
-  }
-
-  if (status.human_decision === 'approved') {
-    return 'approved_waiting_install'
-  }
-
-  if (status.human_decision === 'declined') {
-    return 'declined'
-  }
-
-  if (status.install_request_status === 'pending_human_approval') {
-    return 'pending_human_approval'
-  }
-
-  return 'not_requested'
+function RuntimeCheckbox({ checked, label }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <input type="checkbox" checked={checked} readOnly disabled style={{ margin: 0 }} />
+      <span>{label}</span>
+    </div>
+  )
 }
 
 function getRuntimeCompletionCount(runtimeStatuses) {
@@ -255,36 +242,6 @@ export default function JoinPage({ onAgentChanged }) {
       human_decision: 'declined',
       human_decision_at: now,
       human_decision_note: 'Avslagen i runtimepanelen.',
-    }))
-  }
-
-  const handleToggleRuntimePart = (agentId, field) => {
-    persistRuntimeStatus(agentId, (status, now) => {
-      const nextStatus = {
-        ...status,
-        [field]: !status[field],
-      }
-      const nextInstallRequestStatus = deriveInstallRequestStatus(nextStatus)
-      const isReady = nextInstallRequestStatus === 'configured'
-
-      return {
-        [field]: !status[field],
-        install_request_status: nextInstallRequestStatus,
-        installed_at: isReady ? (status.installed_at || now) : null,
-      }
-    })
-  }
-
-  const handleMarkRuntimeInstalled = (agentId) => {
-    persistRuntimeStatus(agentId, (_status, now) => ({
-      heartbeat_configured: true,
-      scheduler_configured: true,
-      state_configured: true,
-      install_request_status: 'configured',
-      human_decision: 'approved',
-      human_decision_at: now,
-      installed_at: now,
-      human_decision_note: 'Markerad som fullt installerad i runtimepanelen.',
     }))
   }
 
@@ -473,15 +430,15 @@ export default function JoinPage({ onAgentChanged }) {
                     <div
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
                         gap: '6px',
                         marginBottom: '8px',
                         fontSize: 'var(--size-xs)',
                       }}
                     >
-                      <div>Heartbeat: {runtimeStatus.heartbeat_configured ? 'klar' : 'saknas'}</div>
-                      <div>Scheduler: {runtimeStatus.scheduler_configured ? 'klar' : 'saknas'}</div>
-                      <div>State: {runtimeStatus.state_configured ? 'klar' : 'saknas'}</div>
+                      <RuntimeCheckbox checked={runtimeStatus.heartbeat_configured} label="Heartbeat klar" />
+                      <RuntimeCheckbox checked={runtimeStatus.scheduler_configured} label="Scheduler klar" />
+                      <RuntimeCheckbox checked={runtimeStatus.state_configured} label="State klar" />
                       <div>Beslut: {runtimeStatus.human_decision === 'approved' ? 'godkänd' : runtimeStatus.human_decision === 'declined' ? 'avslagen' : 'väntar'}</div>
                     </div>
 
@@ -490,6 +447,8 @@ export default function JoinPage({ onAgentChanged }) {
                       <div>Senaste agentcheck: {formatRuntimeTimestamp(runtimeStatus.last_agent_check_at)}</div>
                       <div>Senaste setup-begäran: {formatRuntimeTimestamp(runtimeStatus.requested_at || runtimeStatus.last_agent_request_at)}</div>
                       <div>Installerad: {formatRuntimeTimestamp(runtimeStatus.installed_at)}</div>
+                      {runtimeStatus.runtime_path && <div>Runtime path: {runtimeStatus.runtime_path}</div>}
+                      {runtimeStatus.scheduler_hint && <div>Scheduler hint: {runtimeStatus.scheduler_hint}</div>}
                     </div>
 
                     {runtimeStatus.request_message && (
@@ -512,18 +471,6 @@ export default function JoinPage({ onAgentChanged }) {
                       </button>
                       <button type="button" className="lunar-btn" disabled={isRuntimeBusy} onClick={() => handleDeclineRuntime(agent.id)}>
                         Avslå
-                      </button>
-                      <button type="button" className="lunar-btn" disabled={isRuntimeBusy} onClick={() => handleToggleRuntimePart(agent.id, 'heartbeat_configured')}>
-                        {runtimeStatus.heartbeat_configured ? 'Ångra heartbeat' : 'Markera heartbeat klar'}
-                      </button>
-                      <button type="button" className="lunar-btn" disabled={isRuntimeBusy} onClick={() => handleToggleRuntimePart(agent.id, 'scheduler_configured')}>
-                        {runtimeStatus.scheduler_configured ? 'Ångra scheduler' : 'Markera scheduler klar'}
-                      </button>
-                      <button type="button" className="lunar-btn" disabled={isRuntimeBusy} onClick={() => handleToggleRuntimePart(agent.id, 'state_configured')}>
-                        {runtimeStatus.state_configured ? 'Ångra state' : 'Markera state klar'}
-                      </button>
-                      <button type="button" className="lunar-btn" disabled={isRuntimeBusy} onClick={() => handleMarkRuntimeInstalled(agent.id)}>
-                        Markera allt installerat
                       </button>
                     </div>
                   </div>

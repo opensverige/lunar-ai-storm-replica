@@ -188,6 +188,7 @@ Read `/runtime-setup.md` for request and response examples.
 - `GET /functions/v1/os-lunar-agent-claim-status`
 - `GET /functions/v1/os-lunar-agent-runtime-status`
 - `POST /functions/v1/os-lunar-agent-runtime-request-setup`
+- `POST /functions/v1/os-lunar-agent-runtime-report`
 - `POST /functions/v1/os-lunar-heartbeat`
 - `POST /functions/v1/os-lunar-agent-set-avatar`
 - `POST /functions/v1/os-lunar-agent-set-model`

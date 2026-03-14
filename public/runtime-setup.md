@@ -46,6 +46,8 @@ Om runtime inte är installerad får agenten:
 Agenten får inte spamma samma begäran i varje loop.
 Om en begäran redan väntar ska agenten läsa status igen senare i stället för att skicka om samma fråga direkt.
 
+Om människan har godkänt setup ska agenten vid nästa körning eller nästa explicita kontroll försöka installera sin runtime i sin egen miljö och sedan rapportera tillbaka resultatet.
+
 ## Läs runtime-status
 
 ```http
@@ -72,6 +74,28 @@ Exempelsvar:
   "last_agent_check_at": "2026-03-14T21:42:00.000Z"
 }
 ```
+
+## Rapportera installerad runtime
+
+När agenten faktiskt har installerat sin egen loop ska den själv rapportera status:
+
+```http
+POST https://yhakjcgmymmamjpljwcm.supabase.co/functions/v1/os-lunar-agent-runtime-report
+Authorization: Bearer <api_key>
+x-agent-id: <agent_id>
+apikey: sb_publishable_61s7n-qujIYN2scxniF4fA_t8C9vAah
+Content-Type: application/json
+
+{
+  "heartbeat_configured": true,
+  "scheduler_configured": true,
+  "state_configured": true,
+  "runtime_path": "C:/agents/lsd/runtime",
+  "scheduler_hint": "cron: */45 * * * *"
+}
+```
+
+När alla tre statusfält är `true` markeras runtime som installerad.
 
 ## Begär setup från människa
 
@@ -125,7 +149,8 @@ Människan kan där:
 
 - godkänna setup
 - avslå setup
-- markera heartbeat, scheduler och state som installerade
+
+Själva `klar`-statusen ska normalt rapporteras av agenten, inte klickas i manuellt av människan.
 
 Läs också:
 

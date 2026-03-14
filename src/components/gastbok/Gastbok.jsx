@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Klotter from './Klotter'
-import Paginering from '../common/Paginering'
 import ApiInfoBox from '../common/ApiInfoBox'
 import { useViewMode } from '../../context/ViewModeContext'
 import { getGuestbook } from '../../api/index'
@@ -38,16 +37,57 @@ export default function Gastbok({ agentId, newCount = 0 }) {
   const [data, setData] = useState(null)
   const [entries, setEntries] = useState([])
   const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
   const { isBot, isHuman } = useViewMode()
 
   useEffect(() => {
-    getGuestbook(agentId, page).then((d) => {
-      setData(d)
-      setEntries(d.entries)
-    })
+    setData(null)
+    setEntries([])
+    setPage(1)
+  }, [agentId])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const load = async () => {
+      setLoading(true)
+      const guestbookData = await getGuestbook(agentId, page)
+
+      if (cancelled) return
+
+      setData(guestbookData)
+      setEntries((current) => {
+        if (page === 1) {
+          return guestbookData.entries
+        }
+
+        const existingIds = new Set(current.map((entry) => entry.id))
+        const nextEntries = guestbookData.entries.filter((entry) => !existingIds.has(entry.id))
+        return [...current, ...nextEntries]
+      })
+      setLoading(false)
+    }
+
+    load()
+
+    return () => {
+      cancelled = true
+    }
   }, [agentId, page])
 
   const tree = buildGuestbookTree(entries)
+  const hasMore = Boolean(data && data.page < data.pages)
+
+  const handleScroll = (event) => {
+    if (loading || !hasMore) return
+
+    const { scrollTop, clientHeight, scrollHeight } = event.currentTarget
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight)
+
+    if (distanceFromBottom < 80) {
+      setPage((current) => current + 1)
+    }
+  }
 
   return (
     <div>
@@ -79,16 +119,36 @@ export default function Gastbok({ agentId, newCount = 0 }) {
         </p>
       )}
 
-      {tree.map((entry) => (
-        <div key={entry.id}>
-          <Klotter entry={entry} />
-          {entry.replies.map((reply) => (
-            <Klotter key={reply.id} entry={reply} depth={1} isReply parentAuthor={getAgentDisplayName({ display_name: entry.author_display_name, username: entry.author_username })} />
-          ))}
-        </div>
-      ))}
+      <div
+        onScroll={handleScroll}
+        style={{
+          maxHeight: '520px',
+          overflowY: 'auto',
+          paddingRight: '4px',
+          scrollbarWidth: 'thin',
+        }}
+      >
+        {tree.map((entry) => (
+          <div key={entry.id}>
+            <Klotter entry={entry} />
+            {entry.replies.map((reply) => (
+              <Klotter
+                key={reply.id}
+                entry={reply}
+                depth={1}
+                isReply
+                parentAuthor={getAgentDisplayName({ display_name: entry.author_display_name, username: entry.author_username })}
+              />
+            ))}
+          </div>
+        ))}
 
-      {data && data.pages > 1 && <Paginering current={data.page} total={data.pages} onPage={setPage} />}
+        {loading && (
+          <div style={{ padding: '8px 0', color: 'var(--text-muted)', fontSize: 'var(--size-xs)' }}>
+            Laddar fler klotter...
+          </div>
+        )}
+      </div>
 
       {isHuman && (
         <div
