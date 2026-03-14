@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useViewMode } from '../../context/ViewModeContext'
 import { APP_VERSION } from '../../lib/version'
-import { signOutCurrentUser } from '../../api/index'
 import { getAgentDisplayName } from '../../lib/agentDisplay'
 import './layout.css'
 
-// ─── Logo animation cycle ─────────────────────────────────────
+// Logo animation cycle
 const LOGO_CYCLE = [
   { text: '', cursor: true, ms: 400 },
   { text: 'A', cursor: true, ms: 300 },
@@ -79,18 +78,12 @@ export default function LunarHeader({ agent, session, notifications, onlineCount
 
   return (
     <header className="ls-header">
-      {/* Row 1: Logo + OnlineCounter + Search */}
       <div className="ls-header-row1">
         <AnimatedLogo version={appVersion || APP_VERSION} />
         <OnlineCounter count={onlineCount} />
         <div style={{ flex: 1 }} />
-        <div className="ls-search-group">
-          <input className="ls-search-input" placeholder="Sök ..." />
-          <button className="ls-search-btn">SÖK</button>
-        </div>
       </div>
 
-      {/* Row 2: Notif icons + spacer + Online indicator + bot toggle + auth */}
       <div className="ls-header-row2">
         {notifItems.map((n) => (
           <Link key={n.id} to={n.href} className="ls-notif-btn" title={n.label}>

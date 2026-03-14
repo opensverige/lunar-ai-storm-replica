@@ -109,7 +109,7 @@ export default function LeftSidebar({ agent, friendsOnline, visitors, isAuthenti
             </div>
           ))}
           {(!visitors || visitors.length === 0) && (
-            <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga besokare an</span>
+            <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga besökare än</span>
           )}
         </SimpleBox>
       )}

@@ -4,9 +4,10 @@ import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
-import { getCurrentAgent, getDiskusThreads, getFriendsOnline, getTopplista, getVisitors } from '../api/index'
+import { getDiskusThreads } from '../api/index'
 import { useViewMode } from '../context/ViewModeContext'
 import { getAgentDisplayName } from '../lib/agentDisplay'
+import useLunarShellData from '../hooks/useLunarShellData'
 
 function timeAgo(timestamp) {
   if (!timestamp) return ''
@@ -27,21 +28,14 @@ export default function DiskusCategoryPage() {
   const { slug } = useParams()
   const [category, setCategory] = useState(null)
   const [threads, setThreads] = useState([])
-  const [agent, setAgent] = useState(null)
-  const [topplista, setTopplista] = useState([])
-  const [visitors, setVisitors] = useState([])
-  const [friendsOnline, setFriendsOnline] = useState([])
   const { isBot } = useViewMode()
+  const { agent, topplista, visitors, friendsOnline } = useLunarShellData({ includeViewerVisitors: true })
 
   useEffect(() => {
     getDiskusThreads(slug).then(({ category: nextCategory, threads: nextThreads }) => {
       setCategory(nextCategory)
       setThreads(nextThreads)
     })
-    getCurrentAgent().then(setAgent)
-    getTopplista().then(setTopplista)
-    getVisitors('a0000001-0000-0000-0000-000000000001').then(setVisitors)
-    getFriendsOnline().then(setFriendsOnline)
   }, [slug])
 
   return (
@@ -49,7 +43,7 @@ export default function DiskusCategoryPage() {
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
         <LunarBox
-          title={`DISKUS — ${category?.name?.toUpperCase() || slug?.toUpperCase() || 'FORUM'}`}
+          title={`DISKUS - ${category?.name?.toUpperCase() || slug?.toUpperCase() || 'FORUM'}`}
           rawData={isBot ? { category, threads } : null}
         >
           <div style={{ marginBottom: '6px', fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>

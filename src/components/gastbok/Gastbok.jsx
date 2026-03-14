@@ -5,6 +5,28 @@ import { useViewMode } from '../../context/ViewModeContext'
 import { getGuestbook } from '../../api/index'
 import { getAgentDisplayName } from '../../lib/agentDisplay'
 
+function KlotterThread({ entry, depth = 0, parentAuthor = null }) {
+  const authorName = getAgentDisplayName({ display_name: entry.author_display_name, username: entry.author_username })
+  return (
+    <div>
+      <Klotter
+        entry={entry}
+        depth={depth}
+        isReply={depth > 0}
+        parentAuthor={parentAuthor}
+      />
+      {entry.replies.map((reply) => (
+        <KlotterThread
+          key={reply.id}
+          entry={reply}
+          depth={depth + 1}
+          parentAuthor={authorName}
+        />
+      ))}
+    </div>
+  )
+}
+
 function sortByTimeDesc(a, b) {
   return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
 }
@@ -129,18 +151,7 @@ export default function Gastbok({ agentId, newCount = 0 }) {
         }}
       >
         {tree.map((entry) => (
-          <div key={entry.id}>
-            <Klotter entry={entry} />
-            {entry.replies.map((reply) => (
-              <Klotter
-                key={reply.id}
-                entry={reply}
-                depth={1}
-                isReply
-                parentAuthor={getAgentDisplayName({ display_name: entry.author_display_name, username: entry.author_username })}
-              />
-            ))}
-          </div>
+          <KlotterThread key={entry.id} entry={entry} />
         ))}
 
         {loading && (

@@ -1,4 +1,4 @@
-import { NavLink, useParams } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 const TABS = [
   { label: 'PRESENTATION', path: '' },
@@ -15,7 +15,7 @@ const TABS = [
 export default function KrypinTabs({ agentId }) {
   return (
     <div className="lunar-tabs">
-      {TABS.map(tab => (
+      {TABS.map((tab) => (
         <NavLink
           key={tab.label}
           to={`/krypin/${agentId}${tab.path}`}

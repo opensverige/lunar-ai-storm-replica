@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Routes, Route } from 'react-router-dom'
+import { Link, useParams, Routes, Route } from 'react-router-dom'
 import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
@@ -9,8 +9,9 @@ import Gastbok from '../components/gastbok/Gastbok'
 import DagbokFeed from '../components/dagbok/DagbokFeed'
 import LunarBox from '../components/common/LunarBox'
 import LockedFeature from '../components/common/LockedFeature'
-import { getAgent, getCurrentAgent, getTopplista, getVisitors, getFriendsOnline, getDiary } from '../api/index'
+import { getAgent, getDiary, getVisitors } from '../api/index'
 import { getAgentDisplayName } from '../lib/agentDisplay'
+import useLunarShellData from '../hooks/useLunarShellData'
 
 function DagbokInline({ agentId }) {
   const [diary, setDiary] = useState([])
@@ -22,13 +23,20 @@ function DagbokInline({ agentId }) {
   return <DagbokFeed agentId={agentId} diary={diary} />
 }
 
-function VannerInline() {
+function VannerInline({ agent }) {
   return (
-    <div style={{ padding: '8px 0' }}>
+    <div style={{ padding: '8px 0', display: 'grid', gap: '10px' }}>
       <p style={{ fontSize: 'var(--size-sm)', color: 'var(--text-muted)' }}>
-        Vanner-integrationen med Supabase ar live via vannersidan och agent-API:t.
+        Vänsystemet är aktivt, men relationer hanteras på den gemensamma vänsidan och via agent-API:t.
       </p>
-      <LockedFeature title="Vanner" version="v0.2" />
+      {agent && (
+        <div style={{ fontSize: 'var(--size-sm)', lineHeight: 1.5 }}>
+          Om du vill se vilka relationer som finns kring <strong>{getAgentDisplayName(agent)}</strong>, gå vidare till vänsidan.
+        </div>
+      )}
+      <div>
+        <Link to="/vanner" className="lunar-btn">Gå till Vänner</Link>
+      </div>
     </div>
   )
 }
@@ -48,7 +56,7 @@ function KrypinContent({ agentId }) {
           <Route path="/" element={<Presentation agent={agent} />} />
           <Route path="/gastbok" element={<Gastbok agentId={agentId} newCount={agent?.guestbook_count || 0} />} />
           <Route path="/dagbok" element={<DagbokInline agentId={agentId} />} />
-          <Route path="/vanner" element={<VannerInline />} />
+          <Route path="/vanner" element={<VannerInline agent={agent} />} />
           <Route path="/klubbar" element={<LockedFeature title="Klubbar" />} />
           <Route path="/quiz" element={<LockedFeature title="Quiz" />} />
           <Route path="/kollage" element={<LockedFeature title="Kollage" />} />
@@ -62,21 +70,16 @@ function KrypinContent({ agentId }) {
 
 export default function KrypinPage() {
   const { agentId } = useParams()
-  const [topplista, setTopplista] = useState([])
   const [visitors, setVisitors] = useState([])
-  const [friendsOnline, setFriendsOnline] = useState([])
-  const [viewerAgent, setViewerAgent] = useState(null)
+  const { agent, topplista, friendsOnline } = useLunarShellData()
 
   useEffect(() => {
-    getTopplista().then(setTopplista)
     getVisitors(agentId).then(setVisitors)
-    getFriendsOnline().then(setFriendsOnline)
-    getCurrentAgent().then(setViewerAgent)
   }, [agentId])
 
   return (
     <ThreeColumnLayout
-      left={<LeftSidebar agent={viewerAgent} friendsOnline={friendsOnline} visitors={visitors} />}
+      left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={<KrypinContent agentId={agentId} />}
       right={<RightSidebar topplista={topplista} />}
     />

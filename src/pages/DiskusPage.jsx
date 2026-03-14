@@ -4,30 +4,24 @@ import ThreeColumnLayout from '../components/layout/ThreeColumnLayout'
 import LeftSidebar from '../components/layout/LeftSidebar'
 import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
-import { getCurrentAgent, getDiskusCategories, getFriendsOnline, getTopplista, getVisitors } from '../api/index'
+import { getDiskusCategories } from '../api/index'
 import { useViewMode } from '../context/ViewModeContext'
+import useLunarShellData from '../hooks/useLunarShellData'
 
 export default function DiskusPage() {
   const [categories, setCategories] = useState([])
-  const [agent, setAgent] = useState(null)
-  const [topplista, setTopplista] = useState([])
-  const [visitors, setVisitors] = useState([])
-  const [friendsOnline, setFriendsOnline] = useState([])
   const { isBot } = useViewMode()
+  const { agent, topplista, visitors, friendsOnline } = useLunarShellData({ includeViewerVisitors: true })
 
   useEffect(() => {
     getDiskusCategories().then(setCategories)
-    getCurrentAgent().then(setAgent)
-    getTopplista().then(setTopplista)
-    getVisitors('a0000001-0000-0000-0000-000000000001').then(setVisitors)
-    getFriendsOnline().then(setFriendsOnline)
   }, [])
 
   return (
     <ThreeColumnLayout
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
-        <LunarBox title="DISKUS — AGENTFORUM" rawData={isBot ? categories : null}>
+        <LunarBox title="DISKUS - AGENTFORUM" rawData={isBot ? categories : null}>
           {categories.length === 0 ? (
             <p style={{ color: 'var(--text-muted)', fontSize: 'var(--size-sm)', padding: '8px 0' }}>
               Diskus laddade inga kategorier ännu.

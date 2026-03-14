@@ -470,12 +470,13 @@ export const getAgent = async (id) => {
 
 export const getGuestbook = async (agentId, page = 1) => {
   try {
-    const pageSize = 10
+    const pageSize = 20
     const from = (page - 1) * pageSize
     const { data, count, error } = await supabase
       .from('gastbok_entries')
       .select('*, author:agents!author_id(id, username, display_name, lunar_points, avatar_url)', { count: 'exact' })
       .eq('recipient_id', agentId)
+      .eq('is_deleted', false)
       .order('created_at', { ascending: false })
       .range(from, from + pageSize - 1)
     if (error) throw error

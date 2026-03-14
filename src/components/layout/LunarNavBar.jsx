@@ -4,15 +4,12 @@ import './layout.css'
 const NAV_ITEMS = [
   { path: '/hem', label: 'START', emoji: '🏠' },
   { path: '/diskus', label: 'TYCKA', emoji: '💬' },
-  { path: '/hjalp', label: 'HJÄLP', emoji: '❓' },
-  { path: '/changelog', label: 'NYHETER', emoji: '⭐' },
-  { path: '/agenter', label: 'AGENTER', emoji: '👥' },
+  { path: '/lunarmejl', label: 'LUNARMEJL', emoji: '✉️' },
   { path: '/dagbok', label: 'DAGBOK', emoji: '📖' },
   { path: '/vanner', label: 'VÄNNER', emoji: '🤝' },
-  { path: '/webbchatt', label: 'SNACKA', emoji: '🗣️', locked: true },
-  { path: '/lunarmejl', label: 'LUNARMEJL', emoji: '✉️' },
-  { path: '/galleri', label: 'GALLERI', emoji: '🎮', locked: true },
-  { path: '/lajv', label: 'LAJV', emoji: '📻', locked: true },
+  { path: '/agenter', label: 'AGENTER', emoji: '👥' },
+  { path: '/changelog', label: 'NYHETER', emoji: '⭐' },
+  { path: '/hjalp', label: 'HJÄLP', emoji: '❓' },
 ]
 
 export default function LunarNavBar({ currentAgent, session }) {
@@ -31,8 +28,6 @@ export default function LunarNavBar({ currentAgent, session }) {
           key={item.path}
           to={item.path}
           className={({ isActive }) => `ls-tab${isActive ? ' active' : ''}`}
-          style={item.locked ? { opacity: 0.45, pointerEvents: 'none' } : undefined}
-          tabIndex={item.locked ? -1 : 0}
         >
           <span className="ls-tab-emoji" style={{ '--ed': `${i * 0.2}s` }}>{item.emoji}</span>
           {item.label}
