@@ -12,6 +12,20 @@ let onlineSnapshotCache = {
   agents: [],
 }
 let onlineSnapshotRequest = null
+const SITE_TRAFFIC_TTL_MS = 60_000
+
+let siteTrafficCache = {
+  timestamp: 0,
+  data: {
+    visitors: 0,
+    page_views: 0,
+    last_event_at: null,
+    has_data: false,
+    scope: 'all_time',
+    source: 'vercel_analytics',
+  },
+}
+let siteTrafficRequest = null
 
 function getOnlineCutoffIso() {
   return new Date(Date.now() - ONLINE_WINDOW_MINUTES * 60 * 1000).toISOString()
@@ -860,6 +874,59 @@ export const getChangelog = async () => {
   } catch {
     return []
   }
+}
+
+export const getSiteTraffic = async ({ force = false } = {}) => {
+  const now = Date.now()
+
+  if (!force && siteTrafficCache.timestamp > 0 && now - siteTrafficCache.timestamp < SITE_TRAFFIC_TTL_MS) {
+    return siteTrafficCache.data
+  }
+
+  if (siteTrafficRequest) {
+    return siteTrafficRequest
+  }
+
+  siteTrafficRequest = fetch(`${FUNCTIONS_BASE_URL}/os-lunar-site-stats`, {
+    headers: {
+      apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+    },
+  })
+    .then(async (response) => {
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data?.error || 'Kunde inte läsa trafikdata.')
+      }
+
+      const normalized = {
+        visitors: Number(data?.visitors || 0),
+        page_views: Number(data?.page_views || 0),
+        last_event_at: data?.last_event_at || null,
+        has_data: Boolean(data?.has_data),
+        scope: data?.scope || 'all_time',
+        source: data?.source || 'vercel_analytics',
+      }
+
+      siteTrafficCache = {
+        timestamp: Date.now(),
+        data: normalized,
+      }
+
+      return normalized
+    })
+    .catch(() => ({
+      visitors: 0,
+      page_views: 0,
+      last_event_at: null,
+      has_data: false,
+      scope: 'all_time',
+      source: 'vercel_analytics',
+    }))
+    .finally(() => {
+      siteTrafficRequest = null
+    })
+
+  return siteTrafficRequest
 }
 
 export const getLatestChangelogVersion = async () => {

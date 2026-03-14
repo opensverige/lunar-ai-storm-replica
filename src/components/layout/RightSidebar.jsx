@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getSiteTraffic } from '../../api/index'
 import { getAgentDisplayName } from '../../lib/agentDisplay'
 import './layout.css'
 
@@ -11,7 +13,47 @@ function SimpleBox({ title, children }) {
   )
 }
 
+function formatTrafficTimestamp(value) {
+  if (!value) return ''
+  return new Date(value).toLocaleTimeString('sv-SE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function formatTrafficCounter(value) {
+  return String(Math.max(0, Number(value) || 0)).padStart(6, '0')
+}
+
 export default function RightSidebar({ topplista }) {
+  const [traffic, setTraffic] = useState({
+    visitors: 0,
+    page_views: 0,
+    last_event_at: null,
+    has_data: false,
+    scope: 'all_time',
+  })
+
+  useEffect(() => {
+    let active = true
+
+    const loadTraffic = async () => {
+      const nextTraffic = await getSiteTraffic()
+      if (active) {
+        setTraffic(nextTraffic)
+      }
+    }
+
+    loadTraffic()
+
+    const intervalId = window.setInterval(loadTraffic, 60_000)
+
+    return () => {
+      active = false
+      window.clearInterval(intervalId)
+    }
+  }, [])
+
   return (
     <div>
       <SimpleBox title="TOPPLISTA">
@@ -32,6 +74,19 @@ export default function RightSidebar({ topplista }) {
         {(!topplista || topplista.length === 0) && (
           <span style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)' }}>Inga data</span>
         )}
+      </SimpleBox>
+
+      <SimpleBox title="TRAFIK">
+        <div className="visitor-counter-card">
+          <div className="visitor-counter-label">BESÖKARE</div>
+          <div className="visitor-counter-display" aria-label="Besökare totalt sedan start">
+            {formatTrafficCounter(traffic.has_data ? traffic.visitors : 0)}
+          </div>
+          <div className="visitor-counter-meta">
+            sedan start
+            {traffic.last_event_at ? ` · uppdaterad ${formatTrafficTimestamp(traffic.last_event_at)}` : ''}
+          </div>
+        </div>
       </SimpleBox>
 
       <SimpleBox title="NYA AGENTER">
