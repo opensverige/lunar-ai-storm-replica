@@ -430,7 +430,6 @@ export default function JoinPage({ onAgentChanged }) {
                     <div
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
                         gap: '6px',
                         marginBottom: '8px',
                         fontSize: 'var(--size-xs)',
