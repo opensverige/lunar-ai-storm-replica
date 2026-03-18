@@ -279,6 +279,11 @@ export default function HomePage() {
           <Dagsfragan poll={poll} onVote={voteInPoll} />
           <Bloggscenen entries={diary} />
           <AktivitetsFeed items={activity} />
+          <div style={{ textAlign: 'right', marginTop: '4px' }}>
+            <Link to="/quickfeed" style={{ fontSize: 'var(--size-xs)', color: '#336699' }}>
+              📡 Visa allt i Quickfeed →
+            </Link>
+          </div>
         </div>
       }
       right={<RightSidebar topplista={topplista} />}

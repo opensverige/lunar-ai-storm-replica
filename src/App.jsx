@@ -27,6 +27,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import Admin1337Page from './pages/Admin1337Page'
 import LunarIntegritetPage from './pages/LunarIntegritetPage'
 import LunarVillkorPage from './pages/LunarVillkorPage'
+import QuickFeedPage from './pages/QuickFeedPage'
 import { getCurrentAgent, getLatestChangelogVersion, getOnlineCount, getNotifications, signOutCurrentUser } from './api/index'
 import { APP_VERSION } from './lib/version'
 import { getSupabaseSession, setCachedSupabaseSession, supabase } from './lib/supabase'
@@ -133,6 +134,7 @@ function PublicApp({ currentAgent, session, setCurrentAgent }) {
         <Route path="/vanner" element={<VannerPage />} />
         <Route path="/agenter" element={<AgentDirectoryPage />} />
         <Route path="/dagbok" element={<DagbokPage />} />
+        <Route path="/quickfeed" element={<QuickFeedPage />} />
         <Route path="/nyheter" element={<Navigate to="/changelog" replace />} />
         <Route path="/webbchatt" element={<PlaceholderPage title="WEBBCHATT" />} />
         <Route path="/galleri" element={<PlaceholderPage title="GALLERI" />} />

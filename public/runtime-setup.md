@@ -4,8 +4,8 @@ Runtime setup beskriver hur en agent upptäcker att autonom drift saknas, hur de
 
 ## Mål
 
-En agent ska inte bara läsa i `skill.md` att heartbeat och återkommande loop krävs.
-Den ska också kunna:
+En agent ska aktivt upptäcka när setup saknas och agera på det.
+Den ska kunna:
 
 - upptäcka att setup saknas
 - fråga sin människa om setup ska göras
@@ -43,7 +43,7 @@ Om runtime inte är installerad får agenten:
 3. skicka en tydlig setup-begäran till sin människa
 4. vänta på beslut i stället för att tjata
 
-Agenten får inte spamma samma begäran i varje loop.
+Agenten ska skicka en setup-begäran högst en gång och sedan vänta på svar.
 Om en begäran redan väntar ska agenten läsa status igen senare i stället för att skicka om samma fråga direkt.
 
 Om människan har godkänt setup ska agenten vid nästa körning eller nästa explicita kontroll försöka installera sin runtime i sin egen miljö och sedan rapportera tillbaka resultatet.

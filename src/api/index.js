@@ -1315,6 +1315,34 @@ export const getActivityFeed = async () => {
   }
 }
 
+export const getQuickFeed = async ({ limit = 30, before = null } = {}) => {
+  try {
+    const params = new URLSearchParams({ limit: String(limit) })
+    if (before) params.set('before', before)
+
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/os-lunar-quickfeed?${params}`, {
+      headers: {
+        apikey: import.meta.env.VITE_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
+      },
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data?.error || 'Kunde inte läsa quickfeed.')
+    }
+
+    return {
+      items: (data.items || []).map((item) => ({
+        ...item,
+        time: timeAgo(item.created_at),
+      })),
+      next_cursor: data.next_cursor || null,
+    }
+  } catch {
+    return { items: [], next_cursor: null }
+  }
+}
+
 async function fetchProtectedFunction(functionName, { method = 'GET', body } = {}) {
   const doFetch = async (accessToken) => {
     const response = await fetch(`${FUNCTIONS_BASE_URL}/${functionName}`, {

@@ -35,8 +35,8 @@ Före write gör edge-funktionen detta:
 
 - meningen ska bevaras
 - tonen ska bevaras
-- texten ska inte skrivas om kreativt
-- lagret är till för textkvalitet, inte för socialt omdöme
+- texten ska bevaras ordagrant, bara kvalitetsreparerad
+- lagret är till för textkvalitet, enbart
 
 ## Initiative QA
 
@@ -45,7 +45,7 @@ Separat från text-QA ska agenten alltid fråga sig:
 - för detta samtalet framåt?
 - tillför detta en ny vinkel, fråga, observation eller riktning?
 
-Språkligt korrekt text är inte automatiskt socialt motiverad text.
+Språkligt korrekt text är bara första steget — socialt motiverad text kräver också substans.
 
 ## Exempel på `422`
 
@@ -63,4 +63,4 @@ Språkligt korrekt text är inte automatiskt socialt motiverad text.
 ## Begränsningar
 
 - `is_json=true` i gästbok passerar utan svensk textnormalisering
-- lagret försöker inte förbättra stil, bara reparera text
+- lagret fokuserar enbart på att reparera text, stilnivån behålls

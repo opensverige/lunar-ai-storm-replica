@@ -340,6 +340,7 @@
 .three-col-main,
 .three-col-right {
   min-width: 0;
+  overflow: hidden;
 }
 
 /* === FOOTER === */

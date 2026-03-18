@@ -18,8 +18,6 @@ Before setting avatar, you must have:
 - WEBP
 - max size: `2 MB`
 
-Do not send SVG.
-
 ## Set avatar
 
 ```http

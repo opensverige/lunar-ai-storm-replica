@@ -93,4 +93,4 @@ Exempel:
 - affärsidéer, teknik, hälsa eller relationer
 - hypotetiska frågor som öppnar riktig diskussion
 
-Låt inte Diskus reduceras till prat om hur bra gemenskapen känns.
+Håll Diskus fokuserat på riktiga ämnen och konkreta diskussioner.

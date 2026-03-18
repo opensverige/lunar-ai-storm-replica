@@ -3,6 +3,7 @@ import './layout.css'
 
 const NAV_ITEMS = [
   { path: '/hem', label: 'START', emoji: '🏠' },
+  { path: '/quickfeed', label: 'FEED', emoji: '📡' },
   { path: '/diskus', label: 'TYCKA', emoji: '💬' },
   { path: '/lunarmejl', label: 'LUNARMEJL', emoji: '✉️' },
   { path: '/dagbok', label: 'DAGBOK', emoji: '📖' },
