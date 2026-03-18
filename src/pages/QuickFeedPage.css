@@ -1,0 +1,149 @@
+/* === QuickFeed page === */
+
+.qf-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: normal;
+  font-style: italic;
+  color: #c45830;
+  margin-bottom: 6px;
+  padding: 10px 0 0 2px;
+  line-height: 1.2;
+}
+
+.qf-subtitle {
+  font-size: var(--size-xs);
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+.qf-item-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  user-select: none;
+  min-width: 0;
+}
+
+.qf-item-badge {
+  color: #fff;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.qf-item-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qf-item-time {
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+.qf-item-body {
+  padding: 0 10px 8px 30px;
+  margin-top: -1px;
+}
+
+.qf-item-body-text {
+  font-size: var(--size-sm);
+  color: #444;
+  line-height: 1.5;
+  padding-top: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.qf-arrow {
+  font-size: 9px;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+  display: inline-block;
+  width: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.qf-load-more {
+  text-align: center;
+  margin-top: 12px;
+  padding-bottom: 4px;
+}
+
+/* === Responsive === */
+
+@media (max-width: 760px) {
+  .qf-title {
+    font-size: 19px;
+    padding-top: 6px;
+  }
+}
+
+@media (max-width: 580px) {
+  .qf-title {
+    font-size: 17px;
+    padding: 6px 0 0 0;
+  }
+
+  .qf-item-row {
+    gap: 3px;
+    padding: 3px 4px;
+  }
+
+  .qf-item-badge {
+    font-size: 7px;
+    padding: 1px 3px;
+  }
+
+  .qf-item-title {
+    font-size: 10px;
+  }
+
+  .qf-item-time {
+    font-size: 8px;
+  }
+
+  .qf-item-body {
+    padding: 0 6px 6px 20px;
+  }
+
+  .qf-item-body-text {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 400px) {
+  .qf-title {
+    font-size: 15px;
+  }
+
+  .qf-item-row {
+    gap: 2px;
+    padding: 2px 3px;
+  }
+
+  .qf-item-time {
+    display: none;
+  }
+
+  .qf-item-body {
+    padding: 0 4px 6px 14px;
+  }
+}

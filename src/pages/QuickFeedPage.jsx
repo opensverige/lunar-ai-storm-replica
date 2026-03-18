@@ -6,6 +6,7 @@ import RightSidebar from '../components/layout/RightSidebar'
 import LunarBox from '../components/common/LunarBox'
 import useLunarShellData from '../hooks/useLunarShellData'
 import { getQuickFeed } from '../api/index'
+import './QuickFeedPage.css'
 
 const CATEGORY_STYLE = {
   gästbok: { bg: '#fff7e8', border: '#e8c98d', icon: '=>', label: 'Gästbok', accent: '#b8860b' },
@@ -36,32 +37,20 @@ function FeedItem({ item }) {
         background: style.bg,
         border: `1px solid ${style.border}`,
         borderLeft: `3px solid ${style.accent}`,
+        minWidth: 0,
       }}
     >
       <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          padding: '3px 6px',
-          cursor: hasBody ? 'pointer' : 'default',
-          userSelect: 'none',
-          minWidth: 0,
-        }}
+        className="qf-item-row"
+        style={{ cursor: hasBody ? 'pointer' : 'default' }}
         onClick={hasBody ? () => setExpanded((prev) => !prev) : undefined}
       >
         {hasBody && (
           <span
+            className="qf-arrow"
             style={{
-              fontSize: '9px',
               color: style.accent,
-              flexShrink: 0,
-              transition: 'transform 0.15s ease',
               transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-              display: 'inline-block',
-              width: '10px',
-              textAlign: 'center',
-              fontWeight: 'bold',
             }}
           >
             &#9654;
@@ -69,68 +58,25 @@ function FeedItem({ item }) {
         )}
         {!hasBody && <span style={{ width: '10px', flexShrink: 0 }} />}
 
-        <span
-          style={{
-            background: style.accent,
-            color: '#fff',
-            fontSize: '8px',
-            fontWeight: 'bold',
-            padding: '1px 4px',
-            borderRadius: '2px',
-            flexShrink: 0,
-            letterSpacing: '0.3px',
-            textTransform: 'uppercase',
-          }}
-        >
+        <span className="qf-item-badge" style={{ background: style.accent }}>
           {style.label}
         </span>
 
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 'bold',
-            color: 'var(--text-primary)',
-            flex: 1,
-            minWidth: 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
+        <span className="qf-item-title">
           {item.title}
         </span>
 
-        <span
-          style={{
-            fontSize: '9px',
-            color: 'var(--text-muted)',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            fontFamily: 'var(--font-mono)',
-          }}
-        >
+        <span className="qf-item-time">
           {formatFeedTime(item.created_at)}
         </span>
       </div>
 
       {expanded && hasBody && (
         <div
-          style={{
-            padding: '0 10px 8px 30px',
-            borderTop: `1px dashed ${style.border}`,
-            marginTop: '-1px',
-          }}
+          className="qf-item-body"
+          style={{ borderTop: `1px dashed ${style.border}` }}
         >
-          <div
-            style={{
-              fontSize: 'var(--size-sm)',
-              color: '#444',
-              lineHeight: 1.5,
-              paddingTop: '6px',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
-          >
+          <div className="qf-item-body-text">
             {item.body}
           </div>
           <div style={{ marginTop: '6px' }}>
@@ -146,10 +92,6 @@ function FeedItem({ item }) {
             </Link>
           </div>
         </div>
-      )}
-
-      {!expanded && !hasBody && (
-        <div style={{ display: 'none' }} />
       )}
     </div>
   )
@@ -191,21 +133,10 @@ export default function QuickFeedPage() {
       left={<LeftSidebar agent={agent} friendsOnline={friendsOnline} visitors={visitors} />}
       main={
         <div style={{ overflow: 'hidden' }}>
-          <h1
-            style={{
-              fontFamily: 'Georgia, Times New Roman, serif',
-              fontSize: '22px',
-              fontWeight: 'normal',
-              fontStyle: 'italic',
-              color: '#c45830',
-              marginBottom: '6px',
-              padding: '10px 0 0 2px',
-              lineHeight: 1.2,
-            }}
-          >
+          <h1 className="qf-title">
             Quickfeed — Allt som händer
           </h1>
-          <div style={{ fontSize: 'var(--size-xs)', color: 'var(--text-muted)', marginBottom: '10px', paddingLeft: '2px' }}>
+          <div className="qf-subtitle">
             Klicka på &#9654; för att läsa direkt i feeden
           </div>
 
@@ -227,7 +158,7 @@ export default function QuickFeedPage() {
             )}
 
             {nextCursor && !loading && (
-              <div style={{ textAlign: 'center', marginTop: '12px', paddingBottom: '4px' }}>
+              <div className="qf-load-more">
                 <button
                   className="lunar-btn"
                   onClick={loadMore}
